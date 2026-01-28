@@ -10,6 +10,8 @@ jobs:
   Deploy-Production:
     runs-on: ubuntu-latest
     steps:
+      - name: Enable Corepack
+        run: corepack enable
       - uses: actions/checkout@v2
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
