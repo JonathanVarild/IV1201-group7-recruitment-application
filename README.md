@@ -21,8 +21,7 @@ cp .env.example .env.local
 ```bash
 pnpm dev
 ```
-Visit http://localhost:3000.
-/sentry-example-page to play around with Sentry.
+Visit http://localhost:3000/sentry-example-page to play around with Sentry.
 
 ## Quality checks
 ```bash
