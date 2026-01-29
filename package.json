@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "pnpm test:unit && pnpm test:end2end",
+    "test:unit": "vitest",
+    "test:end2end": "playwright test"
   },
   "dependencies": {
     "@base-ui/react": "^1.1.0",
