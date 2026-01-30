@@ -1,11 +1,13 @@
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-	test: {
-		include: ["tests/units/**/*.test.ts"],
-		environment: "node",
-		coverage: {
-			enabled: false,
-		},
-	},
+  test: {
+    exclude: [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/acceptance-tests/**", // Exclude Playwright test directory
+      "**/*.spec.ts", // Exclude Playwright test files
+    ],
+    passWithNoTests: true,
+  },
 });

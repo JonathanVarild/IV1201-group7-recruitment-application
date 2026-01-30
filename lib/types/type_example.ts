@@ -1,3 +1,3 @@
 export type ExampleType = {
-  someValue: number
+  someValue: number;
 };
