@@ -6,29 +6,29 @@ import { routing } from "@/i18n/routing";
 import { setRequestLocale } from "next-intl/server";
 
 export const metadata: Metadata = {
-	title: "Recruitment Application",
-	description: "Here you can apply for a job at the amusement park.",
+  title: "Recruitment Application",
+  description: "Here you can apply for a job at the amusement park.",
 };
 
 type Props = {
-	children: React.ReactNode;
-	params: Promise<{ locale: string }>;
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
 };
 
 export default async function LocaleLayout({ children, params }: Props) {
-	const { locale } = await params;
+  const { locale } = await params;
 
-	if (!hasLocale(routing.locales, locale)) {
-		notFound();
-	}
+  if (!hasLocale(routing.locales, locale)) {
+    notFound();
+  }
 
-	setRequestLocale(locale);
+  setRequestLocale(locale);
 
-	return (
-		<html lang={locale}>
-			<body>
-				<NextIntlClientProvider locale={locale}>{children}</NextIntlClientProvider>
-			</body>
-		</html>
-	);
+  return (
+    <html lang={locale}>
+      <body>
+        <NextIntlClientProvider locale={locale}>{children}</NextIntlClientProvider>
+      </body>
+    </html>
+  );
 }
