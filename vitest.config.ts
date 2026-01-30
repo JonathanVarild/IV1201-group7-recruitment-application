@@ -1,13 +1,13 @@
-import { defineConfig } from 'vitest/config'
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
     exclude: [
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/tests/**',  // Exclude Playwright test directory
-      '**/*.spec.ts', // Exclude Playwright test files
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/acceptance-tests/**", // Exclude Playwright test directory
+      "**/*.spec.ts", // Exclude Playwright test files
     ],
     passWithNoTests: true,
   },
-})
+});
