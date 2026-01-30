@@ -7,9 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "pnpm test:unit && pnpm test:end2end",
+    "test": "pnpm test:unit && pnpm test:e2e",
     "test:unit": "vitest run",
-    "test:end2end": "playwright test"
+    "test:e2e": "playwright test",
+    "test:end2end": "pnpm test:e2e",
+    "test:acceptance": "pnpm test:e2e",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepare": "husky"
   },
   "dependencies": {
     "@base-ui/react": "^1.1.0",
@@ -19,6 +24,7 @@
     "lucide-react": "^0.563.0",
     "next": "16.1.4",
     "next-intl": "^4.8.0",
+    "pg": "^8.17.2",
     "radix-ui": "^1.4.3",
     "react": "19.2.3",
     "react-dom": "19.2.3",
@@ -35,8 +41,19 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.4",
+    "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "prettier": "3.8.1",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.0.18"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --cache --fix",
+      "prettier --write"
+    ],
+    "*.{json,css,md}": "prettier --write"
   }
 }
