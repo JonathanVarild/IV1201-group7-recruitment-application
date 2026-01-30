@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "pnpm test:unit && pnpm test:end2end",
-    "test:unit": "vitest",
+    "test:unit": "vitest run",
     "test:end2end": "playwright test"
   },
   "dependencies": {

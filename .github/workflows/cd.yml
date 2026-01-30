@@ -19,6 +19,8 @@ jobs:
           node-version: '20'
       - name: Install dependencies
         run: pnpm install
+      - name: Run linting
+        run: pnpm lint
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
       - name: Run tests
