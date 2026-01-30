@@ -1,16 +1,15 @@
 import { NextResponse } from "next/server";
-import { query } from "@/lib/database";
+import { supabase } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  try {
-    const { rows } = await query("SELECT 1 AS result;");
-    const result = rows[0]?.result ?? null;
+  const { data, error } = await supabase.from("competence").select("*").limit(1).single();
 
-    return new NextResponse(`Database connectivity test successful: ${result}`, { status: 200 });
-  } catch (error) {
-    console.error("environment test failed:", error);
-    return new Response("Database connectivity failed", { status: 500 });
+  if (error) {
+    console.error("Database connectivity test failed:", error);
+    return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
   }
+
+  return new NextResponse(`Database connectivity test successful: ${data.name}`, { status: 200 });
 }
