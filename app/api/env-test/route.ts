@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const { data, error } = await supabase.from("competence").select("*").limit(1).single();
+  const { data, error } = await getSupabase().from("competence").select("*").limit(1).single();
 
   if (error) {
     console.error("Database connectivity test failed:", error);
