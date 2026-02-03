@@ -1,5 +1,9 @@
 {
   "HomePage": {
     "title": "Hej där!"
+  },
+  "Footer": {
+    "privacyPolicy": "Integritetspolicy",
+    "termsOfService": "Användarvillkor"
   }
 }
