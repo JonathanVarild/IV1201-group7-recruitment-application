@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { Footer } from "@/components/Footer";
 import { setRequestLocale } from "next-intl/server";
+import { Header } from "@/components/Header";
 
 export const metadata: Metadata = {
   title: "Recruitment Application",
@@ -29,6 +30,7 @@ export default async function LocaleLayout({ children, params }: Props) {
     <html lang={locale}>
       <body>
         <NextIntlClientProvider locale={locale}>
+          <Header />
           {children}
           <Footer />
         </NextIntlClientProvider>
