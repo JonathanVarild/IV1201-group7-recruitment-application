@@ -9,7 +9,12 @@ import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 
-export default function RegisterPage() {
+/**
+ * Displays the registration page with multiple input fields.
+ *
+ * @returns {JSX.Element} The rendered registration page component.
+ */
+const RegisterPage = () => {
   const t = useTranslations("RegisterPage");
 
   const registerSchema = z
@@ -81,4 +86,6 @@ export default function RegisterPage() {
       </Card>
     </div>
   );
-}
+};
+
+export default RegisterPage;

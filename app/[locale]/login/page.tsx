@@ -9,7 +9,12 @@ import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 
-export default function LoginPage() {
+/**
+ * Display the login page with email and password fields.
+ *
+ * @returns {JSX.Element} The rendered login page component.
+ */
+const LoginPage = () => {
   const t = useTranslations("LoginPage");
 
   const loginSchema = z.object({
@@ -63,4 +68,6 @@ export default function LoginPage() {
       </Card>
     </div>
   );
-}
+};
+
+export default LoginPage;
