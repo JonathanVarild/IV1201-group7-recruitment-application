@@ -1,3 +1,4 @@
+import path from "path";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
@@ -11,5 +12,10 @@ export default defineConfig({
       "**/*.spec.ts", // Exclude Playwright test files
     ],
     passWithNoTests: true,
+  },
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./"),
+    },
   },
 });
