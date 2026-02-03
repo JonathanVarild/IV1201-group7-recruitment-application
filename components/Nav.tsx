@@ -5,6 +5,8 @@ import { useTranslations } from "next-intl";
 
 /**
  * Navigation component displaying links to different pages.
+ *
+ * @returns {JSX.Element} The rendered Nav component.
  */
 export function Nav() {
   const t = useTranslations("Nav");

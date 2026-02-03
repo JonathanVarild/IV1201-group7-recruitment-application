@@ -3,6 +3,8 @@ import Link from "next/link";
 
 /**
  * Header component displaying the application logo and navigation.
+ *
+ * @returns {JSX.Element} The rendered Header component.
  */
 export function Header() {
   return (
