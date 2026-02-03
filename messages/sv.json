@@ -10,5 +10,35 @@
   "Footer": {
     "privacyPolicy": "Integritetspolicy",
     "termsOfService": "Användarvillkor"
+  },
+  "RegisterPage": {
+    "title": "Registrera konto",
+    "firstName": "Förnamn",
+    "lastName": "Efternamn",
+    "personalNumber": "Personnummer",
+    "email": "E-post",
+    "password": "Lösenord",
+    "confirmPassword": "Bekräfta lösenord",
+    "submitButton": "Registrera",
+    "submitting": "Registrerar...",
+    "placeholders": {
+      "firstName": "Anna",
+      "lastName": "Andersson",
+      "personalNumber": "ÅÅÅÅMMDD-XXXX",
+      "email": "anna.andersson@example.com",
+      "password": "Ange lösenord",
+      "confirmPassword": "Ange lösenord igen"
+    },
+    "validation": {
+      "firstNameMin": "Förnamnet måste vara minst 2 tecken",
+      "lastNameMin": "Efternamnet måste vara minst 2 tecken",
+      "personalNumberInvalid": "Ogiltigt personnummerformat (ÅÅÅÅMMDD-XXXX eller ÅÅÅÅMMDDXXXX)",
+      "emailInvalid": "Ogiltig e-postadress",
+      "passwordMin": "Lösenordet måste vara minst 8 tecken",
+      "passwordUppercase": "Lösenordet måste innehålla minst en stor bokstav",
+      "passwordLowercase": "Lösenordet måste innehålla minst en liten bokstav",
+      "passwordNumber": "Lösenordet måste innehålla minst en siffra",
+      "passwordsMismatch": "Lösenorden matchar inte"
+    }
   }
 }
