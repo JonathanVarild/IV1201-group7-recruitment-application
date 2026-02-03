@@ -1,4 +1,5 @@
 /**
+ * Helper function to perform a fetch request and handle the response.
  *
  * @template T - allows for generic data with safety.
  * @param url - the URL to fetch.
