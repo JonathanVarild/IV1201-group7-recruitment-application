@@ -40,5 +40,20 @@
       "passwordNumber": "Lösenordet måste innehålla minst en siffra",
       "passwordsMismatch": "Lösenorden matchar inte"
     }
+  },
+  "LoginPage": {
+    "title": "Logga in",
+    "email": "E-post",
+    "password": "Lösenord",
+    "submitButton": "Logga in",
+    "submitting": "Loggar in...",
+    "placeholders": {
+      "email": "anna.andersson@example.com",
+      "password": "Ange lösenord"
+    },
+    "validation": {
+      "emailInvalid": "Ogiltig e-postadress",
+      "passwordRequired": "Lösenord krävs"
+    }
   }
 }

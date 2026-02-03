@@ -40,5 +40,20 @@
       "passwordNumber": "Password must contain at least one number",
       "passwordsMismatch": "Passwords don't match"
     }
+  },
+  "LoginPage": {
+    "title": "Login",
+    "email": "Email",
+    "password": "Password",
+    "submitButton": "Login",
+    "submitting": "Logging in...",
+    "placeholders": {
+      "email": "john.doe@example.com",
+      "password": "Enter password"
+    },
+    "validation": {
+      "emailInvalid": "Invalid email address",
+      "passwordRequired": "Password is required"
+    }
   }
 }
