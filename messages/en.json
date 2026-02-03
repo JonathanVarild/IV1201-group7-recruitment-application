@@ -1,5 +1,10 @@
 {
   "HomePage": {
     "title": "Hello there!"
+  },
+  "Nav": {
+    "home": "Home",
+    "apply": "Apply",
+    "about": "About us"
   }
 }

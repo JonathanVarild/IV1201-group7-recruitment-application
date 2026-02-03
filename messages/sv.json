@@ -1,5 +1,10 @@
 {
   "HomePage": {
     "title": "Hej där!"
+  },
+  "Nav": {
+    "home": "Hem",
+    "apply": "Ansök",
+    "about": "Om oss"
   }
 }
