@@ -5,6 +5,9 @@ import { useTranslations } from "next-intl";
 import { Separator } from "@/components/ui/separator";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 
+/**
+ * Footer component displaying copyright, language switcher, and policy links.
+ */
 export function Footer() {
   const t = useTranslations("Footer");
 

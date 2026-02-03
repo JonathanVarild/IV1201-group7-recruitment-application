@@ -6,6 +6,10 @@ import { Button } from "@/components/ui/button";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
+/**
+ * Language switcher dropdown for changing the application locale.
+ * Supports English and Swedish languages.
+ */
 export function LanguageSwitcher() {
   const locale = useLocale();
   const router = useRouter();
