@@ -7,6 +7,8 @@ import { LanguageSwitcher } from "./LanguageSwitcher";
 
 /**
  * Footer component displaying copyright, language switcher, and policy links.
+ *
+ * @returns {JSX.Element} The rendered Footer component.
  */
 export function Footer() {
   const t = useTranslations("Footer");

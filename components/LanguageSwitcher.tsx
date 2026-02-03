@@ -9,6 +9,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 /**
  * Language switcher dropdown for changing the application locale.
  * Supports English and Swedish languages.
+ *
+ * @returns {JSX.Element} The rendered LanguageSwitcher component.
  */
 export function LanguageSwitcher() {
   const locale = useLocale();
