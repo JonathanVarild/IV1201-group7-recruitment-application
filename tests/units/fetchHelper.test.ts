@@ -1,23 +1,77 @@
-import { describe, it, expect } from "vitest";
-import { managedFetch } from "../../lib/api";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { handleFetch } from "../../lib/api";
 
-describe("handleResponse", () => {
+beforeEach(() => {
+  vi.resetAllMocks();
+});
+
+describe("handleFetch", () => {
+  // Mock fetch for testing ok===false and JSON ok
   it("throws error for HTTP 404", async () => {
-    await expect(managedFetch("https://httpbin.org/status/404")).rejects.toThrow("HTTP error 404");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() =>
+        Promise.resolve({
+          ok: false,
+          status: 404,
+          statusText: "Not Found",
+          json: () => Promise.resolve({ message: "Not Found" }),
+        }),
+      ),
+    );
+
+    await expect(handleFetch("https://example.com", {})).rejects.toThrow("Not Found");
   });
 
+  // Mock fetch for testing ok===false and JSON is missing message
   it("throws error for HTTP 500", async () => {
-    await expect(managedFetch("https://httpbin.org/status/500")).rejects.toThrow("HTTP error 500");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() =>
+        Promise.resolve({
+          ok: false,
+          status: 500,
+          statusText: "Internal Server Error",
+          json: () => Promise.resolve({}),
+        }),
+      ),
+    );
+
+    await expect(handleFetch("https://example.com", {})).rejects.toThrow("Internal Server Error");
   });
 
+  // Mock fetch for testing ok===true and JSON fails
   it("throws error with no JSON", async () => {
-    await expect(managedFetch("https://httpbin.org/status/204")).rejects.toThrow("Unexpected end of JSON input");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() =>
+        Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.reject(new Error("No JSON")),
+        }),
+      ),
+    );
+
+    await expect(handleFetch("https://example.com", {})).rejects.toThrow("Failed to parse JSON: No JSON");
   });
 
+  // Mock fetch for testing ok===true and JSON ok
   it("returns json data for HTTP 200", async () => {
-    const data = await managedFetch("https://httpbin.org/json");
+    const mockResponse = { message: "test" };
 
-    expect(data).toBeDefined();
-    expect((data as { slideshow: unknown }).slideshow).toBeDefined();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() =>
+        Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve(mockResponse),
+        }),
+      ),
+    );
+
+    const data = await handleFetch("https://example.com", {});
+    expect(data).toEqual(mockResponse);
   });
 });
