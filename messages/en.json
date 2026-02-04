@@ -15,6 +15,7 @@
     "title": "Register account",
     "firstName": "First Name",
     "lastName": "Last Name",
+    "username": "Username",
     "personalNumber": "Personal Number",
     "email": "Email",
     "password": "Password",
@@ -24,6 +25,7 @@
     "placeholders": {
       "firstName": "John",
       "lastName": "Doe",
+      "username": "johndoe",
       "personalNumber": "YYYYMMDD-XXXX",
       "email": "john.doe@example.com",
       "password": "Enter password",
@@ -32,6 +34,7 @@
     "validation": {
       "firstNameMin": "First name must be at least 2 characters",
       "lastNameMin": "Last name must be at least 2 characters",
+      "usernameMin": "Username must be at least 3 characters",
       "personalNumberInvalid": "Invalid personal number format (YYYYMMDD-XXXX or YYYYMMDDXXXX)",
       "emailInvalid": "Invalid email address",
       "passwordMin": "Password must be at least 8 characters",

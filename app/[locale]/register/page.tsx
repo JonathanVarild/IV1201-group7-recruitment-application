@@ -21,6 +21,7 @@ const RegisterPage = () => {
     .object({
       firstName: z.string().min(2, t("validation.firstNameMin")),
       lastName: z.string().min(2, t("validation.lastNameMin")),
+      username: z.string().min(3, t("validation.usernameMin")),
       personalNumber: z.string().regex(/^\d{8}-\d{4}$|^\d{12}$/, t("validation.personalNumberInvalid")),
       email: z.string().email(t("validation.emailInvalid")),
       password: z
@@ -40,6 +41,7 @@ const RegisterPage = () => {
   const formFields: Array<{ name: keyof RegisterFormData; type: string }> = [
     { name: "firstName", type: "text" },
     { name: "lastName", type: "text" },
+    { name: "username", type: "text" },
     { name: "personalNumber", type: "text" },
     { name: "email", type: "email" },
     { name: "password", type: "password" },

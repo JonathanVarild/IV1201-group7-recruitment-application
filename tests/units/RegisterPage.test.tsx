@@ -12,6 +12,7 @@ describe("RegisterPage", () => {
 
     expect(screen.getByLabelText(/firstName/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/lastName/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/username/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/personalNumber/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/^password$/i)).toBeInTheDocument();
@@ -31,6 +32,21 @@ describe("RegisterPage", () => {
 
     await waitFor(() => {
       expect(screen.getByText("validation.firstNameMin")).toBeInTheDocument();
+    });
+  });
+
+  it("displays validation errors for short username", async () => {
+    const user = userEvent.setup();
+    render(<RegisterPage />);
+
+    const usernameInput = screen.getByLabelText(/username/i);
+    const submitButton = screen.getByRole("button");
+
+    await user.type(usernameInput, "ab");
+    await user.click(submitButton);
+
+    await waitFor(() => {
+      expect(screen.getByText("validation.usernameMin")).toBeInTheDocument();
     });
   });
 

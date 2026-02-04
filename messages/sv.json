@@ -15,6 +15,7 @@
     "title": "Registrera konto",
     "firstName": "Förnamn",
     "lastName": "Efternamn",
+    "username": "Användarnamn",
     "personalNumber": "Personnummer",
     "email": "E-post",
     "password": "Lösenord",
@@ -24,6 +25,7 @@
     "placeholders": {
       "firstName": "Anna",
       "lastName": "Andersson",
+      "username": "användarnamn",
       "personalNumber": "ÅÅÅÅMMDD-XXXX",
       "email": "anna.andersson@example.com",
       "password": "Ange lösenord",
@@ -32,6 +34,7 @@
     "validation": {
       "firstNameMin": "Förnamnet måste vara minst 2 tecken",
       "lastNameMin": "Efternamnet måste vara minst 2 tecken",
+      "usernameMin": "Användarnamnet måste vara minst 3 tecken",
       "personalNumberInvalid": "Ogiltigt personnummerformat (ÅÅÅÅMMDD-XXXX eller ÅÅÅÅMMDDXXXX)",
       "emailInvalid": "Ogiltig e-postadress",
       "passwordMin": "Lösenordet måste vara minst 8 tecken",
