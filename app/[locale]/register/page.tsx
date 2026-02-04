@@ -8,6 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
+import { NewUserDTO } from "@/lib/schemas/userDTO";
+import { managedFetch } from "@/lib/api";
+import { APIError } from "@/lib/errors/generalErrors";
+import { useRouter } from "next/navigation";
 
 /**
  * Displays the registration page with multiple input fields.
@@ -15,6 +19,7 @@ import { Field, FieldLabel, FieldError } from "@/components/ui/field";
  * @returns {JSX.Element} The rendered registration page component.
  */
 const RegisterPage = () => {
+  const router = useRouter();
   const t = useTranslations("RegisterPage");
 
   const registerSchema = z
@@ -57,12 +62,32 @@ const RegisterPage = () => {
   });
 
   const onSubmit = async (data: RegisterFormData) => {
-    console.log("=== FORM SUBMITTED SUCCESSFULLY ===");
-    console.log("Form data:", data);
     try {
-      // TODO: Implement API call to register user
+      const userData: NewUserDTO = {
+        name: data.firstName,
+        surname: data.lastName,
+        username: data.username,
+        pnr: data.personalNumber,
+        email: data.email,
+        password: data.password,
+      };
+
+      // TODO: Fix translations for server responses.
+      await managedFetch<{ userID: number }>("/api/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData),
+      });
+
+      router.push("/");
     } catch (error) {
-      console.error("Registration error:", error);
+      if (error instanceof APIError) {
+        const data = error.jsonData as { error?: string };
+        alert(data.error || "Unknown error occurred during registration.");
+      } else {
+        console.error(error);
+        alert("Registration failed due to an unexpected error.");
+      }
     }
   };
 
