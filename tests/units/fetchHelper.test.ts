@@ -7,7 +7,7 @@ beforeEach(() => {
 
 describe("handleFetch", () => {
   // Mock fetch for testing ok===false and JSON ok
-  it("throws error for HTTP 404", async () => {
+  it("throws APIError for HTTP 404 with parsed json", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(() =>
@@ -20,11 +20,11 @@ describe("handleFetch", () => {
       ),
     );
 
-    await expect(managedFetch("https://example.com", {})).rejects.toThrow("Not Found");
+    await expect(managedFetch("https://example.com", {})).rejects.toMatchObject({ name: "APIError", statusCode: 404 });
   });
 
   // Mock fetch for testing ok===false and JSON is missing message
-  it("throws error for HTTP 500", async () => {
+  it("throws APIError for HTTP 500 with empty json", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(() =>
@@ -37,7 +37,7 @@ describe("handleFetch", () => {
       ),
     );
 
-    await expect(managedFetch("https://example.com", {})).rejects.toThrow("Internal Server Error");
+    await expect(managedFetch("https://example.com", {})).rejects.toMatchObject({ name: "APIError", statusCode: 500 });
   });
 
   // Mock fetch for testing ok===true and JSON fails
