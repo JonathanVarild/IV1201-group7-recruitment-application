@@ -1,0 +1,162 @@
+import { NewUserDTO, newUserSchema } from "@/lib/schemas/userDTO";
+import { getDatabaseClient } from "@/lib/database";
+import { InvalidFormDataError } from "@/lib/errors/generalErrors";
+import { DatabaseError } from "pg";
+import { ConflictingSignupDataError } from "@/lib/errors/signupErrors";
+import bcrypt from "bcrypt";
+import { CredentialsDTO, credentialsSchema } from "@/lib/schemas/loginDTO";
+import { InvalidCredentialsError } from "@/lib/errors/authErrors";
+import { UserData } from "@/lib/types/userType";
+import { SessionData } from "@/lib/types/sessionType";
+import { generateSession } from "@/lib/session";
+
+/**
+ * Registers a new user in database.
+ * @param newUserData - The data of the new user to register.
+ * @returns The ID of the newly created user.
+ * @throws Will throw an error if validation fails or if the database insertion fails.
+ */
+export async function registerUser(newUserData: NewUserDTO): Promise<{ userID: number; sessionData: SessionData }> {
+  // Validate the incoming user data against the schema
+  if (newUserSchema.safeParse(newUserData).success === false) {
+    throw new InvalidFormDataError();
+  }
+
+  // Get a database client to perform queries.
+  const databaseClient = await getDatabaseClient();
+
+  // Hash the user's password.
+  const hash = bcrypt.hashSync(newUserData.password, 10);
+
+  // Start transaction.
+  await databaseClient.query("BEGIN");
+
+  // TODO: Insert into the logging table.
+
+  try {
+    // Insert the new user into the "person" table
+    const userInsertResult = await databaseClient.query(
+      `INSERT INTO person (name, surname, pnr, email, password_hash, username)
+     VALUES ($1, $2, $3, $4, $5, $6)
+     RETURNING person_id`,
+      [newUserData.name, newUserData.surname, newUserData.pnr, newUserData.email, hash, newUserData.username],
+    );
+
+    // Get the newly created user ID.
+    const userID = userInsertResult.rows[0].person_id;
+
+    // Generate a new session for the user.
+    const generatedSession = generateSession();
+
+    // Insert the new session into the "session" table.
+    const sessionInsertResult = await databaseClient.query(
+      `INSERT INTO session (person_id, token_hash, expires_at)
+     VALUES ($1, $2, $3) RETURNING session_id`,
+      [userID, generatedSession.tokenHash, generatedSession.expiresAt],
+    );
+
+    // Commit and release client.
+    await databaseClient.query("COMMIT");
+    databaseClient.release();
+
+    // Prepare session data.
+    const sessionData: SessionData = {
+      id: sessionInsertResult.rows[0].session_id,
+      personID: userID,
+      token: generatedSession.token,
+      expiresAt: generatedSession.expiresAt,
+    };
+
+    // Return the newly created user ID and session data
+    return { userID, sessionData };
+  } catch (error) {
+    // Rollback transaction and release client.
+    await databaseClient.query("ROLLBACK");
+    databaseClient.release();
+
+    // Check if we failed due to conflicting signup data and throw specific error, else throw the original error.
+    if (error instanceof DatabaseError && error.code === "23505") throw new ConflictingSignupDataError();
+    else throw error;
+  }
+}
+
+/**
+ * Authenticates a user with given username and password.
+ * @param credentials - The user's login credentials.
+ * @returns The authenticated user's data and session data.
+ * @throws Will throw an error if authentication fails for any reason.
+ */
+export async function authenticateUser(credentials: CredentialsDTO): Promise<{ userData: UserData; sessionData: SessionData }> {
+  // Validate the incoming credentials against the schema
+  if (credentialsSchema.safeParse(credentials).success === false) {
+    throw new InvalidFormDataError();
+  }
+
+  // Get a database client to perform queries.
+  const databaseClient = await getDatabaseClient();
+
+  // Start transaction.
+  await databaseClient.query("BEGIN");
+
+  // Query the user by username
+  const userQueryResult = await databaseClient.query(
+    `SELECT 
+    p.person_id,
+    p.password_hash,
+    p.username,
+    p.role_id ,
+    r.name AS role_name
+  FROM person p
+  JOIN role r ON p.role_id = r.role_id
+  WHERE p.username = $1`,
+    [credentials.username],
+  );
+
+  // If no user found, throw error.
+  if (userQueryResult.rows.length === 0) {
+    throw new InvalidCredentialsError();
+  }
+
+  // Get the user data.
+  const user = userQueryResult.rows[0];
+
+  // Validate the password.
+  const successfulLogin = bcrypt.compareSync(credentials.password, user.password_hash);
+
+  // Check if we were successful.
+  if (!successfulLogin) {
+    throw new InvalidCredentialsError();
+  }
+
+  const userData: UserData = {
+    id: user.person_id,
+    username: user.username,
+    roleID: Number(user.role_id),
+    role: user.role_name,
+  };
+
+  // Generate a new session for the user.
+  const generatedSession = generateSession();
+
+  // Insert the new session into the "session" table.
+  const sessionInsertResult = await databaseClient.query(
+    `INSERT INTO session (person_id, token_hash, expires_at)
+     VALUES ($1, $2, $3) RETURNING session_id`,
+    [userData.id, generatedSession.tokenHash, generatedSession.expiresAt],
+  );
+
+  // Commit and release client.
+  await databaseClient.query("COMMIT");
+  databaseClient.release();
+
+  // Prepare session data.
+  const sessionData: SessionData = {
+    id: sessionInsertResult.rows[0].session_id,
+    personID: userData.id,
+    token: generatedSession.token,
+    expiresAt: generatedSession.expiresAt,
+  };
+
+  // Return the authenticated user data (excluding password hash).
+  return { userData, sessionData };
+}
