@@ -8,23 +8,29 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
+import { CredentialsDTO, credentialsSchema } from "@/lib/schemas/loginDTO";
+import { managedFetch } from "@/lib/api";
+import { UserData } from "@/lib/types/userType";
+import { useRouter } from "next/navigation";
+import { APIError } from "@/lib/errors/generalErrors";
 
 /**
- * Display the login page with email and password fields.
+ * Display the login page with username and password fields.
  *
  * @returns {JSX.Element} The rendered login page component.
  */
 const LoginPage = () => {
+  const router = useRouter();
   const t = useTranslations("LoginPage");
 
-  const loginSchema = z.object({
-    email: z.string().email(t("validation.emailInvalid")),
-    password: z.string().min(1, t("validation.passwordRequired")),
+  const loginSchema = credentialsSchema.extend({
+    username: credentialsSchema.shape.username.trim().min(1, t("validation.usernameRequired")),
+    password: credentialsSchema.shape.password.min(1, t("validation.passwordRequired")),
   });
 
   type LoginFormData = z.infer<typeof loginSchema>;
   const formFields: Array<{ name: keyof LoginFormData; type: string }> = [
-    { name: "email", type: "email" },
+    { name: "username", type: "text" },
     { name: "password", type: "password" },
   ];
 
@@ -37,12 +43,28 @@ const LoginPage = () => {
   });
 
   const onSubmit = async (data: LoginFormData) => {
-    console.log("=== FORM SUBMITTED SUCCESSFULLY ===");
-    console.log("Form data:", data);
     try {
-      // TODO: Implement API call to login user
+      const userCredentials: CredentialsDTO = {
+        username: data.username,
+        password: data.password,
+      };
+
+      // TODO: Fix translations for server responses.
+      await managedFetch<{ userData: UserData }>("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userCredentials),
+      });
+
+      router.push("/");
     } catch (error) {
-      console.error("Login error:", error);
+      if (error instanceof APIError) {
+        const data = error.jsonData as { error?: string };
+        alert(data.error || "Unknown error occurred during registration.");
+      } else {
+        console.error(error);
+        alert("Registration failed due to an unexpected error.");
+      }
     }
   };
 

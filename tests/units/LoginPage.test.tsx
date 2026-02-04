@@ -7,26 +7,26 @@ describe("LoginPage", () => {
   afterEach(() => {
     cleanup();
   });
-  it("renders login form with email and password fields", () => {
+  it("renders login form with username and password fields", () => {
     render(<LoginPage />);
 
-    expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/username/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
     expect(screen.getByRole("button")).toBeInTheDocument();
   });
 
-  it("displays validation errors for invalid email", async () => {
+  it("displays validation errors for missing username", async () => {
     const user = userEvent.setup();
     render(<LoginPage />);
 
-    const emailInput = screen.getByLabelText(/email/i);
+    const usernameInput = screen.getByLabelText(/username/i);
     const submitButton = screen.getByRole("button");
 
-    await user.type(emailInput, "invalid-email");
+    await user.clear(usernameInput);
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(screen.getByText("validation.emailInvalid")).toBeInTheDocument();
+      expect(screen.getByText("validation.usernameRequired")).toBeInTheDocument();
     });
   });
 
@@ -34,10 +34,10 @@ describe("LoginPage", () => {
     const user = userEvent.setup();
     render(<LoginPage />);
 
-    const emailInput = screen.getByLabelText(/email/i);
+    const usernameInput = screen.getByLabelText(/username/i);
     const submitButton = screen.getByRole("button");
 
-    await user.type(emailInput, "test@example.com");
+    await user.type(usernameInput, "testuser");
     await user.click(submitButton);
 
     await waitFor(() => {
@@ -49,14 +49,14 @@ describe("LoginPage", () => {
     const user = userEvent.setup();
     render(<LoginPage />);
 
-    const emailInput = screen.getByLabelText(/email/i);
+    const usernameInput = screen.getByLabelText(/username/i);
     const submitButton = screen.getByRole("button");
 
-    await user.type(emailInput, "invalid");
+    await user.clear(usernameInput);
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(emailInput).toHaveAttribute("aria-invalid", "true");
+      expect(usernameInput).toHaveAttribute("aria-invalid", "true");
     });
   });
 });

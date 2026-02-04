@@ -46,16 +46,16 @@
   },
   "LoginPage": {
     "title": "Login",
-    "email": "Email",
+    "username": "Username",
     "password": "Password",
     "submitButton": "Login",
     "submitting": "Logging in...",
     "placeholders": {
-      "email": "john.doe@example.com",
+      "username": "JohnDoe",
       "password": "Enter password"
     },
     "validation": {
-      "emailInvalid": "Invalid email address",
+      "usernameRequired": "Username is required",
       "passwordRequired": "Password is required"
     }
   }
