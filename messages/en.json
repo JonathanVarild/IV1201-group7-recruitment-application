@@ -9,6 +9,55 @@
   },
   "Footer": {
     "privacyPolicy": "Privacy Policy",
-    "termsOfService": "Terms of Service"
+    "termsOfService": "Terms of Service",
+    "copyright": "All rights reserved."
+  },
+  "RegisterPage": {
+    "title": "Register account",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "username": "Username",
+    "personalNumber": "Personal Number",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "submitButton": "Register",
+    "submitting": "Registering...",
+    "placeholders": {
+      "firstName": "John",
+      "lastName": "Doe",
+      "username": "johndoe",
+      "personalNumber": "YYYYMMDD-XXXX",
+      "email": "john.doe@example.com",
+      "password": "Enter password",
+      "confirmPassword": "Re-enter password"
+    },
+    "validation": {
+      "firstNameMin": "First name must be at least 2 characters",
+      "lastNameMin": "Last name must be at least 2 characters",
+      "usernameMin": "Username must be at least 3 characters",
+      "personalNumberInvalid": "Invalid personal number format (YYYYMMDD-XXXX or YYYYMMDDXXXX)",
+      "emailInvalid": "Invalid email address",
+      "passwordMin": "Password must be at least 8 characters",
+      "passwordUppercase": "Password must contain at least one uppercase letter",
+      "passwordLowercase": "Password must contain at least one lowercase letter",
+      "passwordNumber": "Password must contain at least one number",
+      "passwordsMismatch": "Passwords don't match"
+    }
+  },
+  "LoginPage": {
+    "title": "Login",
+    "username": "Username",
+    "password": "Password",
+    "submitButton": "Login",
+    "submitting": "Logging in...",
+    "placeholders": {
+      "username": "JohnDoe",
+      "password": "Enter password"
+    },
+    "validation": {
+      "usernameRequired": "Username is required",
+      "passwordRequired": "Password is required"
+    }
   }
 }
