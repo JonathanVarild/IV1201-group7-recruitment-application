@@ -23,7 +23,6 @@ const LoginPage = () => {
   });
 
   type LoginFormData = z.infer<typeof loginSchema>;
-
   const formFields: Array<{ name: keyof LoginFormData; type: string }> = [
     { name: "email", type: "email" },
     { name: "password", type: "password" },
@@ -61,7 +60,7 @@ const LoginPage = () => {
             </Field>
           ))}
 
-          <Button type="submit" className="w-full mt-6" disabled={isSubmitting}>
+          <Button type="submit" className="w-full mt-4" disabled={isSubmitting}>
             {isSubmitting ? t("submitting") : t("submitButton")}
           </Button>
         </form>

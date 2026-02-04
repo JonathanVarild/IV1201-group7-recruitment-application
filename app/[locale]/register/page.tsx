@@ -37,7 +37,6 @@ const RegisterPage = () => {
     });
 
   type RegisterFormData = z.infer<typeof registerSchema>;
-
   const formFields: Array<{ name: keyof RegisterFormData; type: string }> = [
     { name: "firstName", type: "text" },
     { name: "lastName", type: "text" },

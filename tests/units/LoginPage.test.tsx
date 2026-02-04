@@ -1,6 +1,6 @@
 import userEvent from "@testing-library/user-event";
 import LoginPage from "../../app/[locale]/login/page";
-import { describe, expect, it, vi, afterEach } from "vitest";
+import { describe, expect, it, afterEach } from "vitest";
 import { render, screen, waitFor, cleanup } from "@testing-library/react";
 
 describe("LoginPage", () => {
