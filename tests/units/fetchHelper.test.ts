@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { handleFetch } from "../../lib/api";
+import { managedFetch } from "../../lib/api";
 
 beforeEach(() => {
   vi.resetAllMocks();
@@ -20,7 +20,7 @@ describe("handleFetch", () => {
       ),
     );
 
-    await expect(handleFetch("https://example.com", {})).rejects.toThrow("Not Found");
+    await expect(managedFetch("https://example.com", {})).rejects.toThrow("Not Found");
   });
 
   // Mock fetch for testing ok===false and JSON is missing message
@@ -37,7 +37,7 @@ describe("handleFetch", () => {
       ),
     );
 
-    await expect(handleFetch("https://example.com", {})).rejects.toThrow("Internal Server Error");
+    await expect(managedFetch("https://example.com", {})).rejects.toThrow("Internal Server Error");
   });
 
   // Mock fetch for testing ok===true and JSON fails
@@ -53,7 +53,7 @@ describe("handleFetch", () => {
       ),
     );
 
-    await expect(handleFetch("https://example.com", {})).rejects.toThrow("Failed to parse JSON: No JSON");
+    await expect(managedFetch("https://example.com", {})).rejects.toThrow("Failed to parse JSON: No JSON");
   });
 
   // Mock fetch for testing ok===true and JSON ok
@@ -71,7 +71,7 @@ describe("handleFetch", () => {
       ),
     );
 
-    const data = await handleFetch("https://example.com", {});
+    const data = await managedFetch("https://example.com", {});
     expect(data).toEqual(mockResponse);
   });
 });
