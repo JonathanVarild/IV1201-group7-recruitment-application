@@ -9,7 +9,8 @@
   },
   "Footer": {
     "privacyPolicy": "Integritetspolicy",
-    "termsOfService": "Användarvillkor"
+    "termsOfService": "Användarvillkor",
+    "copyright": "Alla rättigheter förbehållna."
   },
   "RegisterPage": {
     "title": "Registrera konto",

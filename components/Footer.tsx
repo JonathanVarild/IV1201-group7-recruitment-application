@@ -23,7 +23,9 @@ export function Footer() {
       <Separator />
       <div className="container mx-auto px-8 py-4">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} All rights reserved.</p>
+          <p>
+            © {new Date().getFullYear()} {t("copyright")}
+          </p>
           <div className="flex items-center gap-6">
             <LanguageSwitcher />
             <nav className="flex gap-6">
