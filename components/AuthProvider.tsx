@@ -1,8 +1,6 @@
 "use client";
 
-import { managedFetch } from "@/lib/api";
 import { UserData } from "@/lib/types/userType";
-import { User } from "@sentry/nextjs";
 import { createContext, useContext, useEffect, useState } from "react";
 
 export enum AuthStatus {
