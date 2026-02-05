@@ -21,7 +21,9 @@ type AuthStateExtended = AuthState & {
 const authContext = createContext<AuthStateExtended>({ status: AuthStatus.Loading, userData: null, refreshAuth: () => {} });
 
 export function AuthProvider({ children, loggedInUser }: { children: React.ReactNode; loggedInUser?: UserData | null }) {
-  const [authState, setAuthState] = useState<AuthState>({ status: AuthStatus.Loading, userData: null });
+  const [authState, setAuthState] = useState<AuthState>(
+    loggedInUser ? { status: AuthStatus.Authenticated, userData: loggedInUser } : { status: AuthStatus.Loading, userData: null },
+  );
   const [refreshKey, setRefreshKey] = useState(0);
 
   const refreshAuth = () => {
@@ -29,10 +31,10 @@ export function AuthProvider({ children, loggedInUser }: { children: React.React
   };
 
   useEffect(() => {
-    if (loggedInUser) return;
     let cancelled = false;
 
     (async () => {
+      if (loggedInUser && refreshKey === 0) return;
       try {
         setAuthState({ status: AuthStatus.Loading, userData: null });
         const response = await fetch("/api/whoami", {
@@ -57,11 +59,7 @@ export function AuthProvider({ children, loggedInUser }: { children: React.React
     };
   }, [loggedInUser, refreshKey]);
 
-  return (
-    <authContext.Provider value={loggedInUser ? { status: AuthStatus.Authenticated, userData: loggedInUser, refreshAuth } : { ...authState, refreshAuth }}>
-      {children}
-    </authContext.Provider>
-  );
+  return <authContext.Provider value={{ ...authState, refreshAuth }}>{children}</authContext.Provider>;
 }
 
 /**
