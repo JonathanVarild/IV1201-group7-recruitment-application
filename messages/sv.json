@@ -5,7 +5,10 @@
   "Nav": {
     "home": "Hem",
     "apply": "Ansök",
-    "about": "Om oss"
+    "about": "Om oss",
+    "login": "Logga in",
+    "register": "Registrera",
+    "logout": "Logga ut"
   },
   "Footer": {
     "privacyPolicy": "Integritetspolicy",

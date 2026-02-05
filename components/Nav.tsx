@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { AuthStatus, useAuth } from "./AuthProvider";
 
 /**
  * Navigation component displaying links to different pages.
@@ -10,19 +11,45 @@ import { useTranslations } from "next-intl";
  */
 export function Nav() {
   const t = useTranslations("Nav");
+  const { status, refreshAuth } = useAuth();
 
-  const navItems = [
+  async function onLogOutACB() {
+    await fetch("/api/logout", {
+      method: "GET",
+    });
+    refreshAuth();
+  }
+
+  type NavItem = {
+    key: string;
+    href?: string;
+    onClick?: () => void;
+  };
+
+  const navItemsDefault: NavItem[] = [
+    { key: "home", href: "/" },
+    { key: "about", href: "/about" },
+    { key: "login", href: "/login" },
+    { key: "register", href: "/register" },
+  ];
+
+  const navItemsAuthenticated: NavItem[] = [
     { key: "home", href: "/" },
     { key: "apply", href: "/apply" },
     { key: "about", href: "/about" },
+    { key: "logout", onClick: onLogOutACB },
   ];
 
   return (
     <nav>
       <ul className="flex gap-12">
-        {navItems.map((item) => (
+        {(status === AuthStatus.Authenticated ? navItemsAuthenticated : navItemsDefault).map((item) => (
           <li key={item.key}>
-            <Link href={item.href} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            <Link
+              href={item.href || "#"}
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              onClick={item.onClick ? item.onClick : undefined}
+            >
               {t(item.key)}
             </Link>
           </li>
