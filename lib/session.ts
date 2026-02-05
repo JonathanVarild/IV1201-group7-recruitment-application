@@ -3,6 +3,7 @@ import { GeneratedSession } from "./types/sessionType";
 import { pool } from "@/lib/database";
 import { UserData } from "./types/userType";
 import { InvalidSessionError } from "./errors/authErrors";
+import { cookies } from "next/headers";
 
 const SESSION_DURATION_DAYS = 7;
 
@@ -27,6 +28,7 @@ export function generateSession(): GeneratedSession {
  * @throws Will throw an InvalidSessionError if the session is invalid or expired.
  */
 export async function getUserDataFromSession(sessionToken: string): Promise<UserData> {
+  if (!sessionToken) throw new InvalidSessionError();
   const tokenHash = hashToken(sessionToken);
 
   const result = await pool.query(
@@ -42,7 +44,7 @@ export async function getUserDataFromSession(sessionToken: string): Promise<User
     [tokenHash],
   );
 
-  // CHeck so we found a valid session
+  // Check so we found a valid session
   if (result.rows.length === 0) throw new InvalidSessionError();
 
   // Return user data
@@ -52,4 +54,31 @@ export async function getUserDataFromSession(sessionToken: string): Promise<User
     roleID: Number(result.rows[0].role_id),
     role: result.rows[0].role_name,
   };
+}
+
+/**
+ * Retrieves the data from the currently authenticated user.
+ *
+ * @returns The user data or null if no valid session exists.
+ * @throws Will throw an InvalidSessionError if the session is invalid or expired.
+ */
+export async function getAuthenticatedUserData(): Promise<UserData | null> {
+  const token = (await cookies()).get("session")?.value;
+  if (!token) throw new InvalidSessionError();
+  const userData = await getUserDataFromSession(token);
+
+  return userData;
+}
+
+/**
+ * Deletes a session from the database.
+ *
+ * @param sessionToken The session token to delete.
+ * @returns A promise that resolves when the session is deleted.
+ */
+export async function deleteSession(): Promise<void> {
+  const token = (await cookies()).get("session")?.value;
+  if (!token) return;
+  const tokenHash = hashToken(token);
+  await pool.query(`DELETE FROM session WHERE token_hash = $1`, [tokenHash]);
 }
