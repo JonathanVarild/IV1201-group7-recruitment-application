@@ -62,5 +62,16 @@
       "usernameRequired": "Användarnamn krävs",
       "passwordRequired": "Lösenord krävs"
     }
+  },
+  "AdminPage": {
+    "title": "Adminverktyg för rekryteringsansökningar",
+    "boardColumns": {
+      "unhandled": "Ohanterade",
+      "accepted": "Accepterade",
+      "rejected": "Avvisade"
+    },
+    "applicationCard": {
+      "appliedDate": "Ansökte"
+    }
   }
 }

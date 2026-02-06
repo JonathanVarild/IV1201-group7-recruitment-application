@@ -62,5 +62,16 @@
       "usernameRequired": "Username is required",
       "passwordRequired": "Password is required"
     }
+  },
+  "AdminPage": {
+    "title": "Admin Tool for Recruitment Applications",
+    "boardColumns": {
+      "unhandled": "Unhandled",
+      "accepted": "Accepted",
+      "rejected": "Rejected"
+    },
+    "applicationCard": {
+      "appliedDate": "Applied"
+    }
   }
 }

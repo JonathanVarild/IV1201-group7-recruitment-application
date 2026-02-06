@@ -1,0 +1,67 @@
+[
+  {
+    "id": "1",
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "phone": "+46701234567",
+    "applicationDate": "2024-06-01",
+    "status": "unhandled",
+    "resumeUrl": "/resumes/john-doe.pdf",
+    "answers": [
+      { "question": "Why do you want to work here?", "answer": "I'm passionate about this field and believe my skills align well with your needs." },
+      { "question": "What is your availability?", "answer": "Available immediately, flexible with hours." }
+    ]
+  },
+  {
+    "id": "2",
+    "name": "Jane Smith",
+    "email": "jane.smith@example.com",
+    "phone": "+46702345678",
+    "applicationDate": "2024-06-02",
+    "status": "unhandled",
+    "resumeUrl": "/resumes/jane-smith.pdf",
+    "answers": [
+      { "question": "Why do you want to work here?", "answer": "I have 5 years of experience in similar roles and am looking for new challenges." },
+      { "question": "What is your availability?", "answer": "Can start in 2 weeks, prefer full-time." }
+    ]
+  },
+  {
+    "id": "3",
+    "name": "Alice Johnson",
+    "email": "alice.johnson@example.com",
+    "phone": "+46703456789",
+    "applicationDate": "2024-06-03",
+    "status": "accepted",
+    "resumeUrl": "/resumes/alice-johnson.pdf",
+    "answers": [
+      { "question": "Why do you want to work here?", "answer": "Your company culture and values match my professional goals." },
+      { "question": "What is your availability?", "answer": "Available for part-time, 20 hours per week." }
+    ]
+  },
+  {
+    "id": "4",
+    "name": "Bob Brown",
+    "email": "bob.brown@example.com",
+    "phone": "+46704567890",
+    "applicationDate": "2024-06-04",
+    "status": "rejected",
+    "resumeUrl": "/resumes/bob-brown.pdf",
+    "answers": [
+      { "question": "Why do you want to work here?", "answer": "Looking for stable employment close to home." },
+      { "question": "What is your availability?", "answer": "Only weekends available." }
+    ]
+  },
+  {
+    "id": "5",
+    "name": "Emma Wilson",
+    "email": "emma.wilson@example.com",
+    "phone": "+46705678901",
+    "applicationDate": "2024-06-05",
+    "status": "accepted",
+    "resumeUrl": "/resumes/emma-wilson.pdf",
+    "answers": [
+      { "question": "Why do you want to work here?", "answer": "I'm a recent graduate eager to start my career in this industry." },
+      { "question": "What is your availability?", "answer": "Flexible, available Monday-Friday." }
+    ]
+  }
+]
