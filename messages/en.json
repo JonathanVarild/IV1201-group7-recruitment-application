@@ -72,6 +72,14 @@
     },
     "applicationCard": {
       "appliedDate": "Applied"
+    },
+    "applicationDetails": {
+      "email": "Email",
+      "applicationDate": "Application Date",
+      "status": "Status",
+      "answersHeader": "Questions and Answers",
+      "question": "Question",
+      "answer": "Answer"
     }
   }
 }

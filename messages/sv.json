@@ -72,6 +72,14 @@
     },
     "applicationCard": {
       "appliedDate": "Ansökte"
+    },
+    "applicationDetails": {
+      "email": "E-post",
+      "applicationDate": "Ansökningsdatum",
+      "status": "Status",
+      "answersHeader": "Frågor och svar",
+      "question": "Fråga",
+      "answer": "Svar"
     }
   }
 }

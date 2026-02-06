@@ -1,13 +1,9 @@
-export interface ApplicationCardSummary {
-  id: string;
-  name: string;
-  applicationDate: string;
-  status: string;
-}
-
 export interface ApplicationFullInformation {
   id: string;
-  name: string;
+  name: {
+    firstName: string;
+    lastName: string;
+  };
   email: string;
   phone: string;
   applicationDate: string;

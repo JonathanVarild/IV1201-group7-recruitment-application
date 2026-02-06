@@ -1,11 +1,12 @@
 import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import ApplicationCard from "./ApplicationCard";
-import { ApplicationCardSummary } from "@/lib/types/applicationType";
+import { ApplicationFullInformation } from "@/lib/types/applicationType";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import ApplicationDetails from "./ApplicationDetails";
 
 interface ApplicationBoardProps {
-  applications: ApplicationCardSummary[];
+  applications: ApplicationFullInformation[];
 }
 
 interface Column {
@@ -46,7 +47,7 @@ const ApplicationBoard = ({ applications }: ApplicationBoardProps) => {
               <CardContent className="flex-1 overflow-y-auto p-2">
                 <div className="space-y-2 px-4 py-2">
                   {columnApplications.map((app) => (
-                    <ApplicationCard key={app.id} application={app} />
+                    <ApplicationCard key={app.id} applicationFullInformation={app} />
                   ))}
                 </div>
               </CardContent>
