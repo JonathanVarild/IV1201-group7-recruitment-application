@@ -16,6 +16,10 @@ const ApplicationDetails = ({ applicationDetails }: ApplicationDetailsProps) => 
             <p className="text-sm text-muted-foreground">{t("email")}</p>
             <p className="font-medium">{applicationDetails.email}</p>
           </div>
+          <div>
+            <p className="text-sm text-muted-foreground">{t("username")}</p>
+            <p className="font-medium">{applicationDetails.username}</p>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-2">

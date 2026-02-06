@@ -69,13 +69,15 @@
       "unhandled": "Unhandled",
       "accepted": "Accepted",
       "rejected": "Rejected",
-      "loadMore": "Load More"
+      "loadMore": "Load More",
+      "noApplications": "No applications"
     },
     "applicationCard": {
       "appliedDate": "Applied"
     },
     "applicationDetails": {
       "email": "Email",
+      "username": "Username",
       "applicationDate": "Application Date",
       "status": "Status",
       "answersHeader": "Questions and Answers",

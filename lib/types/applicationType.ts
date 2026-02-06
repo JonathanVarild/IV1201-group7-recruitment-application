@@ -4,11 +4,10 @@ export interface ApplicationFullInformation {
     firstName: string;
     lastName: string;
   };
+  username: string;
   email: string;
-  phone: string;
   applicationDate: string;
   status: string;
-  resumeUrl: string;
   answers: {
     question: string;
     answer: string;

@@ -61,13 +61,19 @@ const ApplicationBoard = ({ applications }: ApplicationBoardProps) => {
               </CardHeader>
               <CardContent className="flex-1 overflow-y-auto p-2 min-h-0">
                 <div className="space-y-3 px-4">
-                  {columnApplications.slice(0, visibleCount).map((app) => (
-                    <ApplicationCard key={app.id} applicationFullInformation={app} />
-                  ))}
-                  {hasMore && (
-                    <Button variant="default" className="w-full mt-2 hover:scale-105 transition-transform" onClick={() => loadMore(column.id)}>
-                      {t("loadMore")} →
-                    </Button>
+                  {columnApplications.length === 0 ? (
+                    <p className="text-muted-foreground">{t("noApplications")}</p>
+                  ) : (
+                    <>
+                      {columnApplications.slice(0, visibleCount).map((app) => (
+                        <ApplicationCard key={app.id} applicationFullInformation={app} />
+                      ))}
+                      {hasMore && (
+                        <Button variant="default" className="w-full mt-2 hover:scale-105 transition-transform" onClick={() => loadMore(column.id)}>
+                          {t("loadMore")} →
+                        </Button>
+                      )}
+                    </>
                   )}
                 </div>
               </CardContent>

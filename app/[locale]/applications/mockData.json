@@ -5,6 +5,7 @@
       "firstName": "John",
       "lastName": "Doe"
     },
+    "username": "johndoe",
     "email": "john.doe@example.com",
     "phone": "+46701234567",
     "applicationDate": "2024-06-01",
@@ -21,6 +22,7 @@
       "firstName": "Jane",
       "lastName": "Smith"
     },
+    "username": "janesmith",
     "email": "jane.smith@example.com",
     "phone": "+46702345678",
     "applicationDate": "2024-06-02",
@@ -37,6 +39,7 @@
       "firstName": "Alice",
       "lastName": "Johnson"
     },
+    "username": "alicej",
     "email": "alice.johnson@example.com",
     "phone": "+46703456789",
     "applicationDate": "2024-06-03",
@@ -53,10 +56,11 @@
       "firstName": "Bob",
       "lastName": "Brown"
     },
+    "username": "bobbrown",
     "email": "bob.brown@example.com",
     "phone": "+46704567890",
     "applicationDate": "2024-06-04",
-    "status": "rejected",
+    "status": "accepted",
     "resumeUrl": "/resumes/bob-brown.pdf",
     "answers": [
       { "question": "competences", "answer": "Looking for stable employment close to home." },
@@ -69,6 +73,7 @@
       "firstName": "Emma",
       "lastName": "Wilson"
     },
+    "username": "emmaw",
     "email": "emma.wilson@example.com",
     "phone": "+46705678901",
     "applicationDate": "2024-06-05",
@@ -85,6 +90,7 @@
       "firstName": "Michael",
       "lastName": "Chen"
     },
+    "username": "mchen",
     "email": "michael.chen@example.com",
     "phone": "+46706789012",
     "applicationDate": "2024-06-06",
@@ -101,6 +107,7 @@
       "firstName": "Sofia",
       "lastName": "Garcia"
     },
+    "username": "sofiagarcia",
     "email": "sofia.garcia@example.com",
     "phone": "+46707890123",
     "applicationDate": "2024-06-07",
@@ -117,6 +124,7 @@
       "firstName": "David",
       "lastName": "Larsson"
     },
+    "username": "davidl",
     "email": "david.larsson@example.com",
     "phone": "+46708901234",
     "applicationDate": "2024-06-08",
@@ -133,6 +141,7 @@
       "firstName": "Lisa",
       "lastName": "Nguyen"
     },
+    "username": "lisanguyen",
     "email": "lisa.nguyen@example.com",
     "phone": "+46709012345",
     "applicationDate": "2024-06-09",
@@ -149,6 +158,7 @@
       "firstName": "Oscar",
       "lastName": "Andersson"
     },
+    "username": "oscara",
     "email": "oscar.andersson@example.com",
     "phone": "+46700123456",
     "applicationDate": "2024-06-10",
@@ -165,6 +175,7 @@
       "firstName": "Maria",
       "lastName": "Johansson"
     },
+    "username": "mariaj",
     "email": "maria.johansson@example.com",
     "phone": "+46701234568",
     "applicationDate": "2024-06-11",
@@ -181,6 +192,7 @@
       "firstName": "Peter",
       "lastName": "Karlsson"
     },
+    "username": "peterk",
     "email": "peter.karlsson@example.com",
     "phone": "+46702345679",
     "applicationDate": "2024-06-12",
@@ -197,6 +209,7 @@
       "firstName": "Anna",
       "lastName": "Eriksson"
     },
+    "username": "annaeriksson",
     "email": "anna.eriksson@example.com",
     "phone": "+46703456780",
     "applicationDate": "2024-06-13",
@@ -213,6 +226,7 @@
       "firstName": "Johan",
       "lastName": "Nilsson"
     },
+    "username": "johann",
     "email": "johan.nilsson@example.com",
     "phone": "+46704567891",
     "applicationDate": "2024-06-14",
@@ -229,6 +243,7 @@
       "firstName": "Sara",
       "lastName": "Persson"
     },
+    "username": "sarap",
     "email": "sara.persson@example.com",
     "phone": "+46705678902",
     "applicationDate": "2024-06-15",
@@ -245,6 +260,7 @@
       "firstName": "Erik",
       "lastName": "Svensson"
     },
+    "username": "eriks",
     "email": "erik.svensson@example.com",
     "phone": "+46706789013",
     "applicationDate": "2024-06-16",
@@ -261,6 +277,7 @@
       "firstName": "Karin",
       "lastName": "Olsson"
     },
+    "username": "karino",
     "email": "karin.olsson@example.com",
     "phone": "+46707890124",
     "applicationDate": "2024-06-17",
@@ -277,6 +294,7 @@
       "firstName": "Anders",
       "lastName": "Gustafsson"
     },
+    "username": "andersg",
     "email": "anders.gustafsson@example.com",
     "phone": "+46708901235",
     "applicationDate": "2024-06-18",
@@ -293,6 +311,7 @@
       "firstName": "Linda",
       "lastName": "Bergström"
     },
+    "username": "lindaberg",
     "email": "linda.bergstrom@example.com",
     "phone": "+46709012346",
     "applicationDate": "2024-06-19",
@@ -309,6 +328,7 @@
       "firstName": "Magnus",
       "lastName": "Lundgren"
     },
+    "username": "magnusl",
     "email": "magnus.lundgren@example.com",
     "phone": "+46700123457",
     "applicationDate": "2024-06-20",

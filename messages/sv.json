@@ -69,13 +69,15 @@
       "unhandled": "Ohanterade",
       "accepted": "Accepterade",
       "rejected": "Avvisade",
-      "loadMore": "Visa fler"
+      "loadMore": "Visa fler",
+      "noApplications": "Inga ansökningar"
     },
     "applicationCard": {
       "appliedDate": "Ansökte"
     },
     "applicationDetails": {
       "email": "E-post",
+      "username": "Användarnamn",
       "applicationDate": "Ansökningsdatum",
       "status": "Status",
       "answersHeader": "Frågor och svar",
