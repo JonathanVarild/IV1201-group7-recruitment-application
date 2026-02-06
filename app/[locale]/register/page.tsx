@@ -12,6 +12,7 @@ import { NewUserDTO } from "@/lib/schemas/userDTO";
 import { managedFetch } from "@/lib/api";
 import { APIError } from "@/lib/errors/generalErrors";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/components/AuthProvider";
 
 /**
  * Displays the registration page with multiple input fields.
@@ -21,6 +22,7 @@ import { useRouter } from "next/navigation";
 const RegisterPage = () => {
   const router = useRouter();
   const t = useTranslations("RegisterPage");
+  const { refreshAuth } = useAuth();
 
   const registerSchema = z
     .object({
@@ -80,6 +82,7 @@ const RegisterPage = () => {
       });
 
       router.push("/");
+      refreshAuth();
     } catch (error) {
       if (error instanceof APIError) {
         const data = error.jsonData as { error?: string };

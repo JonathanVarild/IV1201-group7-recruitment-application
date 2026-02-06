@@ -13,6 +13,7 @@ import { managedFetch } from "@/lib/api";
 import { UserData } from "@/lib/types/userType";
 import { useRouter } from "next/navigation";
 import { APIError } from "@/lib/errors/generalErrors";
+import { useAuth } from "@/components/AuthProvider";
 
 /**
  * Display the login page with username and password fields.
@@ -22,6 +23,7 @@ import { APIError } from "@/lib/errors/generalErrors";
 const LoginPage = () => {
   const router = useRouter();
   const t = useTranslations("LoginPage");
+  const { refreshAuth } = useAuth();
 
   const loginSchema = credentialsSchema.extend({
     username: credentialsSchema.shape.username.trim().min(1, t("validation.usernameRequired")),
@@ -57,6 +59,7 @@ const LoginPage = () => {
       });
 
       router.push("/");
+      refreshAuth();
     } catch (error) {
       if (error instanceof APIError) {
         const data = error.jsonData as { error?: string };
