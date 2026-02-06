@@ -11,8 +11,8 @@
     "status": "unhandled",
     "resumeUrl": "/resumes/john-doe.pdf",
     "answers": [
-      { "question": "Why do you want to work here?", "answer": "I'm passionate about this field and believe my skills align well with your needs." },
-      { "question": "What is your availability?", "answer": "Available immediately, flexible with hours." }
+      { "question": "competences", "answer": "I'm passionate about this field and believe my skills align well with your needs." },
+      { "question": "availability", "answer": "Available immediately, flexible with hours." }
     ]
   },
   {
@@ -27,8 +27,8 @@
     "status": "unhandled",
     "resumeUrl": "/resumes/jane-smith.pdf",
     "answers": [
-      { "question": "Why do you want to work here?", "answer": "I have 5 years of experience in similar roles and am looking for new challenges." },
-      { "question": "What is your availability?", "answer": "Can start in 2 weeks, prefer full-time." }
+      { "question": "competences", "answer": "I have 5 years of experience in similar roles and am looking for new challenges." },
+      { "question": "availability", "answer": "Can start in 2 weeks, prefer full-time." }
     ]
   },
   {
@@ -43,8 +43,8 @@
     "status": "accepted",
     "resumeUrl": "/resumes/alice-johnson.pdf",
     "answers": [
-      { "question": "Why do you want to work here?", "answer": "Your company culture and values match my professional goals." },
-      { "question": "What is your availability?", "answer": "Available for part-time, 20 hours per week." }
+      { "question": "competences", "answer": "Your company culture and values match my professional goals." },
+      { "question": "availability", "answer": "Available for part-time, 20 hours per week." }
     ]
   },
   {
@@ -59,8 +59,8 @@
     "status": "rejected",
     "resumeUrl": "/resumes/bob-brown.pdf",
     "answers": [
-      { "question": "Why do you want to work here?", "answer": "Looking for stable employment close to home." },
-      { "question": "What is your availability?", "answer": "Only weekends available." }
+      { "question": "competences", "answer": "Looking for stable employment close to home." },
+      { "question": "availability", "answer": "Only weekends available." }
     ]
   },
   {
@@ -75,8 +75,8 @@
     "status": "accepted",
     "resumeUrl": "/resumes/emma-wilson.pdf",
     "answers": [
-      { "question": "Why do you want to work here?", "answer": "I'm a recent graduate eager to start my career in this industry." },
-      { "question": "What is your availability?", "answer": "Flexible, available Monday-Friday." }
+      { "question": "competences", "answer": "I'm a recent graduate eager to start my career in this industry." },
+      { "question": "availability", "answer": "Flexible, available Monday-Friday." }
     ]
   }
 ]

@@ -79,7 +79,11 @@
       "status": "Status",
       "answersHeader": "Frågor och svar",
       "question": "Fråga",
-      "answer": "Svar"
+      "answer": "Svar",
+      "questionsToAnswer": {
+        "competences": "Vilka kompetenser har du som gör dig lämpad för den här tjänsten?",
+        "availability": "Vad har du för tillgänglighet?"
+      }
     }
   }
 }

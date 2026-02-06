@@ -79,7 +79,11 @@
       "status": "Status",
       "answersHeader": "Questions and Answers",
       "question": "Question",
-      "answer": "Answer"
+      "answer": "Answer",
+      "questionsToAnswer": {
+        "competences": "What competences do you have that make you suitable for this position?",
+        "availability": "What is your availability?"
+      }
     }
   }
 }

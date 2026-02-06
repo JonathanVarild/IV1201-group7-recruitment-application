@@ -34,12 +34,12 @@ const ApplicationDetails = ({ applicationDetails }: ApplicationDetailsProps) => 
         <div className="mt-6">
           <h4 className="text-lg font-semibold mb-3">{t("answersHeader")}</h4>
           <div className="space-y-4">
-            {applicationDetails.answers.map((qa, index) => (
+            {applicationDetails.answers.map((questionAndAnswer, index) => (
               <div key={index} className="border-l-2 border-gray-200 pl-4">
                 <p className="text-sm font-medium text-muted-foreground mb-1">
-                  {t("question")}: {qa.question}
+                  {t("question")}: {t(`questionsToAnswer.${questionAndAnswer.question}`)}
                 </p>
-                <p className="text-sm">{qa.answer}</p>
+                <p className="text-sm">{questionAndAnswer.answer}</p>
               </div>
             ))}
           </div>
