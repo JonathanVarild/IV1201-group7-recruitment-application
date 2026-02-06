@@ -1,5 +1,5 @@
 import { Nav } from "../../components/Nav";
-import { render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import { useAuth } from "../../components/AuthProvider";
 import { AuthStatus } from "../../components/AuthProvider";
 import { describe, expect, it, vi, beforeEach } from "vitest";
