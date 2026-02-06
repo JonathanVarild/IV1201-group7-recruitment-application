@@ -68,7 +68,8 @@
     "boardColumns": {
       "unhandled": "Ohanterade",
       "accepted": "Accepterade",
-      "rejected": "Avvisade"
+      "rejected": "Avvisade",
+      "loadMore": "Visa fler"
     },
     "applicationCard": {
       "appliedDate": "Ansökte"

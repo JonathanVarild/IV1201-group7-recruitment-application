@@ -68,7 +68,8 @@
     "boardColumns": {
       "unhandled": "Unhandled",
       "accepted": "Accepted",
-      "rejected": "Rejected"
+      "rejected": "Rejected",
+      "loadMore": "Load More"
     },
     "applicationCard": {
       "appliedDate": "Applied"
