@@ -14,7 +14,12 @@
     "test:acceptance": "pnpm test:e2e",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "docker:start": "docker run --name legacy_db -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=legacy_db -p 5432:5432 -d postgres:13",
+    "docker:load": "docker cp ./migration/existing-database.sql legacy_db:/tmp/ && docker exec -it legacy_db psql -U postgres -d legacy_db -f /tmp/existing-database.sql",
+    "docker:stop": "docker stop legacy_db && docker rm legacy_db",
+    "docker:setup": "npm run docker:start && sleep 5 && npm run docker:load",
+    "migrate": "tsx migration/migrate.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.1.0",
