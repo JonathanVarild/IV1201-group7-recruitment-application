@@ -1,8 +1,27 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 import { Header } from "../../components/Header";
+import { useAuth } from "../../components/AuthProvider";
 import { render, screen } from "@testing-library/react";
+import { AuthStatus } from "../../components/AuthProvider";
+
+vi.mock("../../components/AuthProvider", async () => {
+  const actual = await vi.importActual("../../components/AuthProvider");
+  return {
+    ...actual,
+    useAuth: vi.fn(),
+  };
+});
 
 describe("Header", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(useAuth).mockReturnValue({
+      status: AuthStatus.Unauthenticated,
+      userData: null,
+      refreshAuth: vi.fn(),
+    });
+  });
+
   it("renders logo that links to home", () => {
     render(<Header />);
 
@@ -17,7 +36,8 @@ describe("Header", () => {
     const nav = container.querySelector("nav");
     expect(nav).toBeInTheDocument();
     expect(nav?.querySelector('a[href="/"]')).toBeInTheDocument();
-    expect(nav?.querySelector('a[href="/apply"]')).toBeInTheDocument();
     expect(nav?.querySelector('a[href="/about"]')).toBeInTheDocument();
+    expect(nav?.querySelector('a[href="/login"]')).toBeInTheDocument();
+    expect(nav?.querySelector('a[href="/register"]')).toBeInTheDocument();
   });
 });
