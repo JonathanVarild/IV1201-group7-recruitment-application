@@ -19,7 +19,7 @@
     "docker:load": "docker cp ./migration/existing-database.sql legacy_db:/tmp/ && docker exec -it legacy_db psql -U postgres -d legacy_db -f /tmp/existing-database.sql",
     "docker:stop": "docker stop legacy_db && docker rm legacy_db",
     "docker:setup": "npm run docker:start && sleep 5 && npm run docker:load",
-    "migrate": "tsx migration/migrate.ts"
+    "migrate": "tsx --env-file=.env.local migration/migration.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.1.0",
@@ -45,15 +45,16 @@
   "devDependencies": {
     "@playwright/test": "^1.58.0",
     "@tailwindcss/postcss": "^4",
-    "@types/bcrypt": "^6.0.0",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
+    "@types/bcrypt": "^6.0.0",
     "@types/node": "^20",
     "@types/pg": "^8.16.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.2.4",
     "eslint": "^9",
     "eslint-config-next": "16.1.4",
     "eslint-config-prettier": "^10.1.8",
@@ -62,6 +63,7 @@
     "lint-staged": "^16.2.7",
     "prettier": "3.8.1",
     "tailwindcss": "^4",
+    "tsx": "^4.21.0",
     "typescript": "^5",
     "vitest": "^4.0.18"
   },

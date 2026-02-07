@@ -30,7 +30,7 @@ export function generateUsername(name: string, surname: string, person_id: numbe
  * @returns the generated personal number as a string.
  */
 export function generatePersonalNumber(person_id: number): string {
-  const base = "00000000-";
+  const base = "20000000-";
   const secondPart = person_id.toString().padStart(4, "0");
   return `${base}${secondPart}`;
 }

@@ -1,3 +1,7 @@
+import dotenv from "dotenv";
+import path from "path";
+dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
+
 import bcrypt from "bcrypt";
 import { getDatabaseClient } from "@/lib/database";
 import { Client, PoolClient } from "pg";
@@ -102,6 +106,7 @@ async function migrateRole(localDatabaseClient: Client, newDatabaseClient: PoolC
     const { rows } = await localDatabaseClient.query<OldRoleType>("SELECT * FROM role");
 
     for (const role of rows) {
+      console.log(`Migrating role: ${role.name} (ID: ${role.role_id})`); // Log the role being migrated
       await newDatabaseClient.query(
         `INSERT INTO role (role_id, name) 
                 OVERRIDING SYSTEM VALUE
@@ -180,6 +185,7 @@ async function migrate() {
 
     // Commit and release clients
     await newDatabaseClient.query("COMMIT");
+
     newDatabaseClient.release();
     await localDatabaseClient.end();
   } catch (error) {
@@ -192,4 +198,6 @@ async function migrate() {
   }
 }
 
-migrate().catch((error) => {});
+migrate().catch((error) => {
+  // TODO: log error
+});
