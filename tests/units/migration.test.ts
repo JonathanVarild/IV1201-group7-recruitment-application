@@ -14,7 +14,7 @@ describe("generateUsername", () => {
 describe("generatePersonalNumber", () => {
   it("generates a personal number with zeros ending with person_id", () => {
     const person_id = 45;
-    const expectedPersonalNumber = "00000000-0045";
+    const expectedPersonalNumber = "20000000-0045";
     expect(generatePersonalNumber(person_id)).toBe(expectedPersonalNumber);
   });
 });
