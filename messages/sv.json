@@ -58,6 +58,19 @@
     "validation": {
       "usernameRequired": "Användarnamn krävs",
       "passwordRequired": "Lösenord krävs"
-    }
+    },
+    "forgotPasswordUsername": "Glömt användarnamn eller lösenord?"
+  },
+  "ResetCredentialsPage": {
+    "title": "Återställ användarnamn eller lösenord",
+    "email": "E-post",
+    "submitButton": "Skicka återställningslänk",
+    "submitting": "Skickar återställningslänk...",
+    "placeholders": {
+      "email": "Ange din e-postadress"
+    },
+    "forgotEmail": "Har du glömt din kopplade e-postadress? Kontakta supporten för hjälp.",
+    "description": "Ange din e-postadress så skickar vi en länk för att återställa ditt användarnamn eller lösenord.",
+    "sendResetLink": "Skicka"
   }
 }

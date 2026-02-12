@@ -58,6 +58,19 @@
     "validation": {
       "usernameRequired": "Username is required",
       "passwordRequired": "Password is required"
-    }
+    },
+    "forgotPasswordUsername": "Forgot username or password?"
+  },
+  "ResetCredentialsPage": {
+    "title": "Reset username or password",
+    "email": "Email",
+    "submitButton": "Send reset link",
+    "submitting": "Sending reset link...",
+    "placeholders": {
+      "email": "Enter your email address"
+    },
+    "forgotEmail": "Forgot your linked email address? Contact support for help.",
+    "description": "Enter your email address and we'll send a link to reset your username or password.",
+    "sendResetLink": "Send"
   }
 }
