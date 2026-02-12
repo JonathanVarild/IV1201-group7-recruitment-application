@@ -86,7 +86,7 @@ const LoginPage = () => {
           <Button type="submit" className="w-full mt-4" disabled={isSubmitting}>
             {isSubmitting ? t("submitting") : t("submitButton")}
           </Button>
-          <Link href="/resetcredentials" className="text-blue-500 text-center">
+          <Link href="/resetcredentials" className="block text-center text-blue-500">
             {t("forgotPasswordUsername")}
           </Link>
         </form>

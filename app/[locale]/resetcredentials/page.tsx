@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
+import Link from "next/link";
 
 /**
  * SHOULD MOCK AN EMAIL BEING SENT (IF IT IS TOO HARD TO ACTUALLY IMPLEMENT)
@@ -29,8 +30,11 @@ const ResetCredentialsPage = () => {
           <Button type="submit" className="w-full mt-4">
             {t("sendResetLink")}
           </Button>
+          <Link href="/login" className="block text-center text-blue-500">
+            {t("backToLogin")}
+          </Link>
+          <p className="text-xs text-gray-500 text-center">{t("forgotEmail")}</p>
         </form>
-        <p className="text-xs text-gray-500">{t("forgotEmail")}</p>
       </Card>
     </div>
   );

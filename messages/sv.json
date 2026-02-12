@@ -71,6 +71,7 @@
     },
     "forgotEmail": "Har du glömt din kopplade e-postadress? Kontakta supporten för hjälp.",
     "description": "Ange din e-postadress så skickar vi en länk för att återställa ditt användarnamn eller lösenord.",
-    "sendResetLink": "Skicka"
+    "sendResetLink": "Skicka",
+    "backToLogin": "Tillbaka till inloggning"
   }
 }

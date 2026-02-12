@@ -71,6 +71,7 @@
     },
     "forgotEmail": "Forgot your linked email address? Contact support for help.",
     "description": "Enter your email address and we'll send a link to reset your username or password.",
-    "sendResetLink": "Send"
+    "sendResetLink": "Send",
+    "backToLogin": "Back to login"
   }
 }
