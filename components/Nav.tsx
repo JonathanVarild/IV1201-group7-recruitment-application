@@ -37,6 +37,7 @@ export function Nav() {
     { key: "home", href: "/" },
     { key: "apply", href: "/apply" },
     { key: "about", href: "/about" },
+    { key: "profile", href: "/profile" },
     { key: "logout", onClick: onLogOutACB },
   ];
 

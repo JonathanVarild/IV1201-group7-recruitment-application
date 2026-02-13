@@ -8,7 +8,8 @@
     "about": "About us",
     "login": "Login",
     "register": "Register",
-    "logout": "Logout"
+    "logout": "Logout",
+    "profile": "Profile"
   },
   "Footer": {
     "privacyPolicy": "Privacy Policy",
@@ -62,5 +63,23 @@
       "usernameRequired": "Username is required",
       "passwordRequired": "Password is required"
     }
+  },
+  "ProfilePage": {
+    "hello": "Hello",
+    "placeholders": {
+      "username": "Enter new username",
+      "email": "Enter new email",
+      "pnr": "Enter new personal number",
+      "password": "Enter new password"
+    },
+    "current": {
+      "email": "Current email: ",
+      "pnr": "Current personal number: ",
+      "username": "Current username: ",
+      "password": "Current password: "
+    },
+    "updateSuccess": "Personal information updated",
+    "updating": "Updating...",
+    "updateButton": "Update"
   }
 }

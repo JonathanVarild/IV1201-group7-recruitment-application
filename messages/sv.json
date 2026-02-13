@@ -8,7 +8,8 @@
     "about": "Om oss",
     "login": "Logga in",
     "register": "Registrera",
-    "logout": "Logga ut"
+    "logout": "Logga ut",
+    "profile": "Profil"
   },
   "Footer": {
     "privacyPolicy": "Integritetspolicy",
@@ -62,5 +63,23 @@
       "usernameRequired": "Användarnamn krävs",
       "passwordRequired": "Lösenord krävs"
     }
+  },
+  "ProfilePage": {
+    "hello": "Hej",
+    "placeholders": {
+      "username": "Ange nytt användarnamn",
+      "email": "Ange ny e-postadress",
+      "pnr": "Ange nytt personnummer",
+      "password": "Ange nytt lösenord"
+    },
+    "current": {
+      "email": "Nuvarande e-postadress: ",
+      "pnr": "Nuvarande personnummer: ",
+      "username": "Nuvarande användarnamn: ",
+      "password": "Nuvarande lösenord: "
+    },
+    "updateSuccess": "Personlig information uppdaterad",
+    "updateButton": "Uppdatera",
+    "updating": "Uppdaterar..."
   }
 }
