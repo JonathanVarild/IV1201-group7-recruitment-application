@@ -13,6 +13,10 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { managedFetch } from "@/lib/api";
 
+/**
+ * Display the profile page with input fields for personal number, email, username and password. Also displays current information about the user.
+ * @returns {JSX.Element} The rendered profile page component.
+ */
 const ProfilePage = () => {
   const { status, refreshAuth } = useAuth();
   const router = useRouter();

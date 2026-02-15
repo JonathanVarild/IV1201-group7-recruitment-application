@@ -166,6 +166,12 @@ export async function authenticateUser(credentials: CredentialsDTO): Promise<{ u
   return { userData, sessionData };
 }
 
+/**
+ * Updates the user in the database based on what has been entered in profile page fields.
+ *
+ * @param userID - the id of the current user.
+ * @param profileData - the new data entered into profile form.
+ */
 export async function updateUserProfile(userID: number, profileData: Partial<ProfileDTO>): Promise<void> {
   if (updateUserSchema.safeParse(profileData).success === false) {
     throw new InvalidFormDataError();
