@@ -119,7 +119,7 @@ const ProfilePage = () => {
                 {t(`current.${name}`)}
                 {name === "username" ? currentUsername : name === "email" ? currentEmail : name === "pnr" ? currentPnr : "******"}
               </FieldLabel>
-              <Input id={name} type={type} placeholder={t(`placeholders.${name}`)} {...register(name)} />
+              <Input id={name} type={type} placeholder={t(`placeholders.${name}`)} {...register(name)} aria-invalid={!!errors[name]} />
               <FieldError>{errors[name]?.message}</FieldError>
             </Field>
           ))}
