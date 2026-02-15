@@ -80,6 +80,9 @@
     },
     "updateSuccess": "Personlig information uppdaterad",
     "updateButton": "Uppdatera",
-    "updating": "Uppdaterar..."
+    "updating": "Uppdaterar...",
+    "unknownError": "Ett okänt fel uppstod vid uppdatering av profilen",
+    "unexpectedError": "Profilen kunde inte uppdateras på grund av ett oväntat fel",
+    "failedFetchingData": "Användarinformationen kunde inte hämtas"
   }
 }
