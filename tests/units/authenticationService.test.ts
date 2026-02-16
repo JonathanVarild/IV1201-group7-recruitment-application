@@ -47,7 +47,7 @@ describe("authenticationService", () => {
 
   describe("registerUser", () => {
     it("Throws InvalidFormDataError for invalid payloads", async () => {
-      const invalidData = { name: "" } as unknown as {
+      const invalidData = { name: "", password: "" } as unknown as {
         name: string;
         surname: string;
         pnr: string;
@@ -56,7 +56,6 @@ describe("authenticationService", () => {
         password: string;
       };
 
-      // Currently no check for if
       await expect(registerUser(invalidData)).rejects.toBeInstanceOf(InvalidFormDataError);
       expect(getDatabaseClientMock).not.toHaveBeenCalled();
     });
@@ -116,7 +115,7 @@ describe("authenticationService", () => {
       const validUser = {
         name: "Test",
         surname: "User",
-        pnr: "19900101-1234",
+        pnr: "20260101-2384",
         email: "test@example.com",
         username: "testuser",
         password: "password123",
@@ -138,7 +137,7 @@ describe("authenticationService", () => {
     });
   });
 
-  // Code doesn't check if password or username or password exists
+  // Code doesn't check if password or username or password is empty
   describe("authenticateUser", () => {
     it("Throws InvalidFormDataError for invalid payloads", async () => {
       const invalidCredentials = { username: "" } as unknown as {
