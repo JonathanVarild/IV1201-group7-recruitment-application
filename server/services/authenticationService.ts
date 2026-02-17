@@ -9,6 +9,7 @@ import { InvalidCredentialsError } from "@/lib/errors/authErrors";
 import { UserData } from "@/lib/types/userType";
 import { SessionData } from "@/lib/types/sessionType";
 import { generateSession } from "@/lib/session";
+import { LogType, logUserActivity } from "@/lib/logging";
 
 /**
  * Registers a new user in database.
@@ -16,24 +17,22 @@ import { generateSession } from "@/lib/session";
  * @returns The ID of the newly created user.
  * @throws Will throw an error if validation fails or if the database insertion fails.
  */
-export async function registerUser(newUserData: NewUserDTO): Promise<{ userID: number; sessionData: SessionData }> {
+export async function registerUser(newUserData: NewUserDTO, srcRequest: Request): Promise<{ userID: number; sessionData: SessionData }> {
   // Validate the incoming user data against the schema
   if (newUserSchema.safeParse(newUserData).success === false) {
     throw new InvalidFormDataError();
   }
 
-  // Get a database client to perform queries.
-  const databaseClient = await getDatabaseClient();
-
   // Hash the user's password.
   const hash = bcrypt.hashSync(newUserData.password, 10);
 
-  // Start transaction.
-  await databaseClient.query("BEGIN");
-
-  // TODO: Insert into the logging table.
+  // Get a database client to perform queries.
+  const databaseClient = await getDatabaseClient();
 
   try {
+    // Start transaction.
+    await databaseClient.query("BEGIN");
+
     // Insert the new user into the "person" table
     const userInsertResult = await databaseClient.query(
       `INSERT INTO person (name, surname, pnr, email, password_hash, username)
@@ -44,6 +43,9 @@ export async function registerUser(newUserData: NewUserDTO): Promise<{ userID: n
 
     // Get the newly created user ID.
     const userID = userInsertResult.rows[0].person_id;
+
+    // Log to the database.
+    await logUserActivity(databaseClient, LogType.INFO, "USER_SIGNUP", `New user ${newUserData.username} has been created.`, srcRequest, userID);
 
     // Generate a new session for the user.
     const generatedSession = generateSession();
@@ -86,77 +88,96 @@ export async function registerUser(newUserData: NewUserDTO): Promise<{ userID: n
  * @returns The authenticated user's data and session data.
  * @throws Will throw an error if authentication fails for any reason.
  */
-export async function authenticateUser(credentials: CredentialsDTO): Promise<{ userData: UserData; sessionData: SessionData }> {
+export async function authenticateUser(credentials: CredentialsDTO, srcRequest: Request): Promise<{ userData: UserData; sessionData: SessionData }> {
   // Validate the incoming credentials against the schema
   if (credentialsSchema.safeParse(credentials).success === false) {
     throw new InvalidFormDataError();
   }
 
-  // Get a database client to perform queries.
+  // Get a database client from the connection pool.
   const databaseClient = await getDatabaseClient();
 
-  // Start transaction.
-  await databaseClient.query("BEGIN");
+  try {
+    // Query the user by username
+    const userQueryResult = await databaseClient.query(
+      `SELECT 
+        p.person_id,
+        p.password_hash,
+        p.username,
+        p.role_id ,
+        r.name AS role_name
+      FROM person p
+      JOIN role r ON p.role_id = r.role_id
+      WHERE p.username = $1`,
+      [credentials.username],
+    );
 
-  // Query the user by username
-  const userQueryResult = await databaseClient.query(
-    `SELECT 
-    p.person_id,
-    p.password_hash,
-    p.username,
-    p.role_id ,
-    r.name AS role_name
-  FROM person p
-  JOIN role r ON p.role_id = r.role_id
-  WHERE p.username = $1`,
-    [credentials.username],
-  );
+    // If no user found, throw error.
+    if (userQueryResult.rows.length === 0) {
+      await logUserActivity(databaseClient, LogType.INFO, "USER_LOGIN_FAILED", `Client failed to authenticate with username ${credentials.username}.`, srcRequest);
+      throw new InvalidCredentialsError();
+    }
 
-  // If no user found, throw error.
-  if (userQueryResult.rows.length === 0) {
-    throw new InvalidCredentialsError();
-  }
+    // Get the user data.
+    const user = userQueryResult.rows[0];
 
-  // Get the user data.
-  const user = userQueryResult.rows[0];
+    // Validate the password.
+    const successfulLogin = await bcrypt.compare(credentials.password, user.password_hash);
 
-  // Validate the password.
-  const successfulLogin = bcrypt.compareSync(credentials.password, user.password_hash);
+    // Check if we were successful.
+    if (!successfulLogin) {
+      await logUserActivity(databaseClient, LogType.INFO, "USER_LOGIN_FAILED", `Client failed to authenticate with username ${credentials.username}.`, srcRequest, user.person_id);
+      throw new InvalidCredentialsError();
+    }
 
-  // Check if we were successful.
-  if (!successfulLogin) {
-    throw new InvalidCredentialsError();
-  }
+    // Prepare user data to return
+    const userData: UserData = {
+      id: user.person_id,
+      username: user.username,
+      roleID: Number(user.role_id),
+      role: user.role_name,
+    };
 
-  const userData: UserData = {
-    id: user.person_id,
-    username: user.username,
-    roleID: Number(user.role_id),
-    role: user.role_name,
-  };
+    // Generate a new session for the user.
+    const generatedSession = generateSession();
 
-  // Generate a new session for the user.
-  const generatedSession = generateSession();
+    // Start a new transaction.
+    await databaseClient.query("BEGIN");
 
-  // Insert the new session into the "session" table.
-  const sessionInsertResult = await databaseClient.query(
-    `INSERT INTO session (person_id, token_hash, expires_at)
+    // Log the login attempt.
+    await logUserActivity(
+      databaseClient,
+      LogType.INFO,
+      "USER_LOGIN_SUCCESS",
+      `Client successfully authenticated with username ${credentials.username}.`,
+      srcRequest,
+      userQueryResult.rows[0].person_id,
+    );
+
+    // Insert the new session into the "session" table.
+    const sessionInsertResult = await databaseClient.query(
+      `INSERT INTO session (person_id, token_hash, expires_at)
      VALUES ($1, $2, $3) RETURNING session_id`,
-    [userData.id, generatedSession.tokenHash, generatedSession.expiresAt],
-  );
+      [userData.id, generatedSession.tokenHash, generatedSession.expiresAt],
+    );
 
-  // Commit and release client.
-  await databaseClient.query("COMMIT");
-  databaseClient.release();
+    // Commit transaction.
+    await databaseClient.query("COMMIT");
 
-  // Prepare session data.
-  const sessionData: SessionData = {
-    id: sessionInsertResult.rows[0].session_id,
-    personID: userData.id,
-    token: generatedSession.token,
-    expiresAt: generatedSession.expiresAt,
-  };
+    // Prepare session data.
+    const sessionData: SessionData = {
+      id: sessionInsertResult.rows[0].session_id,
+      personID: userData.id,
+      token: generatedSession.token,
+      expiresAt: generatedSession.expiresAt,
+    };
 
-  // Return the authenticated user data (excluding password hash).
-  return { userData, sessionData };
+    // Return the authenticated user data.
+    return { userData, sessionData };
+  } catch (e) {
+    await databaseClient.query("ROLLBACK");
+    throw e;
+  } finally {
+    databaseClient.release();
+  }
 }
