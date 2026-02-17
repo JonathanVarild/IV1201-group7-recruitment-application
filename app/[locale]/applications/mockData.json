@@ -9,7 +9,7 @@
     "email": "john.doe@example.com",
     "phone": "+46701234567",
     "applicationDate": "2024-06-01",
-    "status": "unhandled",
+    "status": "rejected",
     "resumeUrl": "/resumes/john-doe.pdf",
     "answers": [
       { "question": "competences", "answer": "I'm passionate about this field and believe my skills align well with your needs." },
