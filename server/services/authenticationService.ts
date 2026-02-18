@@ -226,5 +226,8 @@ export async function updateUserProfile(userID: number, profileData: Partial<Pro
   } catch (error) {
     await databaseClient.query("ROLLBACK");
     databaseClient.release();
+
+    if (error instanceof DatabaseError && error.code === "23505") throw new ConflictingSignupDataError();
+    else throw error;
   }
 }

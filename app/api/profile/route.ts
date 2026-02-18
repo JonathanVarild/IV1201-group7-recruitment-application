@@ -8,6 +8,12 @@ import { ConflictingSignupDataError } from "@/lib/errors/signupErrors";
 
 export const dynamic = "force-dynamic";
 
+/**
+ * Handles updating user data when authenticated.
+ *
+ * @param request - incoming HTTP PUT requesting with profileDTO data in JSON format.
+ * @returns a JSON response of how updating profile went.
+ */
 export async function PUT(request: Request) {
   try {
     const userData = await getAuthenticatedUserData();
@@ -24,11 +30,9 @@ export async function PUT(request: Request) {
 
     await updateUserProfile(userData.id, updateData);
 
-    // translations?
     const res = NextResponse.json({ message: "Profile updated successfully" }, { status: 201 });
     return res;
   } catch (error) {
-    // translations?
     if (error instanceof ConflictingSignupDataError) return NextResponse.json({ error: error.message }, { status: 409 });
     else if (error instanceof InvalidFormDataError) return NextResponse.json({ error: error.message }, { status: 400 });
     else {

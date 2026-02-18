@@ -1,5 +1,9 @@
 import { z } from "zod";
 
+/**
+ * DTO for updating user profile data.
+ * Ensures each field meets validation rules when provided.
+ */
 export const updateUserSchema = z.object({
   email: z.email("Invalid email address").optional().or(z.literal("")),
   pnr: z
