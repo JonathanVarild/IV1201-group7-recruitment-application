@@ -45,7 +45,7 @@ export async function registerUser(newUserData: NewUserDTO, srcRequest: Request)
     const userID = userInsertResult.rows[0].person_id;
 
     // Log to the database.
-    await logUserActivity(databaseClient, LogType.INFO, "USER_SIGNUP", `New user ${newUserData.username} has been created.`, srcRequest, userID);
+    await logUserActivity(databaseClient, LogType.INFO, "USER_SIGNUP", `New user (${newUserData.username}) has been created.`, srcRequest, userID);
 
     // Generate a new session for the user.
     const generatedSession = generateSession();
@@ -74,11 +74,14 @@ export async function registerUser(newUserData: NewUserDTO, srcRequest: Request)
   } catch (error) {
     // Rollback transaction and release client.
     await databaseClient.query("ROLLBACK");
-    databaseClient.release();
 
     // Check if we failed due to conflicting signup data and throw specific error, else throw the original error.
-    if (error instanceof DatabaseError && error.code === "23505") throw new ConflictingSignupDataError();
-    else throw error;
+    if (error instanceof DatabaseError && error.code === "23505") {
+      await logUserActivity(databaseClient, LogType.INFO, "USER_SIGNUP_CONFLICT", `Failed attempt to create user due to conflicting data.`, srcRequest);
+      throw new ConflictingSignupDataError();
+    } else throw error;
+  } finally {
+    databaseClient.release();
   }
 }
 
@@ -114,7 +117,7 @@ export async function authenticateUser(credentials: CredentialsDTO, srcRequest: 
 
     // If no user found, throw error.
     if (userQueryResult.rows.length === 0) {
-      await logUserActivity(databaseClient, LogType.INFO, "USER_LOGIN_FAILED", `Client failed to authenticate with username ${credentials.username}.`, srcRequest);
+      await logUserActivity(databaseClient, LogType.INFO, "USER_LOGIN_FAILED", `Client failed to authenticate with username (${credentials.username}).`, srcRequest);
       throw new InvalidCredentialsError();
     }
 
@@ -126,7 +129,14 @@ export async function authenticateUser(credentials: CredentialsDTO, srcRequest: 
 
     // Check if we were successful.
     if (!successfulLogin) {
-      await logUserActivity(databaseClient, LogType.INFO, "USER_LOGIN_FAILED", `Client failed to authenticate with username ${credentials.username}.`, srcRequest, user.person_id);
+      await logUserActivity(
+        databaseClient,
+        LogType.INFO,
+        "USER_LOGIN_FAILED",
+        `Client failed to authenticate with username (${credentials.username}).`,
+        srcRequest,
+        user.person_id,
+      );
       throw new InvalidCredentialsError();
     }
 
@@ -149,7 +159,7 @@ export async function authenticateUser(credentials: CredentialsDTO, srcRequest: 
       databaseClient,
       LogType.INFO,
       "USER_LOGIN_SUCCESS",
-      `Client successfully authenticated with username ${credentials.username}.`,
+      `Client successfully authenticated with username (${credentials.username}).`,
       srcRequest,
       userQueryResult.rows[0].person_id,
     );
