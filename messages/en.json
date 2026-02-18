@@ -62,5 +62,31 @@
       "usernameRequired": "Username is required",
       "passwordRequired": "Password is required"
     }
+  },
+  "AdminPage": {
+    "title": "Admin Tool for Recruitment Applications",
+    "boardColumns": {
+      "unhandled": "Unhandled",
+      "accepted": "Accepted",
+      "rejected": "Rejected",
+      "loadMore": "Load More",
+      "noApplications": "No applications"
+    },
+    "applicationCard": {
+      "appliedDate": "Applied"
+    },
+    "applicationDetails": {
+      "email": "Email",
+      "username": "Username",
+      "applicationDate": "Application Date",
+      "status": "Status",
+      "answersHeader": "Questions and Answers",
+      "question": "Question",
+      "answer": "Answer",
+      "questionsToAnswer": {
+        "competences": "What competences do you have that make you suitable for this position?",
+        "availability": "What is your availability?"
+      }
+    }
   }
 }

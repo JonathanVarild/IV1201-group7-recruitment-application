@@ -62,5 +62,31 @@
       "usernameRequired": "Användarnamn krävs",
       "passwordRequired": "Lösenord krävs"
     }
+  },
+  "AdminPage": {
+    "title": "Adminverktyg för rekryteringsansökningar",
+    "boardColumns": {
+      "unhandled": "Ohanterade",
+      "accepted": "Accepterade",
+      "rejected": "Avvisade",
+      "loadMore": "Visa fler",
+      "noApplications": "Inga ansökningar"
+    },
+    "applicationCard": {
+      "appliedDate": "Ansökte"
+    },
+    "applicationDetails": {
+      "email": "E-post",
+      "username": "Användarnamn",
+      "applicationDate": "Ansökningsdatum",
+      "status": "Status",
+      "answersHeader": "Frågor och svar",
+      "question": "Fråga",
+      "answer": "Svar",
+      "questionsToAnswer": {
+        "competences": "Vilka kompetenser har du som gör dig lämpad för den här tjänsten?",
+        "availability": "Vad har du för tillgänglighet?"
+      }
+    }
   }
 }
