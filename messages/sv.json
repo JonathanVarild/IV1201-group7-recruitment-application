@@ -74,7 +74,8 @@
     },
     "applicationCard": {
       "appliedDate": "Ansökte",
-      "updateError": "Misslyckades med att uppdatera ansökningsstatus. Försök igen."
+      "updateError": "Misslyckades med att uppdatera ansökningsstatus. Försök igen.",
+      "statusChanged": "Ansökningsstatusen har ändrats av någon annan. Vänligen försök igen."
     },
     "applicationDetails": {
       "email": "E-post",

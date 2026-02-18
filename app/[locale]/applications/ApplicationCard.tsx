@@ -5,6 +5,7 @@ import { managedFetch } from "@/lib/api";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { APIError } from "@/lib/errors/generalErrors";
 import ApplicationDetails from "./ApplicationDetails";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { ApplicationFullInformation } from "@/lib/types/applicationType";
@@ -40,13 +41,19 @@ const ApplicationCard = ({ applicationFullInformation }: ApplicationCardProps) =
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify({ status: newStatus, currentStatus: status }),
       });
 
       setOpen(false);
       router.refresh();
     } catch (error) {
-      alert(t("updateError"));
+      // Check if it's a 409 Conflict error
+      if (error instanceof APIError && error.statusCode === 409) {
+        alert(t("statusChanged"));
+        router.refresh(); // Refresh to get the latest data
+      } else {
+        alert(t("updateError"));
+      }
     } finally {
       setIsUpdating(false);
     }

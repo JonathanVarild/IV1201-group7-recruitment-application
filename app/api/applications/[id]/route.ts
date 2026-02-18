@@ -11,22 +11,27 @@ import { NextRequest, NextResponse } from "next/server";
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    const { status } = await request.json();
+    const { status, currentStatus } = await request.json();
 
     const client = await getDatabaseClient();
 
     const result = await client.query(
       `UPDATE applications 
        SET status = $1 
-       WHERE application_id = $2 
+       WHERE application_id = $2 AND status = $3
        RETURNING *`,
-      [status, id],
+      [status, id, currentStatus],
     );
 
     client.release();
 
+    // If no rows were updated, the status has changed
+    if (result.rows.length === 0) {
+      return NextResponse.json({ error: "Status has changed" }, { status: 409 });
+    }
+
     return NextResponse.json({ application: result.rows[0] }, { status: 200 });
   } catch (error) {
-    return NextResponse.json(null, { status: 500 });
+    return NextResponse.json({ error: "An unknown error occurred." }, { status: 500 });
   }
 }
