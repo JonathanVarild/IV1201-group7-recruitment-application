@@ -80,9 +80,12 @@
       "username": "Användarnamn",
       "applicationDate": "Ansökningsdatum",
       "status": "Status",
+      "dialogDescription": "Visa och hantera ansökningsdetaljer",
       "answersHeader": "Frågor och svar",
       "question": "Fråga",
       "answer": "Svar",
+      "noCompetences": "Inga kompetenser listade",
+      "noAvailability": "Ingen tillgänglighet listad",
       "questionsToAnswer": {
         "competences": "Vilka kompetenser har du som gör dig lämpad för den här tjänsten?",
         "availability": "Vad har du för tillgänglighet?"

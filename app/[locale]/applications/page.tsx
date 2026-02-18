@@ -1,21 +1,33 @@
 import ApplicationBoard from "./ApplicationBoard";
+import { getTranslations } from "next-intl/server";
+import { getApplications } from "@/server/services/applicationService";
 import { ApplicationFullInformation } from "@/lib/types/applicationType";
-import mockData from "./mockData.json";
-import { useTranslations } from "next-intl";
 
-const AdminPage = () => {
-  {
-    /* TODO: FETCH DATA FROM DATABASE HERE */
+/**
+ * Display the admin page for applications.
+ *
+ * @returns {JSX.Element} The rendered admin page component.
+ */
+const AdminPage = async () => {
+  let applications: ApplicationFullInformation[] = [];
+
+  const t = await getTranslations("AdminPage");
+  const tDetails = await getTranslations("AdminPage.applicationDetails");
+
+  try {
+    applications = await getApplications({
+      noCompetencesText: tDetails("noCompetences"),
+      noAvailabilityText: tDetails("noAvailability"),
+    });
+  } catch (error) {
+    console.error("Error fetching applications:", error);
   }
-  const mockApplications: ApplicationFullInformation[] = mockData as ApplicationFullInformation[];
-
-  const t = useTranslations("AdminPage");
 
   return (
     <div className="min-w-4xl mx-auto">
       <h1 className="text-3xl font-bold my-6 text-center">{t("title")}</h1>
       <div className="flex justify-center items-center">
-        <ApplicationBoard applications={mockApplications} />
+        <ApplicationBoard applications={applications} />
       </div>
     </div>
   );

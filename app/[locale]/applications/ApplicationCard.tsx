@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
+import ApplicationDetails from "./ApplicationDetails";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { ApplicationFullInformation } from "@/lib/types/applicationType";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import ApplicationDetails from "./ApplicationDetails";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 interface ApplicationCardProps {
   applicationFullInformation: ApplicationFullInformation;
@@ -20,6 +20,7 @@ interface ApplicationCardProps {
  */
 const ApplicationCard = ({ applicationFullInformation }: ApplicationCardProps) => {
   const t = useTranslations("AdminPage.applicationCard");
+  const tDetails = useTranslations("AdminPage.applicationDetails");
   const tColumns = useTranslations("AdminPage.boardColumns");
   const { name, applicationDate, status } = applicationFullInformation;
   const [open, setOpen] = useState(false);
@@ -55,6 +56,7 @@ const ApplicationCard = ({ applicationFullInformation }: ApplicationCardProps) =
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">{`${name.firstName} ${name.lastName}`}</DialogTitle>
+          <DialogDescription>{tDetails("dialogDescription")}</DialogDescription>
         </DialogHeader>
         <ApplicationDetails applicationDetails={applicationFullInformation} />
         <div className="flex justify-end gap-2 mt-4">

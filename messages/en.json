@@ -80,9 +80,12 @@
       "username": "Username",
       "applicationDate": "Application Date",
       "status": "Status",
+      "dialogDescription": "View and manage application details",
       "answersHeader": "Questions and Answers",
       "question": "Question",
       "answer": "Answer",
+      "noCompetences": "No competences listed",
+      "noAvailability": "No availability listed",
       "questionsToAnswer": {
         "competences": "What competences do you have that make you suitable for this position?",
         "availability": "What is your availability?"
