@@ -73,7 +73,8 @@
       "noApplications": "Inga ansökningar"
     },
     "applicationCard": {
-      "appliedDate": "Ansökte"
+      "appliedDate": "Ansökte",
+      "updateError": "Misslyckades med att uppdatera ansökningsstatus. Försök igen."
     },
     "applicationDetails": {
       "email": "E-post",
@@ -89,6 +90,11 @@
       "questionsToAnswer": {
         "competences": "Vilka kompetenser har du som gör dig lämpad för den här tjänsten?",
         "availability": "Vad har du för tillgänglighet?"
+      }
+    },
+    "api": {
+      "errors": {
+        "updateFailed": "Misslyckades med att uppdatera ansökningsstatus"
       }
     }
   }

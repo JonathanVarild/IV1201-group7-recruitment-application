@@ -73,7 +73,8 @@
       "noApplications": "No applications"
     },
     "applicationCard": {
-      "appliedDate": "Applied"
+      "appliedDate": "Applied",
+      "updateError": "Failed to update application status. Please try again."
     },
     "applicationDetails": {
       "email": "Email",
@@ -89,6 +90,11 @@
       "questionsToAnswer": {
         "competences": "What competences do you have that make you suitable for this position?",
         "availability": "What is your availability?"
+      }
+    },
+    "api": {
+      "errors": {
+        "updateFailed": "Failed to update application status"
       }
     }
   }

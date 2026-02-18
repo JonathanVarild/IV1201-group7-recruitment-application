@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { managedFetch } from "@/lib/api";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import ApplicationDetails from "./ApplicationDetails";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
@@ -22,11 +24,33 @@ const ApplicationCard = ({ applicationFullInformation }: ApplicationCardProps) =
   const t = useTranslations("AdminPage.applicationCard");
   const tDetails = useTranslations("AdminPage.applicationDetails");
   const tColumns = useTranslations("AdminPage.boardColumns");
-  const { name, applicationDate, status } = applicationFullInformation;
+  const router = useRouter();
+  const { id, name, applicationDate, status } = applicationFullInformation;
   const [open, setOpen] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const allStatuses = ["unhandled", "accepted", "rejected"];
   const otherStatuses = allStatuses.filter((s) => s !== status);
+
+  const handleStatusChange = async (newStatus: string) => {
+    setIsUpdating(true);
+    try {
+      await managedFetch(`/api/applications/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      setOpen(false);
+      router.refresh();
+    } catch (error) {
+      alert(t("updateError"));
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   const getButtonStyle = (statusType: string) => {
     switch (statusType) {
@@ -60,10 +84,10 @@ const ApplicationCard = ({ applicationFullInformation }: ApplicationCardProps) =
         </DialogHeader>
         <ApplicationDetails applicationDetails={applicationFullInformation} />
         <div className="flex justify-end gap-2 mt-4">
-          <Button className={getButtonStyle(otherStatuses[0])} onClick={() => setOpen(false)}>
+          <Button className={getButtonStyle(otherStatuses[0])} onClick={() => handleStatusChange(otherStatuses[0])} disabled={isUpdating}>
             {tColumns(otherStatuses[0] as "unhandled" | "accepted" | "rejected")}
           </Button>
-          <Button className={getButtonStyle(otherStatuses[1])} onClick={() => setOpen(false)}>
+          <Button className={getButtonStyle(otherStatuses[1])} onClick={() => handleStatusChange(otherStatuses[1])} disabled={isUpdating}>
             {tColumns(otherStatuses[1] as "unhandled" | "accepted" | "rejected")}
           </Button>
         </div>
