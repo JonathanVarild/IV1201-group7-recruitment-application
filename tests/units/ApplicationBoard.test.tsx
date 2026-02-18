@@ -1,6 +1,6 @@
 import { describe, expect, it, vi, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
-import ApplicationBoard from "../../app/[locale]/applications/ApplicationBoard";
+import ApplicationBoard from "../../app/[locale]/application/ApplicationBoard";
 import { ApplicationFullInformation } from "@/lib/types/applicationType";
 
 vi.mock("../../app/[locale]/admin/ApplicationCard", () => ({

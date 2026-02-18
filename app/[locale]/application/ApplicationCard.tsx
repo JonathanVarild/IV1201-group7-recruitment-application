@@ -36,7 +36,7 @@ const ApplicationCard = ({ applicationFullInformation }: ApplicationCardProps) =
   const handleStatusChange = async (newStatus: string) => {
     setIsUpdating(true);
     try {
-      await managedFetch(`/api/applications/${id}`, {
+      await managedFetch(`/api/application/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
