@@ -62,5 +62,12 @@
       "usernameRequired": "Username is required",
       "passwordRequired": "Password is required"
     }
+  },
+  "errors": {
+    "unknownError": "An unknown error occurred.",
+    "invalidCredentialsError": "Invalid username or password.",
+    "invalidSessionError": "Your session has expired. Please log in again.",
+    "invalidFormDataError": "The form data you provided is invalid. Please check and try again.",
+    "conflictingSignupDataError": "A user with the provided details already exists. Please use different information."
   }
 }
