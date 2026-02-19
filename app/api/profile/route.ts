@@ -5,6 +5,7 @@ import { InvalidSessionError } from "@/lib/errors/authErrors";
 import { getAuthenticatedUserData } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { ConflictingSignupDataError } from "@/lib/errors/signupErrors";
+import { getFullUserData } from "@/server/services/applicationService";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +18,7 @@ export const dynamic = "force-dynamic";
 export async function PUT(request: Request) {
   try {
     const userData = await getAuthenticatedUserData();
+    const fullUserData = await getFullUserData(userData.id, request);
 
     if (!userData) {
       throw new InvalidSessionError();
@@ -28,7 +30,7 @@ export async function PUT(request: Request) {
       throw new InvalidFormDataError();
     }
 
-    await updateUserProfile(userData.id, updateData);
+    await updateUserProfile(fullUserData.id, updateData);
 
     const res = NextResponse.json({ message: "Profile updated successfully" }, { status: 201 });
     return res;

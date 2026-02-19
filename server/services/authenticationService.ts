@@ -101,12 +101,13 @@ export async function authenticateUser(credentials: CredentialsDTO, srcRequest: 
   // Get a database client from the connection pool.
   const databaseClient = await getDatabaseClient();
 
-  // Start transaction.
-  await databaseClient.query("BEGIN");
+  try {
+    // Start transaction.
+    await databaseClient.query("BEGIN");
 
-  // Query the user by username
-  const userQueryResult = await databaseClient.query(
-    `SELECT 
+    // Query the user by username
+    const userQueryResult = await databaseClient.query(
+      `SELECT 
     p.person_id,
     p.password_hash,
     p.username,
@@ -117,13 +118,13 @@ export async function authenticateUser(credentials: CredentialsDTO, srcRequest: 
   FROM person p
   JOIN role r ON p.role_id = r.role_id
   WHERE p.username = $1`,
-    [credentials.username],
-  );
+      [credentials.username],
+    );
 
-  // If no user found, throw error.
-  if (userQueryResult.rows.length === 0) {
-    throw new InvalidCredentialsError();
-  }
+    // If no user found, throw error.
+    if (userQueryResult.rows.length === 0) {
+      throw new InvalidCredentialsError();
+    }
 
     // If no user found, throw error.
     if (userQueryResult.rows.length === 0) {
@@ -174,14 +175,6 @@ export async function authenticateUser(credentials: CredentialsDTO, srcRequest: 
       userQueryResult.rows[0].person_id,
     );
 
-  const userData: UserData = {
-    id: user.person_id,
-    username: user.username,
-    email: user.email,
-    pnr: user.pnr,
-    roleID: Number(user.role_id),
-    role: user.role_name,
-  };
     // Insert the new session into the "session" table.
     const sessionInsertResult = await databaseClient.query(
       `INSERT INTO session (person_id, token_hash, expires_at)

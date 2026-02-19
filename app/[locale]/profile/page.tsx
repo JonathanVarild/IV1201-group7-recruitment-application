@@ -64,7 +64,7 @@ const ProfilePage = () => {
 
   const fetchUserData = async () => {
     try {
-      const response = await fetch("/api/whoami", { method: "POST" });
+      const response = await fetch("/api/application/getUserDetails", { method: "POST" });
 
       if (!response.ok) {
         throw new Error("");
@@ -72,9 +72,9 @@ const ProfilePage = () => {
 
       const data = await response.json();
 
-      setCurrentUsername(data.username);
-      setCurrentEmail(data.email);
-      setCurrentPnr(data.pnr);
+      setCurrentUsername(data.userData.username);
+      setCurrentEmail(data.userData.email);
+      setCurrentPnr(data.userData.pnr);
     } catch (error) {
       // TODO: Handle error
       console.error(error);

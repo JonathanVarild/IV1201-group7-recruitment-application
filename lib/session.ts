@@ -40,8 +40,6 @@ export async function getAuthenticatedUserData(): Promise<UserData> {
     `SELECT
       p.person_id,
       p.username,
-      p.email,
-      p.pnr,
       r.role_id,
       r.name AS role_name
     FROM session s
@@ -58,8 +56,6 @@ export async function getAuthenticatedUserData(): Promise<UserData> {
   return {
     id: result.rows[0].person_id,
     username: result.rows[0].username,
-    email: result.rows[0].email,
-    pnr: result.rows[0].pnr,
     roleID: Number(result.rows[0].role_id),
     role: result.rows[0].role_name,
   };

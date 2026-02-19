@@ -55,7 +55,7 @@ describe("Nav", () => {
   it("renders authenticated navigation links when authenticated", () => {
     vi.mocked(useAuth).mockReturnValue({
       status: AuthStatus.Authenticated,
-      userData: { username: "testuser", id: 1, roleID: 1, role: "user", email: "test@test.test", pnr: "20010101-0101" },
+      userData: { username: "testuser", id: 1, roleID: 1, role: "user" },
       refreshAuth: vi.fn(),
     });
 
@@ -72,7 +72,7 @@ describe("Nav", () => {
   it("authenticated links have correct hrefs", () => {
     vi.mocked(useAuth).mockReturnValue({
       status: AuthStatus.Authenticated,
-      userData: { username: "testuser", id: 1, roleID: 1, role: "user", email: "test@test.test", pnr: "20010101-0101" },
+      userData: { username: "testuser", id: 1, roleID: 1, role: "user" },
       refreshAuth: vi.fn(),
     });
 
