@@ -94,5 +94,47 @@
       "remove": "Remove",
       "invalidInput": "Select both a start date and an end date."
     }
+  },
+  "AdminPage": {
+    "title": "Admin Tool for Recruitment Applications",
+    "errors": {
+      "fetchApplications": "Failed to load applications. Please try again later."
+    },
+    "boardColumns": {
+      "unhandled": "Unhandled",
+      "accepted": "Accepted",
+      "rejected": "Rejected",
+      "loadMore": "Load More",
+      "noApplications": "No applications"
+    },
+    "applicationCard": {
+      "appliedDate": "Applied",
+      "updateError": "Failed to update application status. Please try again.",
+      "statusChanged": "The application status has been changed by someone else. Please try again.",
+      "moveToAccepted": "Move to Accepted",
+      "moveToRejected": "Move to Rejected",
+      "moveToUnhandled": "Move to Unhandled"
+    },
+    "applicationDetails": {
+      "email": "Email",
+      "username": "Username",
+      "applicationDate": "Application Date",
+      "status": "Status",
+      "dialogDescription": "View and manage application details",
+      "answersHeader": "Questions and Answers",
+      "question": "Question",
+      "answer": "Answer",
+      "noCompetences": "No competences listed",
+      "noAvailability": "No availability listed",
+      "questionsToAnswer": {
+        "competences": "What competences do you have that make you suitable for this position?",
+        "availability": "What is your availability?"
+      }
+    },
+    "api": {
+      "errors": {
+        "updateFailed": "Failed to update application status"
+      }
+    }
   }
 }

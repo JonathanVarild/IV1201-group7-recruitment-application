@@ -6,6 +6,12 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
+/**
+ * Endpoint for registering a new user and creating a session for them.
+ *
+ * @param request The incoming HTTP request.
+ * @return HTTP response.
+ */
 export async function POST(request: Request) {
   try {
     // Read the incoming user post data
@@ -15,7 +21,7 @@ export async function POST(request: Request) {
     if (newUserSchema.safeParse(userData).success === false) throw new InvalidFormDataError();
 
     // Create the user.
-    const { userID, sessionData } = await registerUser(userData);
+    const { userID, sessionData } = await registerUser(userData, request);
 
     // Prepare the response.
     const res = NextResponse.json({ userID }, { status: 201 });

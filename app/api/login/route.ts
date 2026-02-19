@@ -6,6 +6,12 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
+/**
+ * Endpoint for authenticating a user and creating a session.
+ *
+ * @param request The incoming HTTP request.
+ * @return HTTP response.
+ */
 export async function POST(request: Request) {
   try {
     // Read the incoming user credentials
@@ -15,7 +21,7 @@ export async function POST(request: Request) {
     if (credentialsSchema.safeParse(userCredentials).success === false) throw new InvalidFormDataError();
 
     // Authenticate the user.
-    const { userData, sessionData } = await authenticateUser(userCredentials);
+    const { userData, sessionData } = await authenticateUser(userCredentials, request);
 
     // Create response.
     const res = NextResponse.json({ ...userData }, { status: 200 });
