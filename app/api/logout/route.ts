@@ -5,6 +5,12 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
+/**
+ * Endpoint for logging out the authenticated user by deleting their session.
+ *
+ * @param request The incoming HTTP request.
+ * @return HTTP response.
+ */
 export async function GET(request: Request) {
   try {
     // Get the token.

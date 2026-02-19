@@ -5,6 +5,11 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
+/**
+ * Endpoint for retrieving the data of the authenticated user.
+ *
+ * @return HTTP response.
+ */
 export async function POST() {
   try {
     // Return the user data and HTTP 200 (OK) status.
