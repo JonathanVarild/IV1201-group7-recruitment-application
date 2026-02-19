@@ -37,6 +37,7 @@ const AdminPage = async () => {
       rejected,
     };
   } catch (error) {
+    console.error(error);
     alert(t("errors.fetchApplications"));
   }
 

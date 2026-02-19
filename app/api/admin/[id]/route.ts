@@ -32,6 +32,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
     return NextResponse.json({ application: result.rows[0] }, { status: 200 });
   } catch (error) {
+    console.log(error);
     return NextResponse.json({ error: "An unknown error occurred." }, { status: 500 });
   }
 }

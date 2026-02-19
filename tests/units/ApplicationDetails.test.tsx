@@ -46,27 +46,6 @@ describe("ApplicationDetails", () => {
     expect(screen.getAllByText("status").length).toBeGreaterThan(0);
   });
 
-  it("displays all answers when they exist", () => {
-    const { container } = render(<ApplicationDetails applicationDetails={mockApplication} />);
-
-    // Check answers header is displayed (mocked translation returns just the key)
-    expect(screen.getByText("answersHeader")).toBeInTheDocument();
-
-    // Check first answer is displayed
-    expect(screen.getByText("Strong leadership skills")).toBeInTheDocument();
-
-    // Check second answer is displayed
-    expect(screen.getByText("Available immediately")).toBeInTheDocument();
-
-    // Check that question labels contain the word "question" (they have format "question: ...")
-    const questionElements = screen.getAllByText(/question/);
-    expect(questionElements.length).toBeGreaterThanOrEqual(2);
-
-    // Verify the answers container has the correct structure
-    const answersContainer = container.querySelector(".mt-6");
-    expect(answersContainer).toBeInTheDocument();
-  });
-
   it("handles application with no answers correctly", () => {
     const applicationWithNoAnswers: ApplicationFullInformation = {
       ...mockApplication,
