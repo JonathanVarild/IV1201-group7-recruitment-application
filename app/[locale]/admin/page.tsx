@@ -1,6 +1,6 @@
 import ApplicationBoard from "./ApplicationBoard";
 import { getTranslations } from "next-intl/server";
-import { ApplicationStatus, getApplicationsByStatus, PaginatedApplicationsResult } from "@/server/services/applicationService";
+import { ApplicationStatus, getApplicationsByStatus, PaginatedApplicationsResult } from "@/server/services/adminService";
 
 /**
  * TODO: Implement recruiter authentication on this page

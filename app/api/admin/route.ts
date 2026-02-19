@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ApplicationStatus, getApplicationsByStatus } from "@/server/services/applicationService";
+import { ApplicationStatus, getApplicationsByStatus } from "@/server/services/adminService";
 
 const VALID_STATUSES: ApplicationStatus[] = ["unhandled", "accepted", "rejected"];
 const PAGE_SIZE = 5;
