@@ -33,7 +33,7 @@ const AdminPage = async () => {
       rejected,
     };
   } catch (error) {
-    console.error("Error fetching applications:", error);
+    alert(t("errors.fetchApplications"));
   }
 
   return (

@@ -65,6 +65,9 @@
   },
   "AdminPage": {
     "title": "Adminverktyg för rekryteringsansökningar",
+    "errors": {
+      "fetchApplications": "Misslyckades med att ladda ansökningar. Försök igen senare."
+    },
     "boardColumns": {
       "unhandled": "Ohanterade",
       "accepted": "Accepterade",

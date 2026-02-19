@@ -65,6 +65,9 @@
   },
   "AdminPage": {
     "title": "Admin Tool for Recruitment Applications",
+    "errors": {
+      "fetchApplications": "Failed to load applications. Please try again later."
+    },
     "boardColumns": {
       "unhandled": "Unhandled",
       "accepted": "Accepted",
