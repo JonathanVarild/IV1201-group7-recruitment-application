@@ -57,9 +57,8 @@ export async function registerUser(newUserData: NewUserDTO, srcRequest: Request)
       [userID, generatedSession.tokenHash, generatedSession.expiresAt],
     );
 
-    // Commit and release client.
+    // Commit.
     await databaseClient.query("COMMIT");
-    databaseClient.release();
 
     // Prepare session data.
     const sessionData: SessionData = {
