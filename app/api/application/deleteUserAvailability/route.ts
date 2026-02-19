@@ -7,6 +7,12 @@ import { DeleteAvailabilityDTO, deleteAvailabilitySchema } from "@/lib/schemas/a
 
 export const dynamic = "force-dynamic";
 
+/**
+ * Endpoint for deleting an availability from a users' profile.
+ *
+ * @param request The incoming HTTP request.
+ * @return HTTP response.
+ */
 export async function POST(request: Request) {
   try {
     // Get authenticated user data.

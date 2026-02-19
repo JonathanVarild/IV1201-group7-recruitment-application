@@ -7,6 +7,12 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
+/**
+ * Endpoint for retrieving the list of competences available for the application form.
+ *
+ * @param request The incoming HTTP request.
+ * @return HTTP response.
+ */
 export async function POST(request: Request) {
   try {
     // Ensure that the user is authenticated.

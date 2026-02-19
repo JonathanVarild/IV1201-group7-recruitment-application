@@ -7,6 +7,12 @@ import { SetAvailabilityDTO, setAvailabilitySchema } from "@/lib/schemas/applica
 
 export const dynamic = "force-dynamic";
 
+/**
+ * Endpoint for updating an availability in a users' profile.
+ *
+ * @param request The incoming HTTP request.
+ * @return HTTP response.
+ */
 export async function POST(request: Request) {
   try {
     // Get authenticated user data.

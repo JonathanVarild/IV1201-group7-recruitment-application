@@ -7,6 +7,12 @@ import { AddUserAvailabilityDTO, addUserAvailabilitySchema } from "@/lib/schemas
 
 export const dynamic = "force-dynamic";
 
+/**
+ * Endpoint for adding availability to a users' profile.
+ *
+ * @param request The incoming HTTP request.
+ * @return HTTP response.
+ */
 export async function POST(request: Request) {
   try {
     // Get authenticated user data.

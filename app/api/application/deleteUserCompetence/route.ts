@@ -7,6 +7,12 @@ import { DeleteCompetenceDTO, deleteCompetenceSchema } from "@/lib/schemas/appli
 
 export const dynamic = "force-dynamic";
 
+/**
+ * Endpoint for deleting a competence from a users' profile.
+ *
+ * @param request The incoming HTTP request.
+ * @return HTTP response.
+ */
 export async function POST(request: Request) {
   try {
     // Get authenticated user data.

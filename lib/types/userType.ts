@@ -1,3 +1,6 @@
+/**
+ * Type used to represent minimal user data.
+ */
 export type UserData = {
   id: number;
   username: string;
@@ -5,6 +8,9 @@ export type UserData = {
   role: string;
 };
 
+/**
+ * Type used to represent the full data of a user, including personal information
+ */
 export type FullUserData = {
   id: number;
   username: string;
@@ -15,6 +21,9 @@ export type FullUserData = {
   pnr: string;
 };
 
+/**
+ * Type used to represent specific availability information for a user.
+ */
 export type UserAvailability = {
   availabilityID: number;
   fromDate: Date;

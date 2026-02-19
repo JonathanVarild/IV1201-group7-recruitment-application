@@ -7,6 +7,12 @@ import { SetCompetenceDTO, setCompetenceSchema } from "@/lib/schemas/application
 
 export const dynamic = "force-dynamic";
 
+/**
+ * Endpoint for setting a competence in a users' profile.
+ *
+ * @param request The incoming HTTP request.
+ * @return HTTP response.
+ */
 export async function POST(request: Request) {
   try {
     // Get authenticated user data.
