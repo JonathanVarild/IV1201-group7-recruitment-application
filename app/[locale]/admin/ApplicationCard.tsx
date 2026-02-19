@@ -1,12 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { managedFetch } from "@/lib/api";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { APIError } from "@/lib/errors/generalErrors";
+import ApplicationDetails from "./ApplicationDetails";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { ApplicationFullInformation } from "@/lib/types/applicationType";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import ApplicationDetails from "./ApplicationDetails";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 interface ApplicationCardProps {
   applicationFullInformation: ApplicationFullInformation;
@@ -20,12 +23,40 @@ interface ApplicationCardProps {
  */
 const ApplicationCard = ({ applicationFullInformation }: ApplicationCardProps) => {
   const t = useTranslations("AdminPage.applicationCard");
-  const tColumns = useTranslations("AdminPage.boardColumns");
-  const { name, applicationDate, status } = applicationFullInformation;
+  const tDetails = useTranslations("AdminPage.applicationDetails");
+  const router = useRouter();
+  const { id, name, applicationDate, status } = applicationFullInformation;
   const [open, setOpen] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const allStatuses = ["unhandled", "accepted", "rejected"];
   const otherStatuses = allStatuses.filter((s) => s !== status);
+
+  const handleStatusChange = async (newStatus: string) => {
+    setIsUpdating(true);
+    try {
+      await managedFetch(`/api/admin/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: newStatus, currentStatus: status }),
+      });
+
+      setOpen(false);
+      router.refresh();
+    } catch (error) {
+      // Check if it's a 409 Conflict error
+      if (error instanceof APIError && error.statusCode === 409) {
+        alert(t("statusChanged"));
+        router.refresh(); // Refresh to get the latest data
+      } else {
+        alert(t("updateError"));
+      }
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   const getButtonStyle = (statusType: string) => {
     switch (statusType) {
@@ -37,6 +68,19 @@ const ApplicationCard = ({ applicationFullInformation }: ApplicationCardProps) =
         return "bg-white hover:bg-gray-50 text-gray-900 border border-gray-300";
       default:
         return "";
+    }
+  };
+
+  const getActionLabel = (statusType: string) => {
+    switch (statusType) {
+      case "accepted":
+        return t("moveToAccepted");
+      case "rejected":
+        return t("moveToRejected");
+      case "unhandled":
+        return t("moveToUnhandled");
+      default:
+        return statusType;
     }
   };
 
@@ -55,14 +99,15 @@ const ApplicationCard = ({ applicationFullInformation }: ApplicationCardProps) =
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">{`${name.firstName} ${name.lastName}`}</DialogTitle>
+          <DialogDescription>{tDetails("dialogDescription")}</DialogDescription>
         </DialogHeader>
         <ApplicationDetails applicationDetails={applicationFullInformation} />
         <div className="flex justify-end gap-2 mt-4">
-          <Button className={getButtonStyle(otherStatuses[0])} onClick={() => setOpen(false)}>
-            {tColumns(otherStatuses[0] as "unhandled" | "accepted" | "rejected")}
+          <Button className={getButtonStyle(otherStatuses[0])} onClick={() => handleStatusChange(otherStatuses[0])} disabled={isUpdating}>
+            {getActionLabel(otherStatuses[0])}
           </Button>
-          <Button className={getButtonStyle(otherStatuses[1])} onClick={() => setOpen(false)}>
-            {tColumns(otherStatuses[1] as "unhandled" | "accepted" | "rejected")}
+          <Button className={getButtonStyle(otherStatuses[1])} onClick={() => handleStatusChange(otherStatuses[1])} disabled={isUpdating}>
+            {getActionLabel(otherStatuses[1])}
           </Button>
         </div>
       </DialogContent>
