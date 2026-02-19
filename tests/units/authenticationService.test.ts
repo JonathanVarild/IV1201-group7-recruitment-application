@@ -11,11 +11,12 @@ type MockDbClient = {
   release: ReturnType<typeof vi.fn>;
 };
 
-const { getDatabaseClientMock, generateSessionMock, hashSyncMock, compareSyncMock } = vi.hoisted(() => ({
+const { getDatabaseClientMock, generateSessionMock, hashSyncMock, compareMock, logUserActivityMock } = vi.hoisted(() => ({
   getDatabaseClientMock: vi.fn(),
   generateSessionMock: vi.fn(),
   hashSyncMock: vi.fn(),
-  compareSyncMock: vi.fn(),
+  compareMock: vi.fn(),
+  logUserActivityMock: vi.fn(),
 }));
 
 vi.mock("@/lib/database", () => ({
@@ -26,15 +27,24 @@ vi.mock("@/lib/session", () => ({
   generateSession: generateSessionMock,
 }));
 
+vi.mock("@/lib/logging", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/logging")>("@/lib/logging");
+  return {
+    ...actual,
+    logUserActivity: logUserActivityMock,
+  };
+});
+
 vi.mock("bcrypt", () => ({
   default: {
     hashSync: hashSyncMock,
-    compareSync: compareSyncMock,
+    compare: compareMock,
   },
 }));
 
 describe("authenticationService", () => {
   let dbClient: MockDbClient;
+  let mockRequest: Request;
 
   beforeEach(() => {
     vi.resetAllMocks();
@@ -42,7 +52,14 @@ describe("authenticationService", () => {
       query: vi.fn(),
       release: vi.fn(),
     };
+    mockRequest = new Request("http://localhost/api/auth", {
+      headers: {
+        "user-agent": "vitest",
+        "x-forwarded-for": "127.0.0.1",
+      },
+    });
     getDatabaseClientMock.mockResolvedValue(dbClient);
+    logUserActivityMock.mockResolvedValue(1);
   });
 
   describe("registerUser", () => {
@@ -56,7 +73,7 @@ describe("authenticationService", () => {
         password: string;
       };
 
-      await expect(registerUser(invalidData)).rejects.toBeInstanceOf(InvalidFormDataError);
+      await expect(registerUser(invalidData, mockRequest)).rejects.toBeInstanceOf(InvalidFormDataError);
       expect(getDatabaseClientMock).not.toHaveBeenCalled();
     });
 
@@ -85,7 +102,7 @@ describe("authenticationService", () => {
         .mockResolvedValueOnce({ rows: [{ session_id: 456 }] }) // INSERT session
         .mockResolvedValueOnce({}); // COMMIT
 
-      const result = await registerUser(validUser);
+      const result = await registerUser(validUser, mockRequest);
 
       expect(hashSyncMock).toHaveBeenCalledWith(validUser.password, 10);
       expect(generateSessionMock).toHaveBeenCalledTimes(1);
@@ -100,7 +117,7 @@ describe("authenticationService", () => {
       ]);
       expect(dbClient.query).toHaveBeenNthCalledWith(3, expect.stringContaining("INSERT INTO session"), [123, session.tokenHash, session.expiresAt]);
       expect(dbClient.query).toHaveBeenNthCalledWith(4, "COMMIT");
-      expect(dbClient.release).toHaveBeenCalledTimes(1);
+      expect(dbClient.release).toHaveBeenCalledTimes(2);
 
       expect(result.userID).toBe(123);
       expect(result.sessionData).toEqual<SessionData>({
@@ -131,7 +148,7 @@ describe("authenticationService", () => {
         .mockRejectedValueOnce(dbError) // INSERT person fails
         .mockResolvedValueOnce({}); // ROLLBACK
 
-      await expect(registerUser(validUser)).rejects.toBeInstanceOf(ConflictingSignupDataError);
+      await expect(registerUser(validUser, mockRequest)).rejects.toBeInstanceOf(ConflictingSignupDataError);
       expect(dbClient.query).toHaveBeenCalledWith("ROLLBACK");
       expect(dbClient.release).toHaveBeenCalledTimes(1);
     });
@@ -145,7 +162,7 @@ describe("authenticationService", () => {
         password: string;
       };
 
-      await expect(authenticateUser(invalidCredentials)).rejects.toBeInstanceOf(InvalidFormDataError);
+      await expect(authenticateUser(invalidCredentials, mockRequest)).rejects.toBeInstanceOf(InvalidFormDataError);
       expect(getDatabaseClientMock).not.toHaveBeenCalled();
     });
 
@@ -153,18 +170,17 @@ describe("authenticationService", () => {
       const credentials = { username: "missing", password: "password123" };
 
       dbClient.query
-        .mockResolvedValueOnce({}) // BEGIN
-        .mockResolvedValueOnce({ rows: [] }); // SELECT user
+        .mockResolvedValueOnce({ rows: [] }) // SELECT user
+        .mockResolvedValueOnce({}); // ROLLBACK
 
-      await expect(authenticateUser(credentials)).rejects.toBeInstanceOf(InvalidCredentialsError);
-      expect(compareSyncMock).not.toHaveBeenCalled();
+      await expect(authenticateUser(credentials, mockRequest)).rejects.toBeInstanceOf(InvalidCredentialsError);
+      expect(compareMock).not.toHaveBeenCalled();
     });
 
     it("Throws InvalidCredentialsError when password does not match", async () => {
       const credentials = { username: "testuser", password: "wrong" };
 
       dbClient.query
-        .mockResolvedValueOnce({}) // BEGIN
         .mockResolvedValueOnce({
           rows: [
             {
@@ -175,12 +191,13 @@ describe("authenticationService", () => {
               role_name: "applicant",
             },
           ],
-        });
+        })
+        .mockResolvedValueOnce({}); // ROLLBACK
 
-      compareSyncMock.mockReturnValue(false);
+      compareMock.mockResolvedValue(false);
 
-      await expect(authenticateUser(credentials)).rejects.toBeInstanceOf(InvalidCredentialsError);
-      expect(compareSyncMock).toHaveBeenCalledWith(credentials.password, "stored-hash");
+      await expect(authenticateUser(credentials, mockRequest)).rejects.toBeInstanceOf(InvalidCredentialsError);
+      expect(compareMock).toHaveBeenCalledWith(credentials.password, "stored-hash");
       expect(dbClient.query).toHaveBeenCalledTimes(2);
     });
 
@@ -193,7 +210,6 @@ describe("authenticationService", () => {
       };
 
       dbClient.query
-        .mockResolvedValueOnce({}) // BEGIN
         .mockResolvedValueOnce({
           rows: [
             {
@@ -205,18 +221,19 @@ describe("authenticationService", () => {
             },
           ],
         })
+        .mockResolvedValueOnce({}) // BEGIN
         .mockResolvedValueOnce({ rows: [{ session_id: 99 }] }) // INSERT session
         .mockResolvedValueOnce({}); // COMMIT
 
-      compareSyncMock.mockReturnValue(true);
+      compareMock.mockResolvedValue(true);
       generateSessionMock.mockReturnValue(session);
 
-      const result = await authenticateUser(credentials);
+      const result = await authenticateUser(credentials, mockRequest);
 
-      expect(compareSyncMock).toHaveBeenCalledWith(credentials.password, "stored-hash");
+      expect(compareMock).toHaveBeenCalledWith(credentials.password, "stored-hash");
       expect(generateSessionMock).toHaveBeenCalledTimes(1);
-      expect(dbClient.query).toHaveBeenNthCalledWith(1, "BEGIN");
-      expect(dbClient.query).toHaveBeenNthCalledWith(2, expect.stringContaining("SELECT"), [credentials.username]);
+      expect(dbClient.query).toHaveBeenNthCalledWith(1, expect.stringContaining("SELECT"), [credentials.username]);
+      expect(dbClient.query).toHaveBeenNthCalledWith(2, "BEGIN");
       expect(dbClient.query).toHaveBeenNthCalledWith(3, expect.stringContaining("INSERT INTO session"), [42, session.tokenHash, session.expiresAt]);
       expect(dbClient.query).toHaveBeenNthCalledWith(4, "COMMIT");
       expect(dbClient.release).toHaveBeenCalledTimes(1);

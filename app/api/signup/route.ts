@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     if (newUserSchema.safeParse(userData).success === false) throw new InvalidFormDataError();
 
     // Create the user.
-    const { userID, sessionData } = await registerUser(userData);
+    const { userID, sessionData } = await registerUser(userData, request);
 
     // Prepare the response.
     const res = NextResponse.json({ userID }, { status: 201 });
