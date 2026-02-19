@@ -36,6 +36,6 @@ export async function GET(request: Request) {
     return res;
   } catch (error) {
     console.error("Unexpected error during logout:", error);
-    return NextResponse.json({ error: "An unknown error occurred." }, { status: 500 });
+    return NextResponse.json({ error: "An unknown error occurred.", translationKey: "unknownError" }, { status: 500 });
   }
 }

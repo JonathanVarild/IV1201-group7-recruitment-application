@@ -39,15 +39,15 @@ export async function POST(request: Request) {
     return res;
   } catch (error) {
     // Check if the form data was invalid and return HTTP 400 (BAD REQUEST) status.
-    if (error instanceof InvalidFormDataError) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error instanceof InvalidFormDataError) return NextResponse.json({ error: error.message, translationKey: error.translationKey }, { status: 400 });
     // Check if the credentials were invalid and return HTTP 401 (UNAUTHORIZED) status.
-    else if (error instanceof InvalidCredentialsError) return NextResponse.json({ error: error.message }, { status: 401 });
+    else if (error instanceof InvalidCredentialsError) return NextResponse.json({ error: error.message, translationKey: error.translationKey }, { status: 401 });
     // Check if the JSON parsing failed and return HTTP 400 (BAD REQUEST) status.
     else if (error instanceof SyntaxError) return NextResponse.json({ error: "Malformed JSON in request body." }, { status: 400 });
     // Return HTTP 500 (INTERNAL SERVER ERROR) status for any other errors.
     else {
       console.error("Unexpected error during authentication:", error);
-      return NextResponse.json({ error: "An unknown error occurred." }, { status: 500 });
+      return NextResponse.json({ error: "An unknown error occurred.", translationKey: "unknownError" }, { status: 500 });
     }
   }
 }

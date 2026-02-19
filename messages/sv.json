@@ -98,11 +98,13 @@
         "competences": "Vilka kompetenser har du som gör dig lämpad för den här tjänsten?",
         "availability": "Vad har du för tillgänglighet?"
       }
-    },
-    "api": {
-      "errors": {
-        "updateFailed": "Misslyckades med att uppdatera ansökningsstatus"
-      }
     }
+  },
+  "errors": {
+    "unknownError": "Ett okänt fel inträffade.",
+    "invalidCredentialsError": "Ogiltigt användarnamn eller lösenord.",
+    "invalidSessionError": "Din session har gått ut. Vänligen logga in igen.",
+    "invalidFormDataError": "Angiven formulärsdata är ogiltig. Kontrollera och försök igen.",
+    "conflictingSignupDataError": "En användare med de angivna detaljerna finns redan. Använd annan information."
   }
 }

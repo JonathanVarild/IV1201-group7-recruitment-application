@@ -39,13 +39,13 @@ export async function POST(request: Request) {
     return res;
   } catch (error) {
     // Check if there is a conflicting user in the database and return HTTP 409 (CONFLICT) status.
-    if (error instanceof ConflictingSignupDataError) return NextResponse.json({ error: error.message }, { status: 409 });
+    if (error instanceof ConflictingSignupDataError) return NextResponse.json({ error: error.message, translationKey: error.translationKey }, { status: 409 });
     // Check if the form data was invalid and return HTTP 400 (BAD REQUEST) status.
-    else if (error instanceof InvalidFormDataError) return NextResponse.json({ error: error.message }, { status: 400 });
+    else if (error instanceof InvalidFormDataError) return NextResponse.json({ error: error.message, translationKey: error.translationKey }, { status: 400 });
     // Return HTTP 500 (INTERNAL SERVER ERROR) status for any other errors.
     else {
       console.error("Unexpected error during signup:", error);
-      return NextResponse.json({ error: "An unknown error occurred." }, { status: 500 });
+      return NextResponse.json({ error: "An unknown error occurred.", translationKey: "unknownError" }, { status: 500 });
     }
   }
 }
