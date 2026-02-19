@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { useLocale, useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Field, FieldLabel } from "@/components/ui/field";
@@ -12,11 +13,11 @@ import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { type DateRange } from "react-day-picker";
 import { getDateFnsLocale } from "@/lib/dateLocales";
-
-type Competence = {
-  id: number;
-  name: string;
-};
+import { managedFetch } from "@/lib/api";
+import { Competence, UserCompetence } from "@/lib/types/competenceType";
+import { FullUserData } from "@/lib/types/userType";
+import { AuthStatus, useAuth } from "@/components/AuthProvider";
+import { APIError } from "@/lib/errors/generalErrors";
 
 type SetCompetenceDTO = {
   competenceID: number;
@@ -28,23 +29,32 @@ type AvailabilityRange = {
   to: Date;
 };
 
+type UserAvailabilityResponse = {
+  availabilityID: number;
+  fromDate: string;
+  toDate: string;
+};
+
+type GetUserDetailsResponse = {
+  userData: FullUserData;
+  availability: UserAvailabilityResponse[];
+  competences: UserCompetence[];
+};
+
 const setCompetenceSchema = z.object({
   competenceID: z.number().int().nonnegative(),
   yearsOfExperience: z.coerce.number().gt(0),
 });
 
 const ApplyPage = () => {
+  const router = useRouter();
   const locale = useLocale();
   const t = useTranslations("ApplyPage");
-  const accountEmail = "mail@mail.org"; // TODO: Replace with user data fetched from account API.
-  const firstName = "First";
-  const lastName = "Last";
-  // TODO: Replace with competences fetched from API.
-  const availableCompetences: Competence[] = [
-    { id: 1, name: "Ticket sales" },
-    { id: 2, name: "Lotteries" },
-    { id: 3, name: "Roller coaster operations" },
-  ];
+  const { status, refreshAuth } = useAuth();
+  const [userData, setUserData] = useState<FullUserData | null>(null);
+  const [availableCompetences, setAvailableCompetences] = useState<Competence[]>([]);
+  const [isLoadingData, setIsLoadingData] = useState(true);
+  const [hasLoadError, setHasLoadError] = useState(false);
 
   const [selectedCompetenceID, setSelectedCompetenceID] = useState<number | null>(null);
   const [yearsInput, setYearsInput] = useState("");
@@ -53,6 +63,103 @@ const ApplyPage = () => {
   const [selectedAvailability, setSelectedAvailability] = useState<DateRange | undefined>(undefined);
   const [availabilityRanges, setAvailabilityRanges] = useState<AvailabilityRange[]>([]);
   const [availabilityError, setAvailabilityError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (status === AuthStatus.Unauthenticated) {
+      router.replace("/login");
+    }
+  }, [status, router]);
+
+  useEffect(() => {
+    if (status !== AuthStatus.Authenticated) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadApplicationData = async () => {
+      setIsLoadingData(true);
+      setHasLoadError(false);
+      try {
+        const [detailsResult, competenceListResult] = await Promise.allSettled([
+          managedFetch<GetUserDetailsResponse>("/api/application/getUserDetails", {
+            method: "POST",
+          }),
+          managedFetch<Competence[]>("/api/application/getCompetenceList", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ locale: locale.split("-")[0] }),
+          }),
+        ]);
+
+        if (cancelled) return;
+
+        let shouldRedirectToLogin = false;
+
+        if (detailsResult.status === "fulfilled") {
+          const details = detailsResult.value;
+          setUserData(details.userData);
+          setAddedCompetences(details.competences.map((competence) => ({ competenceID: competence.id, yearsOfExperience: competence.yearsOfExperience })));
+          setAvailabilityRanges(details.availability.map((availability) => ({ from: new Date(availability.fromDate), to: new Date(availability.toDate) })));
+        } else if (detailsResult.reason instanceof APIError && detailsResult.reason.statusCode === 401) {
+          shouldRedirectToLogin = true;
+        } else {
+          console.error("Failed to load user details:", detailsResult.reason);
+          setHasLoadError(true);
+        }
+
+        if (competenceListResult.status === "fulfilled") {
+          setAvailableCompetences(competenceListResult.value);
+        } else if (competenceListResult.reason instanceof APIError && competenceListResult.reason.statusCode === 401) {
+          shouldRedirectToLogin = true;
+        } else {
+          console.error("Failed to load competence list:", competenceListResult.reason);
+          setHasLoadError(true);
+        }
+
+        if (shouldRedirectToLogin) {
+          refreshAuth();
+          router.replace("/login");
+        }
+      } catch (error) {
+        if (cancelled) {
+          return;
+        }
+
+        if (error instanceof APIError && error.statusCode === 401) {
+          refreshAuth();
+          router.replace("/login");
+          return;
+        }
+
+        console.error("Failed to load application data:", error);
+        setHasLoadError(true);
+      } finally {
+        if (!cancelled) {
+          setIsLoadingData(false);
+        }
+      }
+    };
+
+    loadApplicationData();
+    return () => {
+      cancelled = true;
+    };
+  }, [locale, status, router, refreshAuth]);
+
+  if (status === AuthStatus.Unauthenticated) {
+    return null;
+  }
+
+  if (status === AuthStatus.Loading) {
+    return (
+      <div className="container mx-auto max-w-md space-y-5 py-10">
+        <Card className="p-6">
+          <p className="text-sm text-muted-foreground">{t("loadingData")}</p>
+        </Card>
+      </div>
+    );
+  }
 
   const addCompetence = () => {
     const result = setCompetenceSchema.safeParse({
@@ -105,20 +212,22 @@ const ApplyPage = () => {
 
       <Card className="p-6 space-y-4">
         <h2 className="text-lg font-semibold">{t("contactInformation.title")}</h2>
+        {isLoadingData && <p className="text-sm text-muted-foreground">{t("loadingData")}</p>}
+        {hasLoadError && <p className="text-sm text-destructive">{t("loadingError")}</p>}
 
         <Field className="gap-1.5">
           <FieldLabel htmlFor="contact-first-name">{t("contactInformation.firstName")}</FieldLabel>
-          <Input id="contact-first-name" type="text" value={firstName} readOnly className="bg-muted text-muted-foreground cursor-text" />
+          <Input id="contact-first-name" type="text" value={userData?.firstName ?? ""} readOnly className="bg-muted text-muted-foreground cursor-text" />
         </Field>
 
         <Field className="gap-1.5">
           <FieldLabel htmlFor="contact-last-name">{t("contactInformation.lastName")}</FieldLabel>
-          <Input id="contact-last-name" type="text" value={lastName} readOnly className="bg-muted text-muted-foreground cursor-text" />
+          <Input id="contact-last-name" type="text" value={userData?.lastName ?? ""} readOnly className="bg-muted text-muted-foreground cursor-text" />
         </Field>
 
         <Field className="gap-1.5">
           <FieldLabel htmlFor="contact-email">{t("contactInformation.email")}</FieldLabel>
-          <Input id="contact-email" type="email" value={accountEmail} readOnly className="bg-muted text-muted-foreground cursor-text" />
+          <Input id="contact-email" type="email" value={userData?.email ?? ""} readOnly className="bg-muted text-muted-foreground cursor-text" />
         </Field>
       </Card>
       <Card className={cn("p-6 space-y-4 transition-colors", competenceError && "apply-shake-x border-destructive/70 ring-1 ring-destructive/40")}>

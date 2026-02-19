@@ -72,6 +72,8 @@
   },
   "ApplyPage": {
     "title": "Ansök",
+    "loadingData": "Laddar dina ansökningsuppgifter...",
+    "loadingError": "Kunde inte ladda dina ansökningsuppgifter. Ladda om sidan.",
     "contactInformation": {
       "title": "Kontaktuppgifter",
       "email": "E-post",
