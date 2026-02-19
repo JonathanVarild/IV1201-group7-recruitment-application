@@ -40,7 +40,7 @@ export async function getUserDataFromSession(sessionToken: string): Promise<User
     FROM session s
     JOIN person p ON s.person_id = p.person_id
     JOIN role r ON p.role_id = r.role_id
-    WHERE s.token_hash = $1`,
+    WHERE s.token_hash = $1 AND s.expires_at > NOW()`,
     [tokenHash],
   );
 
