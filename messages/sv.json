@@ -76,7 +76,6 @@
     "description": "Ange din e-postadress så skickar vi en länk för att återställa ditt användarnamn eller lösenord.",
     "sendResetLink": "Skicka",
     "backToLogin": "Tillbaka till inloggning"
-    }
   },
   "AdminPage": {
     "title": "Adminverktyg för rekryteringsansökningar",
