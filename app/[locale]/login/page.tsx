@@ -14,6 +14,8 @@ import { UserData } from "@/lib/types/userType";
 import { useRouter } from "next/navigation";
 import { APIError } from "@/lib/errors/generalErrors";
 import Link from "next/link";
+import { useAuth } from "@/components/AuthProvider";
+import { handleClientError } from "@/lib/utils";
 
 /**
  * Display the login page with username and password fields.
@@ -23,6 +25,8 @@ import Link from "next/link";
 const LoginPage = () => {
   const router = useRouter();
   const t = useTranslations("LoginPage");
+  const tErrors = useTranslations("errors");
+  const { refreshAuth } = useAuth();
 
   const loginSchema = credentialsSchema.extend({
     username: credentialsSchema.shape.username.trim().min(1, t("validation.usernameRequired")),
@@ -50,7 +54,6 @@ const LoginPage = () => {
         password: data.password,
       };
 
-      // TODO: Fix translations for server responses.
       await managedFetch<{ userData: UserData }>("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -58,14 +61,9 @@ const LoginPage = () => {
       });
 
       router.push("/");
+      refreshAuth();
     } catch (error) {
-      if (error instanceof APIError) {
-        const data = error.jsonData as { error?: string };
-        alert(data.error || "Unknown error occurred during registration.");
-      } else {
-        console.error(error);
-        alert("Registration failed due to an unexpected error.");
-      }
+      handleClientError(error, tErrors);
     }
   };
 

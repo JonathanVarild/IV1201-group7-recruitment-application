@@ -6,6 +6,9 @@ import { routing } from "@/i18n/routing";
 import { Footer } from "@/components/Footer";
 import { setRequestLocale } from "next-intl/server";
 import { Header } from "@/components/Header";
+import { AuthProvider } from "@/components/AuthProvider";
+import { getAuthenticatedUserData } from "@/lib/session";
+import { InvalidSessionError } from "@/lib/errors/authErrors";
 
 export const metadata: Metadata = {
   title: "Recruitment Application",
@@ -26,13 +29,24 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   setRequestLocale(locale);
 
+  let authenticatedUserData = null;
+  try {
+    authenticatedUserData = await getAuthenticatedUserData();
+  } catch (error) {
+    if (!(error instanceof InvalidSessionError)) {
+      console.error(error);
+    }
+  }
+
   return (
     <html lang={locale}>
       <body>
         <NextIntlClientProvider locale={locale}>
-          <Header />
-          {children}
-          <Footer />
+          <AuthProvider loggedInUser={authenticatedUserData}>
+            <Header />
+            {children}
+            <Footer />
+          </AuthProvider>
         </NextIntlClientProvider>
       </body>
     </html>

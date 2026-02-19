@@ -10,8 +10,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { NewUserDTO } from "@/lib/schemas/userDTO";
 import { managedFetch } from "@/lib/api";
-import { APIError } from "@/lib/errors/generalErrors";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/components/AuthProvider";
+import { handleClientError } from "@/lib/utils";
 
 /**
  * Displays the registration page with multiple input fields.
@@ -21,6 +22,8 @@ import { useRouter } from "next/navigation";
 const RegisterPage = () => {
   const router = useRouter();
   const t = useTranslations("RegisterPage");
+  const tErrors = useTranslations("errors");
+  const { refreshAuth } = useAuth();
 
   const registerSchema = z
     .object({
@@ -72,7 +75,6 @@ const RegisterPage = () => {
         password: data.password,
       };
 
-      // TODO: Fix translations for server responses.
       await managedFetch<{ userID: number }>("/api/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -80,14 +82,9 @@ const RegisterPage = () => {
       });
 
       router.push("/");
+      refreshAuth();
     } catch (error) {
-      if (error instanceof APIError) {
-        const data = error.jsonData as { error?: string };
-        alert(data.error || "Unknown error occurred during registration.");
-      } else {
-        console.error(error);
-        alert("Registration failed due to an unexpected error.");
-      }
+      handleClientError(error, tErrors);
     }
   };
 
