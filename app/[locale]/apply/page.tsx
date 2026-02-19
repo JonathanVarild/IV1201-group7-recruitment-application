@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { type DateRange } from "react-day-picker";
+import { getDateFnsLocale } from "@/lib/dateLocales";
 
 type Competence = {
   id: number;
@@ -176,6 +177,7 @@ const ApplyPage = () => {
           mode="range"
           selected={selectedAvailability}
           onSelect={setSelectedAvailability}
+          locale={getDateFnsLocale(locale)}
           className={cn("rounded-md border", availabilityError && "apply-shake-x border-destructive/70")}
         />
 
