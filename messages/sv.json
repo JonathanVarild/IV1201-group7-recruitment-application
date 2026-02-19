@@ -62,5 +62,30 @@
       "usernameRequired": "Användarnamn krävs",
       "passwordRequired": "Lösenord krävs"
     }
+  },
+  "ApplyPage": {
+    "title": "Ansök",
+    "contactInformation": {
+      "title": "Kontaktuppgifter",
+      "email": "E-post",
+      "firstName": "Förnamn",
+      "lastName": "Efternamn"
+    },
+    "competences": {
+      "title": "Kompetenser",
+      "competence": "Kompetens",
+      "selectPlaceholder": "Välj kompetens",
+      "years": "År",
+      "yearsPlaceholder": "t.ex. 1,5",
+      "add": "Lägg till",
+      "remove": "Ta bort",
+      "invalidInput": "Välj en kompetens och ange år som är större än 0."
+    },
+    "availability": {
+      "title": "Tillgänglighet",
+      "add": "Lägg till datumintervall",
+      "remove": "Ta bort",
+      "invalidInput": "Välj både ett startdatum och ett slutdatum."
+    }
   }
 }

@@ -62,5 +62,30 @@
       "usernameRequired": "Username is required",
       "passwordRequired": "Password is required"
     }
+  },
+  "ApplyPage": {
+    "title": "Apply for a position",
+    "contactInformation": {
+      "title": "Contact Information",
+      "email": "Email",
+      "firstName": "First Name",
+      "lastName": "Last Name"
+    },
+    "competences": {
+      "title": "Competences",
+      "competence": "Competence",
+      "selectPlaceholder": "Select competence",
+      "years": "Years",
+      "yearsPlaceholder": "e.g. 1.5",
+      "add": "Add",
+      "remove": "Remove",
+      "invalidInput": "Select a competence and enter years greater than 0."
+    },
+    "availability": {
+      "title": "Availability",
+      "add": "Add date range",
+      "remove": "Remove",
+      "invalidInput": "Select both a start date and an end date."
+    }
   }
 }
