@@ -31,6 +31,7 @@ async function getLocalClient() {
  *
  * @param localDatabaseClient - a client connected to the old database.
  * @param newDatabaseClient - a client connected to the new database.
+ * @throws error if migrate competence fails
  */
 async function migrateCompetence(localDatabaseClient: Client, newDatabaseClient: PoolClient) {
   try {
@@ -45,7 +46,7 @@ async function migrateCompetence(localDatabaseClient: Client, newDatabaseClient:
       );
     }
   } catch (error) {
-    // TODO: log error
+    throw error;
   }
 }
 
@@ -54,6 +55,7 @@ async function migrateCompetence(localDatabaseClient: Client, newDatabaseClient:
  *
  * @param localDatabaseClient - a client connected to the old database.
  * @param newDatabaseClient - a client connected to the new database.
+ * @throws error if migra competence profile fails
  */
 async function migrateCompetenceProfile(localDatabaseClient: Client, newDatabaseClient: PoolClient) {
   try {
@@ -68,7 +70,7 @@ async function migrateCompetenceProfile(localDatabaseClient: Client, newDatabase
       );
     }
   } catch (error) {
-    // TODO: log error
+    throw error;
   }
 }
 
@@ -77,6 +79,7 @@ async function migrateCompetenceProfile(localDatabaseClient: Client, newDatabase
  *
  * @param localDatabaseClient - a client connected to the old database.
  * @param newDatabaseClient - a client connected to the new database.
+ * @throws error if migrate availability fails
  */
 async function migrateAvailability(localDatabaseClient: Client, newDatabaseClient: PoolClient) {
   try {
@@ -91,7 +94,7 @@ async function migrateAvailability(localDatabaseClient: Client, newDatabaseClien
       );
     }
   } catch (error) {
-    // TODO: log error
+    throw error;
   }
 }
 
@@ -100,6 +103,7 @@ async function migrateAvailability(localDatabaseClient: Client, newDatabaseClien
  *
  * @param localDatabaseClient - a client connected to the old database.
  * @param newDatabaseClient - a client connected to the new database.
+ * @throws error if migrate role fails
  */
 async function migrateRole(localDatabaseClient: Client, newDatabaseClient: PoolClient) {
   try {
@@ -115,7 +119,7 @@ async function migrateRole(localDatabaseClient: Client, newDatabaseClient: PoolC
       );
     }
   } catch (error) {
-    // TODO: log error
+    throw error;
   }
 }
 
@@ -124,6 +128,7 @@ async function migrateRole(localDatabaseClient: Client, newDatabaseClient: PoolC
  *
  * @param localDatabaseClient - a client connected to the old database.
  * @param newDatabaseClient - a client connected to the new database.
+ * @throws error if migrate person fails
  */
 async function migratePerson(localDatabaseClient: Client, newDatabaseClient: PoolClient) {
   try {
@@ -164,10 +169,14 @@ async function migratePerson(localDatabaseClient: Client, newDatabaseClient: Poo
       );
     }
   } catch (error) {
-    // TODO: log error
+    throw error;
   }
 }
 
+/**
+ * Main migration function that gets clients to old and new databas, invoke helpers and transfer data.
+ * @throws error if rollback
+ */
 async function migrate() {
   const localDatabaseClient = await getLocalClient();
   const newDatabaseClient = await getDatabaseClient();
@@ -193,11 +202,10 @@ async function migrate() {
     await newDatabaseClient.query("ROLLBACK");
     newDatabaseClient.release();
     await localDatabaseClient.end();
-
-    // TODO: log error
+    throw error;
   }
 }
 
 migrate().catch((error) => {
-  // TODO: log error
+  throw error;
 });
