@@ -78,7 +78,10 @@
     "applicationCard": {
       "appliedDate": "Applied",
       "updateError": "Failed to update application status. Please try again.",
-      "statusChanged": "The application status has been changed by someone else. Please try again."
+      "statusChanged": "The application status has been changed by someone else. Please try again.",
+      "moveToAccepted": "Move to Accepted",
+      "moveToRejected": "Move to Rejected",
+      "moveToUnhandled": "Move to Unhandled"
     },
     "applicationDetails": {
       "email": "Email",

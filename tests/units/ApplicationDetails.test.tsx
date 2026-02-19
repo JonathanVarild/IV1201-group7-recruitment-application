@@ -1,6 +1,6 @@
 import { describe, expect, it, afterEach } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
-import ApplicationDetails from "../../app/[locale]/application/ApplicationDetails";
+import ApplicationDetails from "../../app/[locale]/admin/ApplicationDetails";
 import { ApplicationFullInformation } from "@/lib/types/applicationType";
 
 describe("ApplicationDetails", () => {

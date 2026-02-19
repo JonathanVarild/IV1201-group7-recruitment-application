@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { managedFetch } from "@/lib/api";
 import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
@@ -36,6 +36,12 @@ const columns: Column[] = [
   { id: "rejected", status: "rejected" },
 ];
 
+const createColumnState = (data: Record<ColumnId, PaginatedColumnData>): Record<ColumnId, ColumnState> => ({
+  unhandled: { ...data.unhandled, isLoading: false },
+  accepted: { ...data.accepted, isLoading: false },
+  rejected: { ...data.rejected, isLoading: false },
+});
+
 /**
  *  ApplicationBoard component that displays a kanban-style board of applications categorized by their status.
  *
@@ -46,11 +52,11 @@ const ApplicationBoard = ({ initialData }: ApplicationBoardProps) => {
   const t = useTranslations("AdminPage.boardColumns");
   const tDetails = useTranslations("AdminPage.applicationDetails");
 
-  const [columnState, setColumnState] = useState<Record<ColumnId, ColumnState>>({
-    unhandled: { ...initialData.unhandled, isLoading: false },
-    accepted: { ...initialData.accepted, isLoading: false },
-    rejected: { ...initialData.rejected, isLoading: false },
-  });
+  const [columnState, setColumnState] = useState<Record<ColumnId, ColumnState>>(createColumnState(initialData));
+
+  useEffect(() => {
+    setColumnState(createColumnState(initialData));
+  }, [initialData]);
 
   const loadMore = async (columnId: ColumnId) => {
     const currentColumn = columnState[columnId];
@@ -74,7 +80,7 @@ const ApplicationBoard = ({ initialData }: ApplicationBoardProps) => {
         noAvailabilityText: tDetails("noAvailability"),
       });
 
-      const response = await managedFetch<PaginatedColumnData>(`/api/application?${query.toString()}`, {
+      const response = await managedFetch<PaginatedColumnData>(`/api/admin?${query.toString()}`, {
         method: "GET",
       });
 

@@ -24,7 +24,6 @@ interface ApplicationCardProps {
 const ApplicationCard = ({ applicationFullInformation }: ApplicationCardProps) => {
   const t = useTranslations("AdminPage.applicationCard");
   const tDetails = useTranslations("AdminPage.applicationDetails");
-  const tColumns = useTranslations("AdminPage.boardColumns");
   const router = useRouter();
   const { id, name, applicationDate, status } = applicationFullInformation;
   const [open, setOpen] = useState(false);
@@ -36,7 +35,7 @@ const ApplicationCard = ({ applicationFullInformation }: ApplicationCardProps) =
   const handleStatusChange = async (newStatus: string) => {
     setIsUpdating(true);
     try {
-      await managedFetch(`/api/application/${id}`, {
+      await managedFetch(`/api/admin/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -72,6 +71,19 @@ const ApplicationCard = ({ applicationFullInformation }: ApplicationCardProps) =
     }
   };
 
+  const getActionLabel = (statusType: string) => {
+    switch (statusType) {
+      case "accepted":
+        return t("moveToAccepted");
+      case "rejected":
+        return t("moveToRejected");
+      case "unhandled":
+        return t("moveToUnhandled");
+      default:
+        return statusType;
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -92,10 +104,10 @@ const ApplicationCard = ({ applicationFullInformation }: ApplicationCardProps) =
         <ApplicationDetails applicationDetails={applicationFullInformation} />
         <div className="flex justify-end gap-2 mt-4">
           <Button className={getButtonStyle(otherStatuses[0])} onClick={() => handleStatusChange(otherStatuses[0])} disabled={isUpdating}>
-            {tColumns(otherStatuses[0] as "unhandled" | "accepted" | "rejected")}
+            {getActionLabel(otherStatuses[0])}
           </Button>
           <Button className={getButtonStyle(otherStatuses[1])} onClick={() => handleStatusChange(otherStatuses[1])} disabled={isUpdating}>
-            {tColumns(otherStatuses[1] as "unhandled" | "accepted" | "rejected")}
+            {getActionLabel(otherStatuses[1])}
           </Button>
         </div>
       </DialogContent>

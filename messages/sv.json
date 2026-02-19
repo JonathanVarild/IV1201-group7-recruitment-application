@@ -78,7 +78,10 @@
     "applicationCard": {
       "appliedDate": "Ansökte",
       "updateError": "Misslyckades med att uppdatera ansökningsstatus. Försök igen.",
-      "statusChanged": "Ansökningsstatusen har ändrats av någon annan. Vänligen försök igen."
+      "statusChanged": "Ansökningsstatusen har ändrats av någon annan. Vänligen försök igen.",
+      "moveToAccepted": "Flytta till Accepterade",
+      "moveToRejected": "Flytta till Avvisade",
+      "moveToUnhandled": "Flytta till ohanterade"
     },
     "applicationDetails": {
       "email": "E-post",

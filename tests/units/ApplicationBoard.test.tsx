@@ -1,6 +1,6 @@
 import { describe, expect, it, vi, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup, waitFor } from "@testing-library/react";
-import ApplicationBoard from "../../app/[locale]/application/ApplicationBoard";
+import ApplicationBoard from "../../app/[locale]/admin/ApplicationBoard";
 import { ApplicationFullInformation } from "@/lib/types/applicationType";
 
 vi.mock("../../app/[locale]/application/ApplicationCard", () => ({
@@ -158,7 +158,7 @@ describe("ApplicationBoard", () => {
       expect(screen.getByText("User10 Test")).toBeInTheDocument();
     });
 
-    expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining("/api/application?status=unhandled&offset=5"), expect.objectContaining({ method: "GET" }));
+    expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining("/api/admin?status=unhandled&offset=5"), expect.objectContaining({ method: "GET" }));
   });
 
   it("handles empty applications array gracefully", () => {
