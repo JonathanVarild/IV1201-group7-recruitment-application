@@ -63,6 +63,13 @@
       "passwordRequired": "Lösenord krävs"
     }
   },
+  "errors": {
+    "unknownError": "Ett okänt fel inträffade.",
+    "invalidCredentialsError": "Ogiltigt användarnamn eller lösenord.",
+    "invalidSessionError": "Din session har gått ut. Vänligen logga in igen.",
+    "invalidFormDataError": "Angiven formulärsdata är ogiltig. Kontrollera och försök igen.",
+    "conflictingSignupDataError": "En användare med de angivna detaljerna finns redan. Använd annan information."
+  },
   "ApplyPage": {
     "title": "Ansök",
     "contactInformation": {
