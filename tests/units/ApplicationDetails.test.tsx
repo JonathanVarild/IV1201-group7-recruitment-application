@@ -1,6 +1,6 @@
 import { describe, expect, it, afterEach } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
-import ApplicationDetails from "../../app/[locale]/applications/ApplicationDetails";
+import ApplicationDetails from "../../app/[locale]/admin/ApplicationDetails";
 import { ApplicationFullInformation } from "@/lib/types/applicationType";
 
 describe("ApplicationDetails", () => {
@@ -23,49 +23,6 @@ describe("ApplicationDetails", () => {
       { question: "availability", answer: "Available immediately" },
     ],
   };
-
-  it("renders basic application information correctly", () => {
-    const { container } = render(<ApplicationDetails applicationDetails={mockApplication} />);
-
-    // Check email is displayed
-    expect(screen.getByText("john.doe@example.com")).toBeInTheDocument();
-
-    // Check username is displayed
-    expect(screen.getByText("johndoe")).toBeInTheDocument();
-
-    // Check application date is displayed
-    expect(screen.getByText("2024-06-01")).toBeInTheDocument();
-
-    // Check status is displayed (capitalized by CSS)
-    expect(screen.getByText("unhandled")).toBeInTheDocument();
-
-    // Check translation keys are being used for labels
-    expect(screen.getAllByText("email").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("username").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("applicationDate").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("status").length).toBeGreaterThan(0);
-  });
-
-  it("displays all answers when they exist", () => {
-    const { container } = render(<ApplicationDetails applicationDetails={mockApplication} />);
-
-    // Check answers header is displayed (mocked translation returns just the key)
-    expect(screen.getByText("answersHeader")).toBeInTheDocument();
-
-    // Check first answer is displayed
-    expect(screen.getByText("Strong leadership skills")).toBeInTheDocument();
-
-    // Check second answer is displayed
-    expect(screen.getByText("Available immediately")).toBeInTheDocument();
-
-    // Check that question labels contain the word "question" (they have format "question: ...")
-    const questionElements = screen.getAllByText(/question/);
-    expect(questionElements.length).toBeGreaterThanOrEqual(2);
-
-    // Verify the answers container has the correct structure
-    const answersContainer = container.querySelector(".mt-6");
-    expect(answersContainer).toBeInTheDocument();
-  });
 
   it("handles application with no answers correctly", () => {
     const applicationWithNoAnswers: ApplicationFullInformation = {

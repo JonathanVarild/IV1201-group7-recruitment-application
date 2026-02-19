@@ -5,6 +5,12 @@ interface ApplicationDetailsProps {
   applicationDetails: ApplicationFullInformation;
 }
 
+/**
+ * ApplicationDetails component displays detailed information about a specific application.
+ *
+ * @param {ApplicationDetailsProps} props The application details to display.
+ * @returns {JSX.Element} The rendered application details component.
+ */
 const ApplicationDetails = ({ applicationDetails }: ApplicationDetailsProps) => {
   const t = useTranslations("AdminPage.applicationDetails");
 
