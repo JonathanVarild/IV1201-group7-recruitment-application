@@ -78,7 +78,9 @@
       "title": "Kontaktuppgifter",
       "email": "E-post",
       "firstName": "Förnamn",
-      "lastName": "Efternamn"
+      "lastName": "Efternamn",
+      "username": "Användarnamn",
+      "pnr": "Personnummer"
     },
     "competences": {
       "title": "Kompetenser",

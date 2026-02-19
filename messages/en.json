@@ -78,7 +78,9 @@
       "title": "Contact Information",
       "email": "Email",
       "firstName": "First Name",
-      "lastName": "Last Name"
+      "lastName": "Last Name",
+      "username": "Username",
+      "pnr": "Personal number"
     },
     "competences": {
       "title": "Competences",

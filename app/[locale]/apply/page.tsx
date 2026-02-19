@@ -226,10 +226,21 @@ const ApplyPage = () => {
         </Field>
 
         <Field className="gap-1.5">
+          <FieldLabel htmlFor="contact-user-name">{t("contactInformation.username")}</FieldLabel>
+          <Input id="contact-user-name" type="text" value={userData?.username ?? ""} readOnly className="bg-muted text-muted-foreground cursor-text" />
+        </Field>
+
+        <Field className="gap-1.5">
           <FieldLabel htmlFor="contact-email">{t("contactInformation.email")}</FieldLabel>
           <Input id="contact-email" type="email" value={userData?.email ?? ""} readOnly className="bg-muted text-muted-foreground cursor-text" />
         </Field>
+
+        <Field className="gap-1.5">
+          <FieldLabel htmlFor="contact-personal-number">{t("contactInformation.pnr")}</FieldLabel>
+          <Input id="contact-personal-number" type="text" value={userData?.pnr ?? ""} readOnly className="bg-muted text-muted-foreground cursor-text" />
+        </Field>
       </Card>
+
       <Card className={cn("p-6 space-y-4 transition-colors", competenceError && "apply-shake-x border-destructive/70 ring-1 ring-destructive/40")}>
         <h2 className="text-lg font-semibold">{t("competences.title")}</h2>
         <div className="grid grid-cols-[1fr_7rem_auto] gap-2 items-end">
