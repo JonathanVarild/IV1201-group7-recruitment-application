@@ -1,9 +1,9 @@
 import { describe, expect, it, vi, afterEach } from "vitest";
-import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+import { render, screen, fireEvent, cleanup, waitFor } from "@testing-library/react";
 import ApplicationBoard from "../../app/[locale]/application/ApplicationBoard";
 import { ApplicationFullInformation } from "@/lib/types/applicationType";
 
-vi.mock("../../app/[locale]/admin/ApplicationCard", () => ({
+vi.mock("../../app/[locale]/application/ApplicationCard", () => ({
   default: ({ applicationFullInformation }: { applicationFullInformation: ApplicationFullInformation }) => (
     <div data-testid={`app-card-${applicationFullInformation.id}`}>
       {applicationFullInformation.name.firstName} {applicationFullInformation.name.lastName}
@@ -12,9 +12,29 @@ vi.mock("../../app/[locale]/admin/ApplicationCard", () => ({
 }));
 
 describe("ApplicationBoard", () => {
+  const buildInitialData = (applications: ApplicationFullInformation[]) => ({
+    unhandled: {
+      applications: applications.filter((app) => app.status === "unhandled"),
+      total: applications.filter((app) => app.status === "unhandled").length,
+      hasMore: false,
+    },
+    accepted: {
+      applications: applications.filter((app) => app.status === "accepted"),
+      total: applications.filter((app) => app.status === "accepted").length,
+      hasMore: false,
+    },
+    rejected: {
+      applications: applications.filter((app) => app.status === "rejected"),
+      total: applications.filter((app) => app.status === "rejected").length,
+      hasMore: false,
+    },
+  });
+
   afterEach(() => {
     cleanup();
+    vi.restoreAllMocks();
   });
+
   const mockApplications: ApplicationFullInformation[] = [
     {
       id: "1",
@@ -55,7 +75,7 @@ describe("ApplicationBoard", () => {
   ];
 
   it("renders all three columns with correct application counts and categorization", () => {
-    render(<ApplicationBoard applications={mockApplications} />);
+    render(<ApplicationBoard initialData={buildInitialData(mockApplications)} />);
 
     // Check all three columns are rendered (use getAllByText since columns might appear from previous tests)
     const unhandledColumns = screen.getAllByText("unhandled");
@@ -73,9 +93,8 @@ describe("ApplicationBoard", () => {
     expect(screen.getByText("Alice Williams")).toBeInTheDocument();
   });
 
-  it("loads more applications when load more button is clicked", () => {
-    // Create more than 5 unhandled applications to trigger "Load More"
-    const manyApplications: ApplicationFullInformation[] = Array.from({ length: 8 }, (_, i) => ({
+  it("loads 5 more applications only for selected category when load more is clicked", async () => {
+    const initialUnhandled: ApplicationFullInformation[] = Array.from({ length: 5 }, (_, i) => ({
       id: `unhandled-${i + 1}`,
       name: { firstName: `User${i + 1}`, lastName: "Test" },
       username: `user${i + 1}`,
@@ -85,28 +104,73 @@ describe("ApplicationBoard", () => {
       answers: [],
     }));
 
-    render(<ApplicationBoard applications={manyApplications} />);
+    const newUnhandled: ApplicationFullInformation[] = Array.from({ length: 5 }, (_, i) => ({
+      id: `unhandled-${i + 6}`,
+      name: { firstName: `User${i + 6}`, lastName: "Test" },
+      username: `user${i + 6}`,
+      email: `user${i + 6}@example.com`,
+      applicationDate: "2024-01-01",
+      status: "unhandled",
+      answers: [],
+    }));
 
-    // Initially, only 5 applications should be visible
+    vi.spyOn(global, "fetch").mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        applications: newUnhandled,
+        total: 10,
+        hasMore: false,
+      }),
+    } as Response);
+
+    render(
+      <ApplicationBoard
+        initialData={{
+          unhandled: {
+            applications: initialUnhandled,
+            total: 10,
+            hasMore: true,
+          },
+          accepted: {
+            applications: [],
+            total: 0,
+            hasMore: false,
+          },
+          rejected: {
+            applications: [],
+            total: 0,
+            hasMore: false,
+          },
+        }}
+      />,
+    );
+
     expect(screen.getByText("User1 Test")).toBeInTheDocument();
     expect(screen.getByText("User5 Test")).toBeInTheDocument();
     expect(screen.queryByText("User6 Test")).not.toBeInTheDocument();
 
-    // Load More button should be visible
     const loadMoreButton = screen.getByText(/loadMore/);
     expect(loadMoreButton).toBeInTheDocument();
-
-    // Click Load More
     fireEvent.click(loadMoreButton);
 
-    // Now more applications should be visible (5 + 5 = 10, but we only have 8)
-    expect(screen.getByText("User6 Test")).toBeInTheDocument();
-    expect(screen.getByText("User7 Test")).toBeInTheDocument();
-    expect(screen.getByText("User8 Test")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText("User6 Test")).toBeInTheDocument();
+      expect(screen.getByText("User10 Test")).toBeInTheDocument();
+    });
+
+    expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining("/api/application?status=unhandled&offset=5"), expect.objectContaining({ method: "GET" }));
   });
 
   it("handles empty applications array gracefully", () => {
-    render(<ApplicationBoard applications={[]} />);
+    render(
+      <ApplicationBoard
+        initialData={{
+          unhandled: { applications: [], total: 0, hasMore: false },
+          accepted: { applications: [], total: 0, hasMore: false },
+          rejected: { applications: [], total: 0, hasMore: false },
+        }}
+      />,
+    );
 
     // All three columns should still be rendered
     const unhandledColumns = screen.getAllByText("unhandled");
