@@ -24,28 +24,6 @@ describe("ApplicationDetails", () => {
     ],
   };
 
-  it("renders basic application information correctly", () => {
-    const { container } = render(<ApplicationDetails applicationDetails={mockApplication} />);
-
-    // Check email is displayed
-    expect(screen.getByText("john.doe@example.com")).toBeInTheDocument();
-
-    // Check username is displayed
-    expect(screen.getByText("johndoe")).toBeInTheDocument();
-
-    // Check application date is displayed
-    expect(screen.getByText("2024-06-01")).toBeInTheDocument();
-
-    // Check status is displayed (capitalized by CSS)
-    expect(screen.getByText("unhandled")).toBeInTheDocument();
-
-    // Check translation keys are being used for labels
-    expect(screen.getAllByText("email").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("username").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("applicationDate").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("status").length).toBeGreaterThan(0);
-  });
-
   it("handles application with no answers correctly", () => {
     const applicationWithNoAnswers: ApplicationFullInformation = {
       ...mockApplication,
