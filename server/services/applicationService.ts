@@ -1,8 +1,10 @@
 import { getDatabaseClient, pool } from "@/lib/database";
 import { ConflictingApplicationError } from "@/lib/errors/applicationErrors";
-import { SetCompetenceDTO } from "@/lib/schemas/applicationDTO";
+import { InvalidFormDataError } from "@/lib/errors/generalErrors";
+import { SetAvailabilityDTO, SetCompetenceDTO, AddUserAvailabilityDTO } from "@/lib/schemas/applicationDTO";
 import { Competence, UserCompetence } from "@/lib/types/competenceType";
-import { FullUserData } from "@/lib/types/userType";
+import { FullUserData, UserAvailability } from "@/lib/types/userType";
+import { DatabaseError } from "pg";
 
 /**
  * Registers a new application for the user, if they don't already have an unhandled application.
@@ -93,6 +95,29 @@ export async function getFullUserData(userID: number): Promise<FullUserData> {
 }
 
 /**
+ * Fetches all availabilites for a given user ID.
+ *
+ * @param userID The ID of the user to fetch availability for.
+ * @returns The availability intervals of the user, including availability ID and date range.
+ * @throws Will throw an error if the database query fails.
+ */
+export async function getUserAvailability(userID: number): Promise<UserAvailability[]> {
+  // Query the database for the user's availability.
+  const availabilityQueryResult = await pool.query(
+    `SELECT 
+      availability_id AS "availabilityID",
+      from_date AS "fromDate",
+      to_date AS "toDate"
+    FROM availability
+    WHERE person_id = $1
+    ORDER BY from_date ASC, to_date ASC, availability_id ASC`,
+    [userID],
+  );
+
+  return availabilityQueryResult.rows;
+}
+
+/**
  * Fetches the competences associated with a given user ID.
  *
  * @param userID The ID of the user to fetch competences for.
@@ -156,7 +181,7 @@ export async function deleteUserCompetence(userID: number, competenceProfileID: 
     // TODO: add logging.
 
     // Check if we actually deleted a competence, and throw an error if not.
-    if (result.rowCount === 0) throw new Error("Attempted to delete a competence that does not exist in the user's profile");
+    if (result.rowCount === 0) throw new InvalidFormDataError();
 
     // Commit the transaction.
     await databaseClient.query("COMMIT");
@@ -195,6 +220,122 @@ export async function setUserCompetence(userID: number, competenceData: SetCompe
 
     // Check if we actually inserted or updated a competence and throw an error if not.
     if (result.rowCount === 0) throw new Error("Failed to set the user's competence");
+
+    // Commit the transaction.
+    await databaseClient.query("COMMIT");
+  } catch (error) {
+    await databaseClient.query("ROLLBACK");
+    throw error;
+  } finally {
+    databaseClient.release();
+  }
+}
+
+/**
+ * Sets an availability interval for a user.
+ *
+ * @param userID The ID of the user for whom the availability is to be set.
+ * @param availabilityData The data of the availability to be set, including availability ID, fromDate and toDate.
+ * @throws Will throw an error if the availability interval does not exist in the user's profile, if the fromDate is after the toDate, or if the database query fails.
+ */
+export async function setUserAvailability(userID: number, availabilityData: SetAvailabilityDTO): Promise<void> {
+  // Get a database client to perform queries.
+  const databaseClient = await getDatabaseClient();
+  try {
+    // Start a transaction.
+    await databaseClient.query("BEGIN");
+
+    // Execute the query to update the availability interval for the user.
+    const result = await databaseClient.query(
+      `UPDATE availability
+    SET from_date = $1, to_date = $2
+    WHERE person_id = $3 AND availability_id = $4`,
+      [availabilityData.fromDate, availabilityData.toDate, userID, availabilityData.availabilityID],
+    );
+
+    // TODO: add logging.
+
+    // Check if we actually updated an availability interval and throw an error if not.
+    if (result.rowCount === 0) throw new InvalidFormDataError();
+
+    // Commit the transaction.
+    await databaseClient.query("COMMIT");
+  } catch (error) {
+    await databaseClient.query("ROLLBACK");
+    if (error instanceof DatabaseError && error.code === "23514" && error.constraint === "availability_from_before_to_chk") throw new InvalidFormDataError();
+    else throw error;
+  } finally {
+    databaseClient.release();
+  }
+}
+
+/**
+ * Inserts an availability interval for a user based on the provided user ID and availability data.
+ *
+ * @param userID The ID of the user for whom the availability is to be set.
+ * @param availabilityData The data of the availability to be set, including fromDate and toDate.
+ * @return The ID of the newly inserted availability interval.
+ * @throws Will throw an error if the database query fails.
+ */
+export async function insertUserAvailability(userID: number, availabilityData: AddUserAvailabilityDTO): Promise<number> {
+  // Get a database client to perform queries.
+  const databaseClient = await getDatabaseClient();
+  try {
+    // Start a transaction.
+    await databaseClient.query("BEGIN");
+
+    // Execute the query to insert a new availability interval for the user.
+    const result = await databaseClient.query(
+      `INSERT INTO availability (person_id, from_date, to_date)
+    VALUES ($1, $2, $3)
+    RETURNING availability_id`,
+      [userID, availabilityData.fromDate, availabilityData.toDate],
+    );
+
+    // TODO: add logging.
+
+    // Check if we actually inserted the availability and throw an error if not.
+    if (result.rowCount === 0) throw new Error("Failed to set the user's availability");
+
+    // Commit the transaction.
+    await databaseClient.query("COMMIT");
+
+    // Return the ID of the newly inserted availability interval.
+    return result.rows[0]?.availability_id;
+  } catch (error) {
+    await databaseClient.query("ROLLBACK");
+    if (error instanceof DatabaseError && error.code === "23514" && error.constraint === "availability_from_before_to_chk") throw new InvalidFormDataError();
+    else throw error;
+  } finally {
+    databaseClient.release();
+  }
+}
+
+/**
+ * Deletes an availability interval from a user's profile.
+ *
+ * @param userID The ID of the user whose availability is to be deleted.
+ * @param availabilityID The ID of the availability interval to be deleted.
+ * @throws Will throw an error if the availability interval does not exist in the user's profile or if the database query fails.
+ */
+export async function deleteUserAvailability(userID: number, availabilityID: number): Promise<void> {
+  // Get a database client to perform queries.
+  const databaseClient = await getDatabaseClient();
+  try {
+    // Start a transaction.
+    await databaseClient.query("BEGIN");
+
+    // Execute the delete query to remove the availability interval from the user's profile.
+    const result = await databaseClient.query(
+      `DELETE FROM availability
+    WHERE person_id = $1 AND availability_id = $2`,
+      [userID, availabilityID],
+    );
+
+    // TODO: add logging.
+
+    // Check if we actually deleted an availability interval, and throw an error if not.
+    if (result.rowCount === 0) throw new InvalidFormDataError();
 
     // Commit the transaction.
     await databaseClient.query("COMMIT");

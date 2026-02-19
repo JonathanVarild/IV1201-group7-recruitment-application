@@ -14,3 +14,9 @@ export type FullUserData = {
   lastName: string;
   pnr: string;
 };
+
+export type UserAvailability = {
+  availabilityID: number;
+  fromDate: Date;
+  toDate: Date;
+};

@@ -1,21 +1,28 @@
 import { InvalidSessionError } from "@/lib/errors/authErrors";
 import { InvalidFormDataError } from "@/lib/errors/generalErrors";
 import { getAuthenticatedUserData } from "@/lib/session";
-import { getUserCompetences } from "@/server/services/applicationService";
+import { insertUserAvailability } from "@/server/services/applicationService";
 import { NextResponse } from "next/server";
+import { AddUserAvailabilityDTO, addUserAvailabilitySchema } from "@/lib/schemas/applicationDTO";
 
 export const dynamic = "force-dynamic";
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
     // Get authenticated user data.
     const userData = await getAuthenticatedUserData();
 
-    // Get the competences of the user.
-    const competences = await getUserCompetences(userData.id);
+    // Read the incoming data for setting the availability.
+    const availabilityData: AddUserAvailabilityDTO = await request.json();
 
-    // Return the competences and HTTP 200 (OK) status.
-    return NextResponse.json(competences, { status: 200 });
+    // Validate the incoming data.
+    if (addUserAvailabilitySchema.safeParse(availabilityData).success === false) throw new InvalidFormDataError();
+
+    // Set the availability in the user's profile.
+    const availabilityID = await insertUserAvailability(userData.id, availabilityData);
+
+    // Return HTTP 200 (OK) status with the ID of the newly created availability.
+    return NextResponse.json({ availabilityID }, { status: 200 });
   } catch (error) {
     // Check if the form data was invalid and return HTTP 400 (BAD REQUEST) status.
     if (error instanceof InvalidFormDataError) return NextResponse.json({ error: error.message }, { status: 400 });
@@ -23,7 +30,7 @@ export async function POST() {
     else if (error instanceof InvalidSessionError) return new NextResponse(null, { status: 401 });
     // Return HTTP 500 (INTERNAL SERVER ERROR) status for any other errors.
     else {
-      console.error("Unexpected error during application/getUserCompetences:", error);
+      console.error("Unexpected error during application/addUserAvailability:", error);
       return NextResponse.json({ error: "An unknown error occurred." }, { status: 500 });
     }
   }

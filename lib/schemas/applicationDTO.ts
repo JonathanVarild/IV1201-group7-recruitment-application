@@ -18,3 +18,32 @@ export const getCompetenceListSchema = z.object({
 });
 
 export type GetCompetenceListDTO = z.infer<typeof getCompetenceListSchema>;
+
+export const addUserAvailabilitySchema = z.object({
+  fromDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
+    message: "Invalid date format for fromDate.",
+  }),
+  toDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
+    message: "Invalid date format for toDate.",
+  }),
+});
+
+export type AddUserAvailabilityDTO = z.infer<typeof addUserAvailabilitySchema>;
+
+export const deleteAvailabilitySchema = z.object({
+  availabilityID: z.number(),
+});
+
+export type DeleteAvailabilityDTO = z.infer<typeof deleteAvailabilitySchema>;
+
+export const setAvailabilitySchema = z.object({
+  availabilityID: z.number(),
+  fromDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
+    message: "Invalid date format for fromDate.",
+  }),
+  toDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
+    message: "Invalid date format for toDate.",
+  }),
+});
+
+export type SetAvailabilityDTO = z.infer<typeof setAvailabilitySchema>;

@@ -1,27 +1,28 @@
 import { InvalidSessionError } from "@/lib/errors/authErrors";
 import { InvalidFormDataError } from "@/lib/errors/generalErrors";
 import { getAuthenticatedUserData } from "@/lib/session";
-import { getFullUserData, getUserAvailability, getUserCompetences } from "@/server/services/applicationService";
+import { setUserAvailability } from "@/server/services/applicationService";
 import { NextResponse } from "next/server";
+import { SetAvailabilityDTO, setAvailabilitySchema } from "@/lib/schemas/applicationDTO";
 
 export const dynamic = "force-dynamic";
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
     // Get authenticated user data.
     const userData = await getAuthenticatedUserData();
 
-    // Get the full user data.
-    const fullUserData = await getFullUserData(userData.id);
+    // Read the incoming data for setting the availability.
+    const availabilityData: SetAvailabilityDTO = await request.json();
 
-    // Get the user's availability.
-    const userAvailability = await getUserAvailability(userData.id);
+    // Validate the incoming data.
+    if (setAvailabilitySchema.safeParse(availabilityData).success === false) throw new InvalidFormDataError();
 
-    // Get the user's competences.
-    const userCompetences = await getUserCompetences(userData.id);
+    // Update the availability in the user's profile.
+    await setUserAvailability(userData.id, availabilityData);
 
-    // Return the full user data and HTTP 200 (OK) status.
-    return NextResponse.json({ userData: fullUserData, availability: userAvailability, competences: userCompetences }, { status: 200 });
+    // Return HTTP 200 (OK) status with the ID of the newly created availability.
+    return NextResponse.json({}, { status: 200 });
   } catch (error) {
     // Check if the form data was invalid and return HTTP 400 (BAD REQUEST) status.
     if (error instanceof InvalidFormDataError) return NextResponse.json({ error: error.message }, { status: 400 });
@@ -29,7 +30,7 @@ export async function POST() {
     else if (error instanceof InvalidSessionError) return new NextResponse(null, { status: 401 });
     // Return HTTP 500 (INTERNAL SERVER ERROR) status for any other errors.
     else {
-      console.error("Unexpected error during application/getUserDetails:", error);
+      console.error("Unexpected error during application/setUserAvailability:", error);
       return NextResponse.json({ error: "An unknown error occurred." }, { status: 500 });
     }
   }

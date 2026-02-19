@@ -25,7 +25,7 @@ describe("ApplicationDetails", () => {
   };
 
   it("renders basic application information correctly", () => {
-    const { container } = render(<ApplicationDetails applicationDetails={mockApplication} />);
+    render(<ApplicationDetails applicationDetails={mockApplication} />);
 
     // Check email is displayed
     expect(screen.getByText("john.doe@example.com")).toBeInTheDocument();
