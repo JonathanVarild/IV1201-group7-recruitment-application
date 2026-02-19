@@ -9,6 +9,7 @@ import { InvalidCredentialsError } from "@/lib/errors/authErrors";
 import { UserData } from "@/lib/types/userType";
 import { SessionData } from "@/lib/types/sessionType";
 import { generateSession } from "@/lib/session";
+import { ProfileDTO, updateUserSchema } from "@/lib/schemas/profileDTO";
 import { LogType, logUserActivity } from "@/lib/logging";
 
 /**
@@ -100,19 +101,29 @@ export async function authenticateUser(credentials: CredentialsDTO, srcRequest: 
   const databaseClient = await getDatabaseClient();
 
   try {
+    // Start transaction.
+    await databaseClient.query("BEGIN");
+
     // Query the user by username
     const userQueryResult = await databaseClient.query(
       `SELECT 
-        p.person_id,
-        p.password_hash,
-        p.username,
-        p.role_id ,
-        r.name AS role_name
-      FROM person p
-      JOIN role r ON p.role_id = r.role_id
-      WHERE p.username = $1`,
+    p.person_id,
+    p.password_hash,
+    p.username,
+    p.email,
+    p.pnr,
+    p.role_id ,
+    r.name AS role_name
+  FROM person p
+  JOIN role r ON p.role_id = r.role_id
+  WHERE p.username = $1`,
       [credentials.username],
     );
+
+    // If no user found, throw error.
+    if (userQueryResult.rows.length === 0) {
+      throw new InvalidCredentialsError();
+    }
 
     // If no user found, throw error.
     if (userQueryResult.rows.length === 0) {
@@ -188,5 +199,71 @@ export async function authenticateUser(credentials: CredentialsDTO, srcRequest: 
     throw e;
   } finally {
     databaseClient.release();
+  }
+}
+
+/**
+ * Updates the user in the database based on what has been entered in profile page fields.
+ *
+ * @param userID - the id of the current user.
+ * @param profileData - the new data entered into profile form.
+ */
+export async function updateUserProfile(userID: number, profileData: Partial<ProfileDTO>): Promise<void> {
+  if (updateUserSchema.safeParse(profileData).success === false) {
+    throw new InvalidFormDataError();
+  }
+
+  const databaseClient = await getDatabaseClient();
+
+  try {
+    // Start transaction.
+    await databaseClient.query("BEGIN");
+
+    // Determine which values to update
+    const valuesToUpdate: string[] = [];
+    const newValues: string[] = [];
+    let index = 1;
+
+    // If username has been changed
+    if (profileData.username) {
+      valuesToUpdate.push(`username = $${index}`);
+      newValues.push(profileData.username);
+      index++;
+    }
+
+    // If email has been changed
+    if (profileData.email) {
+      valuesToUpdate.push(`email = $${index}`);
+      newValues.push(profileData.email);
+      index++;
+    }
+
+    // If personal number has been changed
+    if (profileData.pnr) {
+      valuesToUpdate.push(`pnr = $${index}`);
+      newValues.push(profileData.pnr);
+      index++;
+    }
+
+    // If password has been changed
+    if (profileData.password) {
+      const newHash = bcrypt.hashSync(profileData.password, 10);
+      valuesToUpdate.push(`password_hash = $${index}`);
+      newValues.push(newHash);
+      index++;
+    }
+
+    const query = `UPDATE person SET ${valuesToUpdate.join(", ")} WHERE person_id = ${userID}`;
+
+    await databaseClient.query(query, newValues);
+
+    await databaseClient.query("COMMIT");
+    databaseClient.release();
+  } catch (error) {
+    await databaseClient.query("ROLLBACK");
+    databaseClient.release();
+
+    if (error instanceof DatabaseError && error.code === "23505") throw new ConflictingSignupDataError();
+    else throw error;
   }
 }
