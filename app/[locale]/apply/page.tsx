@@ -173,13 +173,15 @@ const ApplyPage = () => {
 
       <Card className="p-6 space-y-4">
         <h2 className="text-lg font-semibold">{t("availability.title")}</h2>
-        <Calendar
-          mode="range"
-          selected={selectedAvailability}
-          onSelect={setSelectedAvailability}
-          locale={getDateFnsLocale(locale)}
-          className={cn("rounded-md border", availabilityError && "apply-shake-x border-destructive/70")}
-        />
+        <div className="flex justify-center">
+          <Calendar
+            mode="range"
+            selected={selectedAvailability}
+            onSelect={setSelectedAvailability}
+            locale={getDateFnsLocale(locale)}
+            className={cn("rounded-md border", availabilityError && "apply-shake-x border-destructive/70")}
+          />
+        </div>
 
         <Button type="button" onClick={addAvailabilityRange} className="w-fit">
           {t("availability.add")}
