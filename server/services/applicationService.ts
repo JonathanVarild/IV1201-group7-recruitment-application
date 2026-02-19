@@ -79,8 +79,8 @@ export async function getFullUserData(userID: number, srcRequest: Request): Prom
       p.username,
       p.role_id AS roleID,
       p.email,
-      p.name AS firstName,
-      p.surname AS lastName,
+      p.name AS "firstName",
+      p.surname AS "lastName",
       p.pnr
     FROM person p
     WHERE p.person_id = $1`,
