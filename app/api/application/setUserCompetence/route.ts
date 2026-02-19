@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     if (setCompetenceSchema.safeParse(competenceData).success === false) throw new InvalidFormDataError();
 
     // Set the competence in the user's profile.
-    await setUserCompetence(userData.id, competenceData);
+    await setUserCompetence(userData.id, competenceData, request);
 
     // Return the competences and HTTP 200 (OK) status.
     return NextResponse.json({}, { status: 200 });

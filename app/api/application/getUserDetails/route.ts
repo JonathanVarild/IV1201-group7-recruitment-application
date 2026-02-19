@@ -6,19 +6,19 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
     // Get authenticated user data.
     const userData = await getAuthenticatedUserData();
 
     // Get the full user data.
-    const fullUserData = await getFullUserData(userData.id);
+    const fullUserData = await getFullUserData(userData.id, request);
 
     // Get the user's availability.
     const userAvailability = await getUserAvailability(userData.id);
 
     // Get the user's competences.
-    const userCompetences = await getUserCompetences(userData.id);
+    const userCompetences = await getUserCompetences(userData.id, request);
 
     // Return the full user data and HTTP 200 (OK) status.
     return NextResponse.json({ userData: fullUserData, availability: userAvailability, competences: userCompetences }, { status: 200 });

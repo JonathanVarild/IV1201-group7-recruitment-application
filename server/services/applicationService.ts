@@ -1,6 +1,7 @@
 import { getDatabaseClient, pool } from "@/lib/database";
 import { ConflictingApplicationError } from "@/lib/errors/applicationErrors";
 import { InvalidFormDataError } from "@/lib/errors/generalErrors";
+import { LogType, logUserActivity } from "@/lib/logging";
 import { SetAvailabilityDTO, SetCompetenceDTO, AddUserAvailabilityDTO } from "@/lib/schemas/applicationDTO";
 import { Competence, UserCompetence } from "@/lib/types/competenceType";
 import { FullUserData, UserAvailability } from "@/lib/types/userType";
@@ -13,7 +14,7 @@ import { DatabaseError } from "pg";
  * @returns The ID of the newly registered application.
  * @throws Will throw a ConflictingApplicationError if the user already has an unhandled application, or an error if the database query fails.
  */
-export const registerApplication = async (userID: number): Promise<number> => {
+export const registerApplication = async (userID: number, srcRequest: Request): Promise<number> => {
   // Get a database client to perform queries.
   const databaseClient = await getDatabaseClient();
   try {
@@ -36,7 +37,15 @@ export const registerApplication = async (userID: number): Promise<number> => {
     // If no row was inserted, the user already has an unhandled application.
     if (result.rowCount === 0) throw new ConflictingApplicationError();
 
-    // TODO: add logging.
+    // Log the application submission.
+    await logUserActivity(
+      databaseClient,
+      LogType.INFO,
+      "SUBMIT_APPLICATION",
+      `User with ID ${userID} submitted a new application with ID ${result.rows[0].application_id}.`,
+      srcRequest,
+      userID,
+    );
 
     // Commit the transaction and return the new application ID.
     await databaseClient.query("COMMIT");
@@ -56,7 +65,7 @@ export const registerApplication = async (userID: number): Promise<number> => {
  * @returns The full data of the user.
  * @throws Will throw an error if the user does not exist or if the database query fails.
  */
-export async function getFullUserData(userID: number): Promise<FullUserData> {
+export async function getFullUserData(userID: number, srcRequest: Request): Promise<FullUserData> {
   // Get a database client to perform queries.
   const databaseClient = await getDatabaseClient();
   try {
@@ -78,7 +87,8 @@ export async function getFullUserData(userID: number): Promise<FullUserData> {
       [userID],
     );
 
-    //TODO: add logging.
+    // Log the full user data fetch.
+    await logUserActivity(databaseClient, LogType.INFO, "FETCH_FULL_USER_DATA", `Fetched full user data for user with ID ${userID}.`, srcRequest, userID);
 
     // Check if we found a user with the given ID, and throw an error if not.
     if (fullUserDataQueryResult.rows.length === 0) throw new Error("Attempted to fetch full user data for non-existing user");
@@ -124,7 +134,7 @@ export async function getUserAvailability(userID: number): Promise<UserAvailabil
  * @returns An array of competences associated with the user.
  * @throws Will throw an error if the database query fails.
  */
-export async function getUserCompetences(userID: number): Promise<UserCompetence[]> {
+export async function getUserCompetences(userID: number, srcRequest: Request): Promise<UserCompetence[]> {
   // Get a database client to perform queries.
   const databaseClient = await getDatabaseClient();
   try {
@@ -144,7 +154,8 @@ export async function getUserCompetences(userID: number): Promise<UserCompetence
       [userID],
     );
 
-    // TODO: add logging.
+    // Log the user competences fetch.
+    await logUserActivity(databaseClient, LogType.INFO, "FETCH_USER_COMPETENCES", `Fetched competences for user with ID ${userID}.`, srcRequest, userID);
 
     // Commit the transaction and return the competences.
     await databaseClient.query("COMMIT");
@@ -164,7 +175,7 @@ export async function getUserCompetences(userID: number): Promise<UserCompetence
  * @param competenceProfileID The ID of the competence profile to be deleted from the user's profile.
  * @throws Will throw an error if the competence does not exist in the user's profile or if the database query fails.
  */
-export async function deleteUserCompetence(userID: number, competenceProfileID: number): Promise<void> {
+export async function deleteUserCompetence(userID: number, competenceProfileID: number, srcRequest: Request): Promise<void> {
   // Get a database client to perform queries.
   const databaseClient = await getDatabaseClient();
   try {
@@ -178,7 +189,15 @@ export async function deleteUserCompetence(userID: number, competenceProfileID: 
       [userID, competenceProfileID],
     );
 
-    // TODO: add logging.
+    // Log the deletion of a competence.
+    await logUserActivity(
+      databaseClient,
+      LogType.INFO,
+      "DELETE_USER_COMPETENCE",
+      `Deleted competence profile with ID ${competenceProfileID} from user with ID ${userID}.`,
+      srcRequest,
+      userID,
+    );
 
     // Check if we actually deleted a competence, and throw an error if not.
     if (result.rowCount === 0) throw new InvalidFormDataError();
@@ -201,7 +220,7 @@ export async function deleteUserCompetence(userID: number, competenceProfileID: 
  * @param competenceData The data of the competence to be set, including competence ID and yearsOfExperience.
  * @throws Will throw an error if the database query fails.
  */
-export async function setUserCompetence(userID: number, competenceData: SetCompetenceDTO): Promise<void> {
+export async function setUserCompetence(userID: number, competenceData: SetCompetenceDTO, srcRequest: Request): Promise<void> {
   // Get a database client to perform queries.
   const databaseClient = await getDatabaseClient();
   try {
@@ -216,7 +235,15 @@ export async function setUserCompetence(userID: number, competenceData: SetCompe
       [userID, competenceData.competenceID, competenceData.yearsOfExperience],
     );
 
-    // TODO: add logging.
+    // Log the setting of a competence.
+    await logUserActivity(
+      databaseClient,
+      LogType.INFO,
+      "SET_USER_COMPETENCE",
+      `Set competence with ID ${competenceData.competenceID} for user with ID ${userID} with ${competenceData.yearsOfExperience} years of experience.`,
+      srcRequest,
+      userID,
+    );
 
     // Check if we actually inserted or updated a competence and throw an error if not.
     if (result.rowCount === 0) throw new Error("Failed to set the user's competence");
@@ -238,7 +265,7 @@ export async function setUserCompetence(userID: number, competenceData: SetCompe
  * @param availabilityData The data of the availability to be set, including availability ID, fromDate and toDate.
  * @throws Will throw an error if the availability interval does not exist in the user's profile, if the fromDate is after the toDate, or if the database query fails.
  */
-export async function setUserAvailability(userID: number, availabilityData: SetAvailabilityDTO): Promise<void> {
+export async function setUserAvailability(userID: number, availabilityData: SetAvailabilityDTO, srcRequest: Request): Promise<void> {
   // Get a database client to perform queries.
   const databaseClient = await getDatabaseClient();
   try {
@@ -253,7 +280,15 @@ export async function setUserAvailability(userID: number, availabilityData: SetA
       [availabilityData.fromDate, availabilityData.toDate, userID, availabilityData.availabilityID],
     );
 
-    // TODO: add logging.
+    // Log the setting of an availability interval.
+    await logUserActivity(
+      databaseClient,
+      LogType.INFO,
+      "SET_USER_AVAILABILITY",
+      `Set availability with ID ${availabilityData.availabilityID} for user with ID ${userID} from ${availabilityData.fromDate} to ${availabilityData.toDate}.`,
+      srcRequest,
+      userID,
+    );
 
     // Check if we actually updated an availability interval and throw an error if not.
     if (result.rowCount === 0) throw new InvalidFormDataError();
@@ -277,7 +312,7 @@ export async function setUserAvailability(userID: number, availabilityData: SetA
  * @return The ID of the newly inserted availability interval.
  * @throws Will throw an error if the database query fails.
  */
-export async function insertUserAvailability(userID: number, availabilityData: AddUserAvailabilityDTO): Promise<number> {
+export async function insertUserAvailability(userID: number, availabilityData: AddUserAvailabilityDTO, srcRequest: Request): Promise<number> {
   // Get a database client to perform queries.
   const databaseClient = await getDatabaseClient();
   try {
@@ -292,7 +327,15 @@ export async function insertUserAvailability(userID: number, availabilityData: A
       [userID, availabilityData.fromDate, availabilityData.toDate],
     );
 
-    // TODO: add logging.
+    // Log the insertion of an availability interval.
+    await logUserActivity(
+      databaseClient,
+      LogType.INFO,
+      "INSERT_USER_AVAILABILITY",
+      `Inserted new availability for user with ID ${userID} from ${availabilityData.fromDate} to ${availabilityData.toDate}.`,
+      srcRequest,
+      userID,
+    );
 
     // Check if we actually inserted the availability and throw an error if not.
     if (result.rowCount === 0) throw new Error("Failed to set the user's availability");
@@ -318,7 +361,7 @@ export async function insertUserAvailability(userID: number, availabilityData: A
  * @param availabilityID The ID of the availability interval to be deleted.
  * @throws Will throw an error if the availability interval does not exist in the user's profile or if the database query fails.
  */
-export async function deleteUserAvailability(userID: number, availabilityID: number): Promise<void> {
+export async function deleteUserAvailability(userID: number, availabilityID: number, srcRequest: Request): Promise<void> {
   // Get a database client to perform queries.
   const databaseClient = await getDatabaseClient();
   try {
@@ -332,7 +375,15 @@ export async function deleteUserAvailability(userID: number, availabilityID: num
       [userID, availabilityID],
     );
 
-    // TODO: add logging.
+    // Log the deletion of an availability interval.
+    await logUserActivity(
+      databaseClient,
+      LogType.INFO,
+      "DELETE_USER_AVAILABILITY",
+      `Deleted availability with ID ${availabilityID} from user with ID ${userID}.`,
+      srcRequest,
+      userID,
+    );
 
     // Check if we actually deleted an availability interval, and throw an error if not.
     if (result.rowCount === 0) throw new InvalidFormDataError();

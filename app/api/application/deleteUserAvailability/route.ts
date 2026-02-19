@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     if (deleteAvailabilitySchema.safeParse(availabilityData).success === false) throw new InvalidFormDataError();
 
     // Delete the competence from the user's profile.
-    await deleteUserAvailability(userData.id, availabilityData.availabilityID);
+    await deleteUserAvailability(userData.id, availabilityData.availabilityID, request);
 
     // Return the competences and HTTP 200 (OK) status.
     return NextResponse.json({}, { status: 200 });

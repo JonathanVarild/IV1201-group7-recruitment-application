@@ -7,13 +7,13 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
     // Get authenticated user data.
     const userData = await getAuthenticatedUserData();
 
     // Register a new application for the authenticated user.
-    const applicationID = await registerApplication(userData.id);
+    const applicationID = await registerApplication(userData.id, request);
 
     // Return the application ID and HTTP 200 (OK) status.
     return NextResponse.json({ applicationID }, { status: 200 });

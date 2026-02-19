@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     if (deleteCompetenceSchema.safeParse(competenceData).success === false) throw new InvalidFormDataError();
 
     // Delete the competence from the user's profile.
-    await deleteUserCompetence(userData.id, competenceData.competenceProfileID);
+    await deleteUserCompetence(userData.id, competenceData.competenceProfileID, request);
 
     // Return the competences and HTTP 200 (OK) status.
     return NextResponse.json({}, { status: 200 });

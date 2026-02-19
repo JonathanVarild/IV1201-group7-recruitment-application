@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     if (setAvailabilitySchema.safeParse(availabilityData).success === false) throw new InvalidFormDataError();
 
     // Update the availability in the user's profile.
-    await setUserAvailability(userData.id, availabilityData);
+    await setUserAvailability(userData.id, availabilityData, request);
 
     // Return HTTP 200 (OK) status with the ID of the newly created availability.
     return NextResponse.json({}, { status: 200 });
