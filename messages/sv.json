@@ -84,5 +84,48 @@
     "unknownError": "Ett okänt fel uppstod vid uppdatering av profilen",
     "unexpectedError": "Profilen kunde inte uppdateras på grund av ett oväntat fel",
     "failedFetchingData": "Användarinformationen kunde inte hämtas"
+  "AdminPage": {
+    "title": "Adminverktyg för rekryteringsansökningar",
+    "errors": {
+      "fetchApplications": "Misslyckades med att ladda ansökningar. Försök igen senare."
+    },
+    "boardColumns": {
+      "unhandled": "Ohanterade",
+      "accepted": "Accepterade",
+      "rejected": "Avvisade",
+      "loadMore": "Visa fler",
+      "noApplications": "Inga ansökningar"
+    },
+    "applicationCard": {
+      "appliedDate": "Ansökte",
+      "updateError": "Misslyckades med att uppdatera ansökningsstatus. Försök igen.",
+      "statusChanged": "Ansökningsstatusen har ändrats av någon annan. Vänligen försök igen.",
+      "moveToAccepted": "Flytta till Accepterade",
+      "moveToRejected": "Flytta till Avvisade",
+      "moveToUnhandled": "Flytta till ohanterade"
+    },
+    "applicationDetails": {
+      "email": "E-post",
+      "username": "Användarnamn",
+      "applicationDate": "Ansökningsdatum",
+      "status": "Status",
+      "dialogDescription": "Visa och hantera ansökningsdetaljer",
+      "answersHeader": "Frågor och svar",
+      "question": "Fråga",
+      "answer": "Svar",
+      "noCompetences": "Inga kompetenser listade",
+      "noAvailability": "Ingen tillgänglighet listad",
+      "questionsToAnswer": {
+        "competences": "Vilka kompetenser har du som gör dig lämpad för den här tjänsten?",
+        "availability": "Vad har du för tillgänglighet?"
+      }
+    }
+  },
+  "errors": {
+    "unknownError": "Ett okänt fel inträffade.",
+    "invalidCredentialsError": "Ogiltigt användarnamn eller lösenord.",
+    "invalidSessionError": "Din session har gått ut. Vänligen logga in igen.",
+    "invalidFormDataError": "Angiven formulärsdata är ogiltig. Kontrollera och försök igen.",
+    "conflictingSignupDataError": "En användare med de angivna detaljerna finns redan. Använd annan information."
   }
 }

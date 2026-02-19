@@ -22,15 +22,20 @@ export function generateSession(): GeneratedSession {
 }
 
 /**
- * Retrieves user data associated with session token.
- * @param sessionToken - The session token.
+ * Retrieves the data from the currently authenticated user.
+ *
  * @returns The user data.
  * @throws Will throw an InvalidSessionError if the session is invalid or expired.
  */
-export async function getUserDataFromSession(sessionToken: string): Promise<UserData> {
-  if (!sessionToken) throw new InvalidSessionError();
-  const tokenHash = hashToken(sessionToken);
+export async function getAuthenticatedUserData(): Promise<UserData> {
+  // Get the session token from the cookies, and throw an error if it doesn't exist.
+  const token = (await cookies()).get("session")?.value;
+  if (!token) throw new InvalidSessionError();
 
+  // Hash the token to compare with the database.
+  const tokenHash = hashToken(token);
+
+  // Query the database for the session and associated user data.
   const result = await pool.query(
     `SELECT
       p.person_id,
@@ -42,7 +47,7 @@ export async function getUserDataFromSession(sessionToken: string): Promise<User
     FROM session s
     JOIN person p ON s.person_id = p.person_id
     JOIN role r ON p.role_id = r.role_id
-    WHERE s.token_hash = $1`,
+    WHERE s.token_hash = $1 AND s.expires_at > NOW()`,
     [tokenHash],
   );
 
@@ -61,17 +66,48 @@ export async function getUserDataFromSession(sessionToken: string): Promise<User
 }
 
 /**
- * Retrieves the data from the currently authenticated user.
+ * Validates that a user session is valid and not expired.
  *
- * @returns The user data or null if no valid session exists.
  * @throws Will throw an InvalidSessionError if the session is invalid or expired.
  */
-export async function getAuthenticatedUserData(): Promise<UserData | null> {
+export async function validateUserSession(): Promise<void> {
+  // Get the session token from the cookies, and throw an error if it doesn't exist.
   const token = (await cookies()).get("session")?.value;
   if (!token) throw new InvalidSessionError();
-  const userData = await getUserDataFromSession(token);
 
-  return userData;
+  // Hash the token to compare with the database.
+  const tokenHash = hashToken(token);
+
+  // Check if the session exists and isn't expired.
+  const result = await pool.query(`SELECT 1 FROM session WHERE token_hash = $1 AND expires_at > NOW()`, [tokenHash]);
+
+  // Check so we found a valid session
+  if (result.rows.length === 0) throw new InvalidSessionError();
+}
+
+/**
+ * Validates that a user session is valid, not expired and belongs to a recruiter user.
+ *
+ * @throws Will throw an InvalidSessionError if the session is invalid, expired or doesn't belong to a recruiter user.
+ */
+export async function validateUserSessionAndRecruiter(): Promise<void> {
+  // Get the session token from the cookies, and throw an error if it doesn't exist.
+  const token = (await cookies()).get("session")?.value;
+  if (!token) throw new InvalidSessionError();
+
+  // Hash the token to compare with the database.
+  const tokenHash = hashToken(token);
+
+  // Check if the session exists, isn't expired and belongs to a recruiter user.
+  const result = await pool.query(
+    `SELECT 1 FROM session s
+    JOIN person p ON s.person_id = p.person_id
+    WHERE s.token_hash = $1 AND s.expires_at > NOW() AND p.role_id = (SELECT role_id FROM role WHERE name = 'recruiter')`,
+    [tokenHash],
+  );
+
+  // Check so we found a valid session for a recruiter user.
+  if (result.rows.length === 0) throw new InvalidSessionError();
 }
 
 /**

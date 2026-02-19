@@ -84,5 +84,48 @@
     "unknownError": "Unknown error occurred during update profile.",
     "unexpectedError": "Update profile failed due to an unexpected error.",
     "failedFetchingData": "The user information could not be retrieved"
+  "AdminPage": {
+    "title": "Admin Tool for Recruitment Applications",
+    "errors": {
+      "fetchApplications": "Failed to load applications. Please try again later."
+    },
+    "boardColumns": {
+      "unhandled": "Unhandled",
+      "accepted": "Accepted",
+      "rejected": "Rejected",
+      "loadMore": "Load More",
+      "noApplications": "No applications"
+    },
+    "applicationCard": {
+      "appliedDate": "Applied",
+      "updateError": "Failed to update application status. Please try again.",
+      "statusChanged": "The application status has been changed by someone else. Please try again.",
+      "moveToAccepted": "Move to Accepted",
+      "moveToRejected": "Move to Rejected",
+      "moveToUnhandled": "Move to Unhandled"
+    },
+    "applicationDetails": {
+      "email": "Email",
+      "username": "Username",
+      "applicationDate": "Application Date",
+      "status": "Status",
+      "dialogDescription": "View and manage application details",
+      "answersHeader": "Questions and Answers",
+      "question": "Question",
+      "answer": "Answer",
+      "noCompetences": "No competences listed",
+      "noAvailability": "No availability listed",
+      "questionsToAnswer": {
+        "competences": "What competences do you have that make you suitable for this position?",
+        "availability": "What is your availability?"
+      }
+    }
+  },
+  "errors": {
+    "unknownError": "An unknown error occurred.",
+    "invalidCredentialsError": "Invalid username or password.",
+    "invalidSessionError": "Your session has expired. Please log in again.",
+    "invalidFormDataError": "The form data you provided is invalid. Please check and try again.",
+    "conflictingSignupDataError": "A user with the provided details already exists. Please use different information."
   }
 }
