@@ -97,7 +97,10 @@
       "add": "Add date range",
       "remove": "Remove",
       "invalidInput": "Select both a start date and an end date."
-    }
+    },
+    "submitButton": "Submit application",
+    "submitting": "Submitting...",
+    "submitSuccess": "Application submitted."
   },
   "AdminPage": {
     "title": "Admin Tool for Recruitment Applications",

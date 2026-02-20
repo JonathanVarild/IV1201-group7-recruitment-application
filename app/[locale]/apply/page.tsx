@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { z } from "zod";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
+import { cn, handleClientError } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { type DateRange } from "react-day-picker";
 import { getDateFnsLocale } from "@/lib/dateLocales";
@@ -18,15 +18,18 @@ import { Competence, UserCompetence } from "@/lib/types/competenceType";
 import { FullUserData } from "@/lib/types/userType";
 import { AuthStatus, useAuth } from "@/components/AuthProvider";
 import { APIError } from "@/lib/errors/generalErrors";
-
-type SetCompetenceDTO = {
-  competenceID: number;
-  yearsOfExperience: number;
-};
+import { Skeleton } from "@/components/ui/skeleton";
 
 type AvailabilityRange = {
   from: Date;
   to: Date;
+  availabilityID?: number;
+};
+
+type CompetenceEntry = {
+  competenceID: number;
+  yearsOfExperience: number;
+  competenceProfileID?: number;
 };
 
 type UserAvailabilityResponse = {
@@ -41,6 +44,12 @@ type GetUserDetailsResponse = {
   competences: UserCompetence[];
 };
 
+const normalizeId = (value: number | string | null | undefined) => {
+  if (value == null) return undefined;
+  const numberValue = typeof value === "string" ? Number(value) : value;
+  return Number.isFinite(numberValue) ? numberValue : undefined;
+};
+
 const setCompetenceSchema = z.object({
   competenceID: z.number().int().nonnegative(),
   yearsOfExperience: z.coerce.number().gt(0),
@@ -50,19 +59,23 @@ const ApplyPage = () => {
   const router = useRouter();
   const locale = useLocale();
   const t = useTranslations("ApplyPage");
+  const tErrors = useTranslations("errors");
   const { status, refreshAuth } = useAuth();
   const [userData, setUserData] = useState<FullUserData | null>(null);
   const [availableCompetences, setAvailableCompetences] = useState<Competence[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [hasLoadError, setHasLoadError] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [selectedCompetenceID, setSelectedCompetenceID] = useState<number | null>(null);
   const [yearsInput, setYearsInput] = useState("");
-  const [addedCompetences, setAddedCompetences] = useState<SetCompetenceDTO[]>([]);
+  const [addedCompetences, setAddedCompetences] = useState<CompetenceEntry[]>([]);
   const [competenceError, setCompetenceError] = useState<string | null>(null);
   const [selectedAvailability, setSelectedAvailability] = useState<DateRange | undefined>(undefined);
   const [availabilityRanges, setAvailabilityRanges] = useState<AvailabilityRange[]>([]);
   const [availabilityError, setAvailabilityError] = useState<string | null>(null);
+  const [removedCompetenceProfileIDs, setRemovedCompetenceProfileIDs] = useState<number[]>([]);
+  const [removedAvailabilityIDs, setRemovedAvailabilityIDs] = useState<number[]>([]);
 
   useEffect(() => {
     if (status === AuthStatus.Unauthenticated) {
@@ -70,15 +83,16 @@ const ApplyPage = () => {
     }
   }, [status, router]);
 
-  useEffect(() => {
-    if (status !== AuthStatus.Authenticated) {
-      return;
-    }
+  const loadApplicationData = useCallback(
+    async (options?: { skipLoadingState?: boolean; isActive?: () => boolean }) => {
+      const isActive = options?.isActive ?? (() => true);
+      if (status !== AuthStatus.Authenticated || !isActive()) {
+        return;
+      }
 
-    let cancelled = false;
-
-    const loadApplicationData = async () => {
-      setIsLoadingData(true);
+      if (!options?.skipLoadingState) {
+        setIsLoadingData(true);
+      }
       setHasLoadError(false);
       try {
         const [detailsResult, competenceListResult] = await Promise.allSettled([
@@ -92,15 +106,27 @@ const ApplyPage = () => {
           }),
         ]);
 
-        if (cancelled) return;
+        if (!isActive()) return;
 
         let shouldRedirectToLogin = false;
 
         if (detailsResult.status === "fulfilled") {
           const details = detailsResult.value;
           setUserData(details.userData);
-          setAddedCompetences(details.competences.map((competence) => ({ competenceID: competence.id, yearsOfExperience: competence.yearsOfExperience })));
-          setAvailabilityRanges(details.availability.map((availability) => ({ from: new Date(availability.fromDate), to: new Date(availability.toDate) })));
+          setAddedCompetences(
+            details.competences.map((competence) => ({
+              competenceID: competence.id,
+              yearsOfExperience: competence.yearsOfExperience,
+              competenceProfileID: normalizeId(competence.competenceProfileID),
+            })),
+          );
+          setAvailabilityRanges(
+            details.availability.map((availability) => ({
+              from: new Date(availability.fromDate),
+              to: new Date(availability.toDate),
+              availabilityID: normalizeId(availability.availabilityID),
+            })),
+          );
         } else if (detailsResult.reason instanceof APIError && detailsResult.reason.statusCode === 401) {
           shouldRedirectToLogin = true;
         } else {
@@ -122,7 +148,7 @@ const ApplyPage = () => {
           router.replace("/login");
         }
       } catch (error) {
-        if (cancelled) {
+        if (!isActive()) {
           return;
         }
 
@@ -135,17 +161,26 @@ const ApplyPage = () => {
         console.error("Failed to load application data:", error);
         setHasLoadError(true);
       } finally {
-        if (!cancelled) {
+        if (!options?.skipLoadingState && isActive()) {
           setIsLoadingData(false);
         }
       }
-    };
+    },
+    [locale, status, router, refreshAuth],
+  );
 
-    loadApplicationData();
+  useEffect(() => {
+    if (status !== AuthStatus.Authenticated) {
+      return;
+    }
+
+    let active = true;
+    loadApplicationData({ isActive: () => active });
+
     return () => {
-      cancelled = true;
+      active = false;
     };
-  }, [locale, status, router, refreshAuth]);
+  }, [status, loadApplicationData]);
 
   if (status === AuthStatus.Unauthenticated) {
     return null;
@@ -179,7 +214,14 @@ const ApplyPage = () => {
   };
 
   const removeCompetence = (indexToRemove: number) => {
-    setAddedCompetences((prev) => prev.filter((_, index) => index !== indexToRemove));
+    setAddedCompetences((prev) => {
+      const target = prev[indexToRemove];
+      const competenceProfileID = normalizeId(target?.competenceProfileID);
+      if (competenceProfileID != null) {
+        setRemovedCompetenceProfileIDs((prevRemoved) => [...prevRemoved, competenceProfileID]);
+      }
+      return prev.filter((_, index) => index !== indexToRemove);
+    });
   };
 
   const getCompetenceName = (competenceID: number) => availableCompetences.find((competence) => competence.id === competenceID)?.name ?? String(competenceID);
@@ -199,10 +241,105 @@ const ApplyPage = () => {
   };
 
   const removeAvailabilityRange = (indexToRemove: number) => {
-    setAvailabilityRanges((prev) => prev.filter((_, index) => index !== indexToRemove));
+    setAvailabilityRanges((prev) => {
+      const target = prev[indexToRemove];
+      const availabilityID = normalizeId(target?.availabilityID);
+      if (availabilityID != null) {
+        setRemovedAvailabilityIDs((prevRemoved) => [...prevRemoved, availabilityID]);
+      }
+      return prev.filter((_, index) => index !== indexToRemove);
+    });
   };
 
   const formatDateRange = (range: AvailabilityRange) => `${range.from.toLocaleDateString(locale)} - ${range.to.toLocaleDateString(locale)}`;
+  const formatDateForApi = (date: Date) => date.toLocaleDateString("sv-SE");
+
+  const contactFields = [
+    { id: "contact-first-name", labelKey: "contactInformation.firstName", value: userData?.firstName ?? "" },
+    { id: "contact-last-name", labelKey: "contactInformation.lastName", value: userData?.lastName ?? "" },
+    { id: "contact-user-name", labelKey: "contactInformation.username", value: userData?.username ?? "" },
+    { id: "contact-email", labelKey: "contactInformation.email", value: userData?.email ?? "" },
+    { id: "contact-personal-number", labelKey: "contactInformation.pnr", value: userData?.pnr ?? "" },
+  ];
+
+  const submitApplication = async () => {
+    if (isSubmitting) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const updateRequests = [
+        ...removedCompetenceProfileIDs.map((competenceProfileID) =>
+          managedFetch("/api/application/deleteUserCompetence", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ competenceProfileID }),
+          }),
+        ),
+        ...addedCompetences.map((competence) =>
+          managedFetch("/api/application/setUserCompetence", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ competenceID: competence.competenceID, yearsOfExperience: competence.yearsOfExperience }),
+          }),
+        ),
+        ...removedAvailabilityIDs.map((availabilityID) =>
+          managedFetch("/api/application/deleteUserAvailability", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ availabilityID }),
+          }),
+        ),
+        ...availabilityRanges.map((range) => {
+          if (range.availabilityID != null) {
+            return managedFetch("/api/application/setUserAvailability", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                availabilityID: range.availabilityID,
+                fromDate: formatDateForApi(range.from),
+                toDate: formatDateForApi(range.to),
+              }),
+            });
+          }
+
+          return managedFetch<{ availabilityID: number }>("/api/application/addUserAvailability", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              fromDate: formatDateForApi(range.from),
+              toDate: formatDateForApi(range.to),
+            }),
+          });
+        }),
+      ];
+
+      await Promise.all(updateRequests);
+
+      setRemovedCompetenceProfileIDs([]);
+      setRemovedAvailabilityIDs([]);
+
+      await managedFetch<{ applicationID: number }>("/api/application/submitApplication", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      await loadApplicationData({ skipLoadingState: true });
+
+      alert(t("submitSuccess"));
+    } catch (error) {
+      if (error instanceof APIError && error.statusCode === 401) {
+        refreshAuth();
+        router.replace("/login");
+        return;
+      }
+
+      handleClientError(error, tErrors);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="container mx-auto max-w-md space-y-5 py-10">
@@ -211,34 +348,29 @@ const ApplyPage = () => {
       </Card>
 
       <Card className="p-6 space-y-4">
-        <h2 className="text-lg font-semibold">{t("contactInformation.title")}</h2>
-        {isLoadingData && <p className="text-sm text-muted-foreground">{t("loadingData")}</p>}
-        {hasLoadError && <p className="text-sm text-destructive">{t("loadingError")}</p>}
+        {isLoadingData ? (
+          <div className="space-y-4">
+            <Skeleton className="h-6 w-40" />
+            {contactFields.map((field) => (
+              <div key={field.id} className="space-y-2">
+                <Skeleton className="h-4 w-28" />
+                <Skeleton className="h-9 w-full" />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <>
+            <h2 className="text-lg font-semibold">{t("contactInformation.title")}</h2>
+            {hasLoadError && <p className="text-sm text-destructive">{t("loadingError")}</p>}
 
-        <Field className="gap-1.5">
-          <FieldLabel htmlFor="contact-first-name">{t("contactInformation.firstName")}</FieldLabel>
-          <Input id="contact-first-name" type="text" value={userData?.firstName ?? ""} readOnly className="bg-muted text-muted-foreground cursor-text" />
-        </Field>
-
-        <Field className="gap-1.5">
-          <FieldLabel htmlFor="contact-last-name">{t("contactInformation.lastName")}</FieldLabel>
-          <Input id="contact-last-name" type="text" value={userData?.lastName ?? ""} readOnly className="bg-muted text-muted-foreground cursor-text" />
-        </Field>
-
-        <Field className="gap-1.5">
-          <FieldLabel htmlFor="contact-user-name">{t("contactInformation.username")}</FieldLabel>
-          <Input id="contact-user-name" type="text" value={userData?.username ?? ""} readOnly className="bg-muted text-muted-foreground cursor-text" />
-        </Field>
-
-        <Field className="gap-1.5">
-          <FieldLabel htmlFor="contact-email">{t("contactInformation.email")}</FieldLabel>
-          <Input id="contact-email" type="email" value={userData?.email ?? ""} readOnly className="bg-muted text-muted-foreground cursor-text" />
-        </Field>
-
-        <Field className="gap-1.5">
-          <FieldLabel htmlFor="contact-personal-number">{t("contactInformation.pnr")}</FieldLabel>
-          <Input id="contact-personal-number" type="text" value={userData?.pnr ?? ""} readOnly className="bg-muted text-muted-foreground cursor-text" />
-        </Field>
+            {contactFields.map((field) => (
+              <Field key={field.id} className="gap-1.5">
+                <FieldLabel htmlFor={field.id}>{t(field.labelKey)}</FieldLabel>
+                <Input id={field.id} type="text" value={field.value} readOnly className="bg-muted text-muted-foreground cursor-text" />
+              </Field>
+            ))}
+          </>
+        )}
       </Card>
 
       <Card className={cn("p-6 space-y-4 transition-colors", competenceError && "apply-shake-x border-destructive/70 ring-1 ring-destructive/40")}>
@@ -318,6 +450,10 @@ const ApplyPage = () => {
 
         {availabilityError && <p className="text-destructive text-sm">{availabilityError}</p>}
       </Card>
+
+      <Button type="button" className="w-full" onClick={submitApplication} disabled={isLoadingData || hasLoadError || isSubmitting}>
+        {isSubmitting ? t("submitting") : t("submitButton")}
+      </Button>
     </div>
   );
 };

@@ -97,7 +97,10 @@
       "add": "Lägg till datumintervall",
       "remove": "Ta bort",
       "invalidInput": "Välj både ett startdatum och ett slutdatum."
-    }
+    },
+    "submitButton": "Skicka ansökan",
+    "submitting": "Skickar...",
+    "submitSuccess": "Ansökan har skickats."
   },
   "AdminPage": {
     "title": "Adminverktyg för rekryteringsansökningar",
