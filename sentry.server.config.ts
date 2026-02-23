@@ -5,8 +5,13 @@
 import * as Sentry from "@sentry/nextjs";
 
 Sentry.init({
+  enabled: process.env.NODE_ENV === "production",
+
   // Configure via env to avoid hard‑coding secrets/tenant-specific values.
   dsn: process.env.SENTRY_DSN,
+
+  // Capture console.error calls.
+  integrations: [Sentry.captureConsoleIntegration({ levels: ["error"] })],
 
   // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
   tracesSampleRate: 1,
