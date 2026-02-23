@@ -5,6 +5,8 @@
 import * as Sentry from "@sentry/nextjs";
 
 Sentry.init({
+  enabled: process.env.NODE_ENV === "production",
+
   // Client-side must use a public env var; keep secret DSN in server env only.
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
 
