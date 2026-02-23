@@ -1,4 +1,3 @@
-import { resetCredentialsSchema, ResetCredentialsDTO } from "@/lib/schemas/resetCredentialsDTO";
 import { updateUserProfile } from "@/server/services/authenticationService";
 import { deleteHashedResetToken, validateResetToken } from "@/server/services/resetCredentialsService";
 import { getUserIdByToken } from "@/server/services/resetCredentialsService";

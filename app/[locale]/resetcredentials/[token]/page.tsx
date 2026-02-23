@@ -2,14 +2,13 @@
 
 import { z } from "zod";
 import { Card } from "@/components/ui/card";
-import { resetCredentialsSchema } from "@/lib/schemas/resetCredentialsDTO";
 import { useTranslations } from "next-intl";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, use } from "react";
+import { useEffect, use } from "react";
 import { managedFetch } from "@/lib/api";
 import { useAuth } from "@/components/AuthProvider";
 import { Button } from "@/components/ui/button";
