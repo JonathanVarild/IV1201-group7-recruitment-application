@@ -13,8 +13,10 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 /**
+ * Page component for initiating a credentials reset.
+ * Accepts users email, waits for token and open mock email dialog with reset link.
  *
- * @returns
+ * @returns {JSX.Element} The rendered initiate reset credentials page component.
  */
 const ResetCredentialsPage = () => {
   const t = useTranslations("ResetCredentialsPage");

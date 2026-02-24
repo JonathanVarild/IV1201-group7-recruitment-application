@@ -12,17 +12,22 @@ import { useEffect, use } from "react";
 import { managedFetch } from "@/lib/api";
 import { useAuth } from "@/components/AuthProvider";
 import { Button } from "@/components/ui/button";
+import { APIError } from "@/lib/errors/generalErrors";
+import { handleClientError } from "@/lib/utils";
 
 /**
+ * Page component for resetting the username and password.
+ * Validates the token, and then lets user fill out new username and/or password.
  *
- * @param param0
- * @returns
+ * @param params contains the reset token.
+ * @returns {JSX.Element} The rendered reset credentials page component.
  */
 const ResetCredentialsTokenPage = ({ params }: { params: Promise<{ token: string }> }) => {
   const { token } = use(params);
   const { refreshAuth } = useAuth();
   const router = useRouter();
   const t = useTranslations("ResetCredentialsTokenPage");
+  const tErrors = useTranslations("errors");
 
   const tProfile = useTranslations("ProfilePage");
   const tRegister = useTranslations("RegisterPage");
@@ -89,7 +94,12 @@ const ResetCredentialsTokenPage = ({ params }: { params: Promise<{ token: string
       refreshAuth();
       router.push("/login");
     } catch (error) {
-      // TODO error
+      if (error instanceof APIError && error.statusCode === 400) {
+        alert(t("invalidToken"));
+        router.push("/resetcredentials");
+      } else {
+        handleClientError(error, tErrors);
+      }
     }
   };
 

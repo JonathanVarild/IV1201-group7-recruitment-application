@@ -13,6 +13,16 @@ type MockEmailDialogProps = {
   resetUrl: string;
 };
 
+/**
+ * Mock email dialog simulating a credentials reset email.
+ *
+ * @param open indicates if dialog is open or not.
+ * @param onOpenChange callback to handle dialog open state.
+ * @param email entered user email.
+ * @param token unique reset token used in link.
+ * @param resetUrl the full url for the reset page.
+ * @returns {JSX.Element} The rendered mock email dialog component.
+ */
 export const MockEmailDialog = ({ open, onOpenChange, email, token, resetUrl }: MockEmailDialogProps) => {
   const t = useTranslations("mockEmail");
 
