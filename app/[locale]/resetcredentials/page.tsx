@@ -1,19 +1,16 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/dist/client/components/navigation";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useForm } from "react-hook-form";
 import Link from "next/link";
 
 /**
  * SHOULD MOCK AN EMAIL BEING SENT (IF IT IS TOO HARD TO ACTUALLY IMPLEMENT)
  */
 const ResetCredentialsPage = () => {
-  const router = useRouter();
   const t = useTranslations("ResetCredentialsPage");
 
   return (
