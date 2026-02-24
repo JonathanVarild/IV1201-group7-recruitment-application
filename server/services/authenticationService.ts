@@ -1,16 +1,31 @@
-import { NewUserDTO, newUserSchema } from "@/lib/schemas/userDTO";
-import { getDatabaseClient } from "@/lib/database";
-import { InvalidFormDataError } from "@/lib/errors/generalErrors";
-import { DatabaseError } from "pg";
-import { ConflictingSignupDataError } from "@/lib/errors/signupErrors";
 import bcrypt from "bcrypt";
-import { CredentialsDTO, credentialsSchema } from "@/lib/schemas/loginDTO";
-import { InvalidCredentialsError } from "@/lib/errors/authErrors";
+import { DatabaseError } from "pg";
 import { UserData } from "@/lib/types/userType";
+import { getDatabaseClient } from "@/lib/database";
 import { SessionData } from "@/lib/types/sessionType";
-import { generateSession } from "@/lib/session";
-import { ProfileDTO, updateUserSchema } from "@/lib/schemas/profileDTO";
 import { LogType, logUserActivity } from "@/lib/logging";
+import { NewUserDTO, newUserSchema } from "@/lib/schemas/userDTO";
+import { InvalidFormDataError } from "@/lib/errors/generalErrors";
+import { ConflictingSignupDataError } from "@/lib/errors/signupErrors";
+import { ProfileDTO, updateUserSchema } from "@/lib/schemas/profileDTO";
+import { generateSession, getAuthenticatedUserData } from "@/lib/session";
+import { CredentialsDTO, credentialsSchema } from "@/lib/schemas/loginDTO";
+import { InvalidCredentialsError, UnauthorizedError } from "@/lib/errors/authErrors";
+
+const ROLE_RECRUITER = "recruiter";
+
+/**
+ * Verifies that the currently authenticated user is a recruiter.
+ *
+ * @returns The authenticated user's data if they are a recruiter.
+ * @throws {InvalidSessionError} If there is no valid session.
+ * @throws {UnauthorizedError} If the authenticated user is not a recruiter.
+ */
+export async function requireRecruiter(): Promise<UserData> {
+  const userData = await getAuthenticatedUserData();
+  if (userData.role !== ROLE_RECRUITER) throw new UnauthorizedError();
+  return userData;
+}
 
 /**
  * Registers a new user in database.
