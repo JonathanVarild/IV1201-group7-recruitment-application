@@ -41,7 +41,7 @@ const ResetCredentialsTokenPage = ({ params }: { params: Promise<{ token: string
 
   useEffect(() => {
     if (!token) router.push("/");
-  }, [token]);
+  }, [token, router]);
 
   type ResetCredentialsFormData = z.infer<typeof resetCredentialsSchema>;
   const formFields: Array<{ name: keyof ResetCredentialsFormData; type: string }> = [
@@ -71,7 +71,7 @@ const ResetCredentialsTokenPage = ({ params }: { params: Promise<{ token: string
     };
 
     validate();
-  }, [token]);
+  }, [token, router]);
 
   const onSubmit = async (data: ResetCredentialsFormData) => {
     try {
