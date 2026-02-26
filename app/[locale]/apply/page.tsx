@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { type FocusEvent, useCallback, useEffect, useState } from "react";
 import { z } from "zod";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { cn, handleClientError } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { type DateRange } from "react-day-picker";
 import { getDateFnsLocale } from "@/lib/dateLocales";
@@ -50,6 +50,13 @@ const normalizeId = (value: number | string | null | undefined) => {
   return Number.isFinite(numberValue) ? numberValue : undefined;
 };
 
+const toISODate = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
 const setCompetenceSchema = z.object({
   competenceID: z.number().int().nonnegative(),
   yearsOfExperience: z.coerce.number().gt(0),
@@ -59,13 +66,13 @@ const ApplyPage = () => {
   const router = useRouter();
   const locale = useLocale();
   const t = useTranslations("ApplyPage");
-  const tErrors = useTranslations("errors");
   const { status, refreshAuth } = useAuth();
   const [userData, setUserData] = useState<FullUserData | null>(null);
   const [availableCompetences, setAvailableCompetences] = useState<Competence[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [hasLoadError, setHasLoadError] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSavingCompetence, setIsSavingCompetence] = useState(false);
+  const [isSavingAvailability, setIsSavingAvailability] = useState(false);
 
   const [selectedCompetenceID, setSelectedCompetenceID] = useState<number | null>(null);
   const [yearsInput, setYearsInput] = useState("");
@@ -74,8 +81,6 @@ const ApplyPage = () => {
   const [selectedAvailability, setSelectedAvailability] = useState<DateRange | undefined>(undefined);
   const [availabilityRanges, setAvailabilityRanges] = useState<AvailabilityRange[]>([]);
   const [availabilityError, setAvailabilityError] = useState<string | null>(null);
-  const [removedCompetenceProfileIDs, setRemovedCompetenceProfileIDs] = useState<number[]>([]);
-  const [removedAvailabilityIDs, setRemovedAvailabilityIDs] = useState<number[]>([]);
 
   useEffect(() => {
     if (status === AuthStatus.Unauthenticated) {
@@ -108,8 +113,6 @@ const ApplyPage = () => {
 
         if (!isActive()) return;
 
-        let shouldRedirectToLogin = false;
-
         if (detailsResult.status === "fulfilled") {
           const details = detailsResult.value;
           setUserData(details.userData);
@@ -128,7 +131,7 @@ const ApplyPage = () => {
             })),
           );
         } else if (detailsResult.reason instanceof APIError && detailsResult.reason.statusCode === 401) {
-          shouldRedirectToLogin = true;
+          router.replace("/login");
         } else {
           console.error("Failed to load user details:", detailsResult.reason);
           setHasLoadError(true);
@@ -137,15 +140,10 @@ const ApplyPage = () => {
         if (competenceListResult.status === "fulfilled") {
           setAvailableCompetences(competenceListResult.value);
         } else if (competenceListResult.reason instanceof APIError && competenceListResult.reason.statusCode === 401) {
-          shouldRedirectToLogin = true;
+          router.replace("/login");
         } else {
           console.error("Failed to load competence list:", competenceListResult.reason);
           setHasLoadError(true);
-        }
-
-        if (shouldRedirectToLogin) {
-          refreshAuth();
-          router.replace("/login");
         }
       } catch (error) {
         if (!isActive()) {
@@ -196,7 +194,11 @@ const ApplyPage = () => {
     );
   }
 
-  const addCompetence = () => {
+  const addCompetence = async () => {
+    if (isSavingCompetence) {
+      return;
+    }
+
     const result = setCompetenceSchema.safeParse({
       competenceID: selectedCompetenceID,
       yearsOfExperience: yearsInput,
@@ -208,25 +210,156 @@ const ApplyPage = () => {
     }
 
     setCompetenceError(null);
-    setAddedCompetences((prev) => [...prev, result.data]);
-    setSelectedCompetenceID(null);
-    setYearsInput("");
-  };
+    setIsSavingCompetence(true);
 
-  const removeCompetence = (indexToRemove: number) => {
-    setAddedCompetences((prev) => {
-      const target = prev[indexToRemove];
-      const competenceProfileID = normalizeId(target?.competenceProfileID);
-      if (competenceProfileID != null) {
-        setRemovedCompetenceProfileIDs((prevRemoved) => [...prevRemoved, competenceProfileID]);
+    try {
+      await managedFetch("/api/application/setUserCompetence", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(result.data),
+      });
+
+      setSelectedCompetenceID(null);
+      setYearsInput("");
+      await loadApplicationData({ skipLoadingState: true });
+    } catch (error) {
+      if (error instanceof APIError && error.statusCode === 401) {
+        refreshAuth();
+        router.replace("/login");
+        return;
       }
-      return prev.filter((_, index) => index !== indexToRemove);
-    });
+
+      console.error("Failed to persist added competence:", error);
+      setCompetenceError(t("loadingError"));
+    } finally {
+      setIsSavingCompetence(false);
+    }
   };
 
-  const getCompetenceName = (competenceID: number) => availableCompetences.find((competence) => competence.id === competenceID)?.name ?? String(competenceID);
+  const removeCompetence = async (indexToRemove: number) => {
+    if (isSavingCompetence) {
+      return;
+    }
 
-  const addAvailabilityRange = () => {
+    const targetCompetence = addedCompetences[indexToRemove];
+    const competenceProfileID = normalizeId(targetCompetence?.competenceProfileID);
+
+    if (targetCompetence == null) {
+      return;
+    }
+
+    if (competenceProfileID == null) {
+      setCompetenceError(t("loadingError"));
+      return;
+    }
+
+    setCompetenceError(null);
+    setIsSavingCompetence(true);
+
+    try {
+      await managedFetch("/api/application/deleteUserCompetence", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ competenceProfileID }),
+      });
+
+      await loadApplicationData({ skipLoadingState: true });
+    } catch (error) {
+      if (error instanceof APIError && error.statusCode === 401) {
+        refreshAuth();
+        router.replace("/login");
+        return;
+      }
+
+      console.error("Failed to delete competence:", error);
+      setCompetenceError(t("loadingError"));
+    } finally {
+      setIsSavingCompetence(false);
+    }
+  };
+
+  const handleCompetenceYearsBlur = (index: number, event: FocusEvent<HTMLInputElement>) => {
+    const nextFocusedElement = event.relatedTarget as HTMLElement | null;
+    if (nextFocusedElement?.dataset.skipCompetencePersist === "true") {
+      return;
+    }
+
+    void persistCompetenceYears(index);
+  };
+
+  const updateCompetenceYears = (indexToUpdate: number, yearsOfExperienceInput: string) => {
+    const parsedYears = Number(yearsOfExperienceInput);
+    if (!Number.isFinite(parsedYears) || parsedYears <= 0) {
+      setCompetenceError(t("competences.invalidInput"));
+      return;
+    }
+
+    setCompetenceError(null);
+    setAddedCompetences((prev) => prev.map((competence, index) => (index === indexToUpdate ? { ...competence, yearsOfExperience: parsedYears } : competence)));
+  };
+
+  const persistCompetenceYears = async (indexToPersist: number) => {
+    if (isSavingCompetence) {
+      return;
+    }
+
+    const targetCompetence = addedCompetences[indexToPersist];
+    if (targetCompetence == null) {
+      return;
+    }
+
+    const result = setCompetenceSchema.safeParse({
+      competenceID: targetCompetence.competenceID,
+      yearsOfExperience: targetCompetence.yearsOfExperience,
+    });
+
+    if (!result.success) {
+      setCompetenceError(t("competences.invalidInput"));
+      return;
+    }
+
+    setCompetenceError(null);
+    setIsSavingCompetence(true);
+
+    try {
+      await managedFetch("/api/application/setUserCompetence", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(result.data),
+      });
+
+      await loadApplicationData({ skipLoadingState: true });
+    } catch (error) {
+      if (error instanceof APIError && error.statusCode === 401) {
+        refreshAuth();
+        router.replace("/login");
+        return;
+      }
+
+      console.error("Failed to persist competence years:", error);
+      setCompetenceError(t("loadingError"));
+    } finally {
+      setIsSavingCompetence(false);
+    }
+  };
+
+  const getCompetenceName = (competenceID: number | string) => {
+    const normalizedCompetenceID = normalizeId(competenceID);
+    const competence = availableCompetences.find((item) => normalizeId(item.id) === normalizedCompetenceID);
+    return competence?.name ?? String(competenceID);
+  };
+
+  const selectedCompetenceIDs = new Set(addedCompetences.map((competence) => normalizeId(competence.competenceID)).filter((id): id is number => id != null));
+  const selectableCompetences = availableCompetences.filter((competence) => {
+    const competenceID = normalizeId(competence.id);
+    return competenceID == null || !selectedCompetenceIDs.has(competenceID);
+  });
+
+  const addAvailabilityRange = async () => {
+    if (isSavingAvailability) {
+      return;
+    }
+
     const from = selectedAvailability?.from;
     const to = selectedAvailability?.to;
 
@@ -236,23 +369,77 @@ const ApplyPage = () => {
     }
 
     setAvailabilityError(null);
-    setAvailabilityRanges((prev) => [...prev, { from, to }]);
-    setSelectedAvailability(undefined);
+    setIsSavingAvailability(true);
+
+    try {
+      await managedFetch<{ availabilityID: number }>("/api/application/addUserAvailability", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fromDate: toISODate(from),
+          toDate: toISODate(to),
+        }),
+      });
+
+      setSelectedAvailability(undefined);
+      await loadApplicationData({ skipLoadingState: true });
+    } catch (error) {
+      if (error instanceof APIError && error.statusCode === 401) {
+        refreshAuth();
+        router.replace("/login");
+        return;
+      }
+
+      console.error("Failed to add availability:", error);
+      setAvailabilityError(t("loadingError"));
+    } finally {
+      setIsSavingAvailability(false);
+    }
   };
 
-  const removeAvailabilityRange = (indexToRemove: number) => {
-    setAvailabilityRanges((prev) => {
-      const target = prev[indexToRemove];
-      const availabilityID = normalizeId(target?.availabilityID);
-      if (availabilityID != null) {
-        setRemovedAvailabilityIDs((prevRemoved) => [...prevRemoved, availabilityID]);
+  const removeAvailabilityRange = async (indexToRemove: number) => {
+    if (isSavingAvailability) {
+      return;
+    }
+
+    const targetAvailability = availabilityRanges[indexToRemove];
+    const availabilityID = normalizeId(targetAvailability?.availabilityID);
+
+    if (targetAvailability == null) {
+      return;
+    }
+
+    if (availabilityID == null) {
+      setAvailabilityError(t("loadingError"));
+      return;
+    }
+
+    setAvailabilityError(null);
+    setIsSavingAvailability(true);
+
+    try {
+      await managedFetch("/api/application/deleteUserAvailability", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ availabilityID }),
+      });
+
+      await loadApplicationData({ skipLoadingState: true });
+    } catch (error) {
+      if (error instanceof APIError && error.statusCode === 401) {
+        refreshAuth();
+        router.replace("/login");
+        return;
       }
-      return prev.filter((_, index) => index !== indexToRemove);
-    });
+
+      console.error("Failed to delete availability:", error);
+      setAvailabilityError(t("loadingError"));
+    } finally {
+      setIsSavingAvailability(false);
+    }
   };
 
   const formatDateRange = (range: AvailabilityRange) => `${range.from.toLocaleDateString(locale)} - ${range.to.toLocaleDateString(locale)}`;
-  const formatDateForApi = (date: Date) => date.toLocaleDateString("sv-SE");
 
   const contactFields = [
     { id: "contact-first-name", labelKey: "contactInformation.firstName", value: userData?.firstName ?? "" },
@@ -263,82 +450,10 @@ const ApplyPage = () => {
   ];
 
   const submitApplication = async () => {
-    if (isSubmitting) {
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      const updateRequests = [
-        ...removedCompetenceProfileIDs.map((competenceProfileID) =>
-          managedFetch("/api/application/deleteUserCompetence", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ competenceProfileID }),
-          }),
-        ),
-        ...addedCompetences.map((competence) =>
-          managedFetch("/api/application/setUserCompetence", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ competenceID: competence.competenceID, yearsOfExperience: competence.yearsOfExperience }),
-          }),
-        ),
-        ...removedAvailabilityIDs.map((availabilityID) =>
-          managedFetch("/api/application/deleteUserAvailability", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ availabilityID }),
-          }),
-        ),
-        ...availabilityRanges.map((range) => {
-          if (range.availabilityID != null) {
-            return managedFetch("/api/application/setUserAvailability", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                availabilityID: range.availabilityID,
-                fromDate: formatDateForApi(range.from),
-                toDate: formatDateForApi(range.to),
-              }),
-            });
-          }
-
-          return managedFetch<{ availabilityID: number }>("/api/application/addUserAvailability", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              fromDate: formatDateForApi(range.from),
-              toDate: formatDateForApi(range.to),
-            }),
-          });
-        }),
-      ];
-
-      await Promise.all(updateRequests);
-
-      setRemovedCompetenceProfileIDs([]);
-      setRemovedAvailabilityIDs([]);
-
-      await managedFetch<{ applicationID: number }>("/api/application/submitApplication", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
-
-      await loadApplicationData({ skipLoadingState: true });
-
-      alert(t("submitSuccess"));
-    } catch (error) {
-      if (error instanceof APIError && error.statusCode === 401) {
-        refreshAuth();
-        router.replace("/login");
-        return;
-      }
-
-      handleClientError(error, tErrors);
-    } finally {
-      setIsSubmitting(false);
-    }
+    await managedFetch("/api/application/submitApplication", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
   };
 
   return (
@@ -378,12 +493,12 @@ const ApplyPage = () => {
         <div className="grid grid-cols-[1fr_7rem_auto] gap-2 items-end">
           <Field className="gap-1.5">
             <FieldLabel htmlFor="competence-picker">{t("competences.competence")}</FieldLabel>
-            <Select value={selectedCompetenceID?.toString()} onValueChange={(value) => setSelectedCompetenceID(Number(value))}>
+            <Select value={selectedCompetenceID?.toString()} onValueChange={(value) => setSelectedCompetenceID(Number(value))} disabled={isSavingCompetence}>
               <SelectTrigger id="competence-picker" className="w-full">
                 <SelectValue placeholder={t("competences.selectPlaceholder")} />
               </SelectTrigger>
               <SelectContent>
-                {availableCompetences.map((competence) => (
+                {selectableCompetences.map((competence) => (
                   <SelectItem key={competence.id} value={competence.id.toString()}>
                     {competence.name}
                   </SelectItem>
@@ -402,10 +517,11 @@ const ApplyPage = () => {
               placeholder={t("competences.yearsPlaceholder")}
               value={yearsInput}
               onChange={(event) => setYearsInput(event.target.value)}
+              disabled={isSavingCompetence}
             />
           </Field>
 
-          <Button type="button" onClick={addCompetence}>
+          <Button type="button" onClick={addCompetence} disabled={isSavingCompetence}>
             {t("competences.add")}
           </Button>
         </div>
@@ -413,8 +529,17 @@ const ApplyPage = () => {
         {addedCompetences.map((competence, index) => (
           <div key={`${competence.competenceID}-${index}`} className="grid grid-cols-[1fr_7rem_auto] gap-2 items-end">
             <Input value={getCompetenceName(competence.competenceID)} readOnly className="bg-muted text-muted-foreground cursor-text" />
-            <Input value={competence.yearsOfExperience} readOnly className="bg-muted text-muted-foreground cursor-text" />
-            <Button type="button" variant="outline" onClick={() => removeCompetence(index)}>
+            <Input
+              type="number"
+              min={0.1}
+              step="0.1"
+              value={competence.yearsOfExperience}
+              onChange={(event) => updateCompetenceYears(index, event.target.value)}
+              onBlur={(event) => handleCompetenceYearsBlur(index, event)}
+              disabled={isSavingCompetence}
+              className="cursor-text"
+            />
+            <Button type="button" variant="outline" data-skip-competence-persist="true" onClick={() => removeCompetence(index)} disabled={isSavingCompetence}>
               {t("competences.remove")}
             </Button>
           </div>
@@ -429,20 +554,25 @@ const ApplyPage = () => {
           <Calendar
             mode="range"
             selected={selectedAvailability}
-            onSelect={setSelectedAvailability}
+            onSelect={(range) => {
+              if (isSavingAvailability) {
+                return;
+              }
+              setSelectedAvailability(range);
+            }}
             locale={getDateFnsLocale(locale)}
-            className={cn("rounded-md border", availabilityError && "apply-shake-x border-destructive/70")}
+            className={cn("rounded-md border", availabilityError && "apply-shake-x border-destructive/70", isSavingAvailability && "pointer-events-none opacity-60")}
           />
         </div>
 
-        <Button type="button" onClick={addAvailabilityRange} className="w-fit">
+        <Button type="button" onClick={addAvailabilityRange} className="w-fit" disabled={isSavingAvailability}>
           {t("availability.add")}
         </Button>
 
         {availabilityRanges.map((range, index) => (
-          <div key={`${range.from.toISOString()}-${range.to.toISOString()}-${index}`} className="grid grid-cols-[1fr_auto] gap-2 items-end">
+          <div key={`${toISODate(range.from)}-${toISODate(range.to)}-${index}`} className="grid grid-cols-[1fr_auto] gap-2 items-end">
             <Input value={formatDateRange(range)} readOnly className="bg-muted text-muted-foreground cursor-text" />
-            <Button type="button" variant="outline" onClick={() => removeAvailabilityRange(index)}>
+            <Button type="button" variant="outline" onClick={() => removeAvailabilityRange(index)} disabled={isSavingAvailability}>
               {t("availability.remove")}
             </Button>
           </div>
@@ -451,8 +581,8 @@ const ApplyPage = () => {
         {availabilityError && <p className="text-destructive text-sm">{availabilityError}</p>}
       </Card>
 
-      <Button type="button" className="w-full" onClick={submitApplication} disabled={isLoadingData || hasLoadError || isSubmitting}>
-        {isSubmitting ? t("submitting") : t("submitButton")}
+      <Button type="button" className="w-full" onClick={submitApplication} disabled={isLoadingData || hasLoadError}>
+        {t("submitButton")}
       </Button>
     </div>
   );

@@ -146,8 +146,8 @@ export async function getUserCompetences(userID: number, srcRequest: Request): P
       `SELECT 
       c.competence_id AS id,
       c.name,
-      pc.years_of_experience AS yearsOfExperience,
-      pc.competence_profile_id AS competenceProfileID
+      pc.years_of_experience AS "yearsOfExperience",
+      pc.competence_profile_id AS "competenceProfileID"
     FROM competence_profile pc
     JOIN competence c ON pc.competence_id = c.competence_id
     WHERE pc.person_id = $1`,
