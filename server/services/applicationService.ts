@@ -3,6 +3,7 @@ import { ConflictingApplicationError } from "@/lib/errors/applicationErrors";
 import { InvalidFormDataError } from "@/lib/errors/generalErrors";
 import { LogType, logUserActivity } from "@/lib/logging";
 import { SetAvailabilityDTO, SetCompetenceDTO, AddUserAvailabilityDTO } from "@/lib/schemas/applicationDTO";
+import { SubmittedApplication } from "@/lib/types/applicationType";
 import { Competence, UserCompetence } from "@/lib/types/competenceType";
 import { FullUserData, UserAvailability } from "@/lib/types/userType";
 import { DatabaseError } from "pg";
@@ -415,4 +416,25 @@ export async function getAllCompetences(localeData: string): Promise<Competence[
   );
 
   return competencesQueryResult.rows;
+}
+
+export async function getSubmittedApplication(userID: number): Promise<SubmittedApplication | null> {
+  const databaseClient = await getDatabaseClient();
+  try {
+    const result = await databaseClient.query<SubmittedApplication>(
+      `SELECT
+        status,
+        created_at AS "createdAt",
+        updated_at AS "updatedAt"
+      FROM applications
+      WHERE person_id = $1
+      ORDER BY created_at DESC
+      LIMIT 1`,
+      [userID],
+    );
+
+    return result.rows[0] ?? null;
+  } finally {
+    databaseClient.release();
+  }
 }
