@@ -74,6 +74,18 @@
     "title": "Apply for a position",
     "loadingData": "Loading your application data...",
     "loadingError": "Could not load your application data. Please refresh the page.",
+    "applicationStatus": {
+      "title": "Application status",
+      "description": "You have already submitted an application.",
+      "statusLabel": "Status",
+      "submittedAtLabel": "Submitted",
+      "updatedAtLabel": "Last updated",
+      "statuses": {
+        "unhandled": "Unhandled",
+        "accepted": "Accepted",
+        "rejected": "Rejected"
+      }
+    },
     "contactInformation": {
       "title": "Contact Information",
       "email": "Email",

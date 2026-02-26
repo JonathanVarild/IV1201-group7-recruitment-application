@@ -44,6 +44,16 @@ type GetUserDetailsResponse = {
   competences: UserCompetence[];
 };
 
+type SubmittedApplicationResponse = {
+  status: string;
+  createdAt: string;
+  updatedAt: string | null;
+};
+
+type GetApplicationResponse = {
+  application: SubmittedApplicationResponse | null;
+};
+
 const normalizeId = (value: number | string | null | undefined) => {
   if (value == null) return undefined;
   const numberValue = typeof value === "string" ? Number(value) : value;
@@ -73,6 +83,8 @@ const ApplyPage = () => {
   const [hasLoadError, setHasLoadError] = useState(false);
   const [isSavingCompetence, setIsSavingCompetence] = useState(false);
   const [isSavingAvailability, setIsSavingAvailability] = useState(false);
+  const [isSubmittingApplication, setIsSubmittingApplication] = useState(false);
+  const [submittedApplication, setSubmittedApplication] = useState<SubmittedApplicationResponse | null>(null);
 
   const [selectedCompetenceID, setSelectedCompetenceID] = useState<number | null>(null);
   const [yearsInput, setYearsInput] = useState("");
@@ -100,6 +112,18 @@ const ApplyPage = () => {
       }
       setHasLoadError(false);
       try {
+        const applicationResult = await managedFetch<GetApplicationResponse>("/api/application/getApplication", {
+          method: "POST",
+        });
+
+        if (!isActive()) return;
+
+        setSubmittedApplication(applicationResult.application);
+
+        if (applicationResult.application != null) {
+          return;
+        }
+
         const [detailsResult, competenceListResult] = await Promise.allSettled([
           managedFetch<GetUserDetailsResponse>("/api/application/getUserDetails", {
             method: "POST",
@@ -450,10 +474,55 @@ const ApplyPage = () => {
   ];
 
   const submitApplication = async () => {
-    await managedFetch("/api/application/submitApplication", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-    });
+    if (isSubmittingApplication) {
+      return;
+    }
+
+    setIsSubmittingApplication(true);
+    try {
+      await managedFetch("/api/application/submitApplication", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      await loadApplicationData();
+    } catch (error) {
+      if (error instanceof APIError && error.statusCode === 401) {
+        refreshAuth();
+        router.replace("/login");
+        return;
+      }
+
+      console.error("Failed to submit application:", error);
+      setHasLoadError(true);
+    } finally {
+      setIsSubmittingApplication(false);
+    }
+  };
+
+  const getApplicationStatusText = (applicationStatus: string) => {
+    switch (applicationStatus) {
+      case "unhandled":
+        return t("applicationStatus.statuses.unhandled");
+      case "accepted":
+        return t("applicationStatus.statuses.accepted");
+      case "rejected":
+        return t("applicationStatus.statuses.rejected");
+      default:
+        return applicationStatus;
+    }
+  };
+
+  const formatApplicationDateTime = (dateString: string | null) => {
+    if (dateString == null) {
+      return null;
+    }
+
+    const parsedDate = new Date(dateString);
+    if (Number.isNaN(parsedDate.getTime())) {
+      return dateString;
+    }
+
+    return parsedDate.toLocaleString(locale);
   };
 
   return (
@@ -462,128 +531,154 @@ const ApplyPage = () => {
         <h1 className="text-2xl font-bold">{t("title")}</h1>
       </Card>
 
-      <Card className="p-6 space-y-4">
-        {isLoadingData ? (
-          <div className="space-y-4">
-            <Skeleton className="h-6 w-40" />
-            {contactFields.map((field) => (
-              <div key={field.id} className="space-y-2">
-                <Skeleton className="h-4 w-28" />
-                <Skeleton className="h-9 w-full" />
-              </div>
-            ))}
+      {submittedApplication != null ? (
+        <Card className="p-6 space-y-4">
+          <h2 className="text-lg font-semibold">{t("applicationStatus.title")}</h2>
+          <p className="text-sm text-muted-foreground">{t("applicationStatus.description")}</p>
+          <div className="space-y-1 text-sm">
+            <p>
+              <span className="font-medium">{t("applicationStatus.statusLabel")}:</span> {getApplicationStatusText(submittedApplication.status)}
+            </p>
+            <p>
+              <span className="font-medium">{t("applicationStatus.submittedAtLabel")}:</span> {formatApplicationDateTime(submittedApplication.createdAt)}
+            </p>
+            {submittedApplication.updatedAt != null && (
+              <p>
+                <span className="font-medium">{t("applicationStatus.updatedAtLabel")}:</span> {formatApplicationDateTime(submittedApplication.updatedAt)}
+              </p>
+            )}
           </div>
-        ) : (
-          <>
-            <h2 className="text-lg font-semibold">{t("contactInformation.title")}</h2>
-            {hasLoadError && <p className="text-sm text-destructive">{t("loadingError")}</p>}
-
-            {contactFields.map((field) => (
-              <Field key={field.id} className="gap-1.5">
-                <FieldLabel htmlFor={field.id}>{t(field.labelKey)}</FieldLabel>
-                <Input id={field.id} type="text" value={field.value} readOnly className="bg-muted text-muted-foreground cursor-text" />
-              </Field>
-            ))}
-          </>
-        )}
-      </Card>
-
-      <Card className={cn("p-6 space-y-4 transition-colors", competenceError && "apply-shake-x border-destructive/70 ring-1 ring-destructive/40")}>
-        <h2 className="text-lg font-semibold">{t("competences.title")}</h2>
-        <div className="grid grid-cols-[1fr_7rem_auto] gap-2 items-end">
-          <Field className="gap-1.5">
-            <FieldLabel htmlFor="competence-picker">{t("competences.competence")}</FieldLabel>
-            <Select value={selectedCompetenceID?.toString()} onValueChange={(value) => setSelectedCompetenceID(Number(value))} disabled={isSavingCompetence}>
-              <SelectTrigger id="competence-picker" className="w-full">
-                <SelectValue placeholder={t("competences.selectPlaceholder")} />
-              </SelectTrigger>
-              <SelectContent>
-                {selectableCompetences.map((competence) => (
-                  <SelectItem key={competence.id} value={competence.id.toString()}>
-                    {competence.name}
-                  </SelectItem>
+        </Card>
+      ) : (
+        <>
+          <Card className="p-6 space-y-4">
+            {isLoadingData ? (
+              <div className="space-y-4">
+                <Skeleton className="h-6 w-40" />
+                {contactFields.map((field) => (
+                  <div key={field.id} className="space-y-2">
+                    <Skeleton className="h-4 w-28" />
+                    <Skeleton className="h-9 w-full" />
+                  </div>
                 ))}
-              </SelectContent>
-            </Select>
-          </Field>
+              </div>
+            ) : (
+              <>
+                <h2 className="text-lg font-semibold">{t("contactInformation.title")}</h2>
+                {hasLoadError && <p className="text-sm text-destructive">{t("loadingError")}</p>}
 
-          <Field className="gap-1.5">
-            <FieldLabel htmlFor="competence-years">{t("competences.years")}</FieldLabel>
-            <Input
-              id="competence-years"
-              type="number"
-              min={0.1}
-              step="0.1"
-              placeholder={t("competences.yearsPlaceholder")}
-              value={yearsInput}
-              onChange={(event) => setYearsInput(event.target.value)}
-              disabled={isSavingCompetence}
-            />
-          </Field>
+                {contactFields.map((field) => (
+                  <Field key={field.id} className="gap-1.5">
+                    <FieldLabel htmlFor={field.id}>{t(field.labelKey)}</FieldLabel>
+                    <Input id={field.id} type="text" value={field.value} readOnly className="bg-muted text-muted-foreground cursor-text" />
+                  </Field>
+                ))}
+              </>
+            )}
+          </Card>
 
-          <Button type="button" onClick={addCompetence} disabled={isSavingCompetence}>
-            {t("competences.add")}
-          </Button>
-        </div>
+          {!isLoadingData && !hasLoadError && (
+            <>
+              <Card className={cn("p-6 space-y-4 transition-colors", competenceError && "apply-shake-x border-destructive/70 ring-1 ring-destructive/40")}>
+                <h2 className="text-lg font-semibold">{t("competences.title")}</h2>
+                <div className="grid grid-cols-[1fr_7rem_auto] gap-2 items-end">
+                  <Field className="gap-1.5">
+                    <FieldLabel htmlFor="competence-picker">{t("competences.competence")}</FieldLabel>
+                    <Select value={selectedCompetenceID?.toString()} onValueChange={(value) => setSelectedCompetenceID(Number(value))} disabled={isSavingCompetence}>
+                      <SelectTrigger id="competence-picker" className="w-full">
+                        <SelectValue placeholder={t("competences.selectPlaceholder")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {selectableCompetences.map((competence) => (
+                          <SelectItem key={competence.id} value={competence.id.toString()}>
+                            {competence.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </Field>
 
-        {addedCompetences.map((competence, index) => (
-          <div key={`${competence.competenceID}-${index}`} className="grid grid-cols-[1fr_7rem_auto] gap-2 items-end">
-            <Input value={getCompetenceName(competence.competenceID)} readOnly className="bg-muted text-muted-foreground cursor-text" />
-            <Input
-              type="number"
-              min={0.1}
-              step="0.1"
-              value={competence.yearsOfExperience}
-              onChange={(event) => updateCompetenceYears(index, event.target.value)}
-              onBlur={(event) => handleCompetenceYearsBlur(index, event)}
-              disabled={isSavingCompetence}
-              className="cursor-text"
-            />
-            <Button type="button" variant="outline" data-skip-competence-persist="true" onClick={() => removeCompetence(index)} disabled={isSavingCompetence}>
-              {t("competences.remove")}
-            </Button>
-          </div>
-        ))}
+                  <Field className="gap-1.5">
+                    <FieldLabel htmlFor="competence-years">{t("competences.years")}</FieldLabel>
+                    <Input
+                      id="competence-years"
+                      type="number"
+                      min={0.1}
+                      step="0.1"
+                      placeholder={t("competences.yearsPlaceholder")}
+                      value={yearsInput}
+                      onChange={(event) => setYearsInput(event.target.value)}
+                      disabled={isSavingCompetence}
+                    />
+                  </Field>
 
-        {competenceError && <p className="text-destructive text-sm">{competenceError}</p>}
-      </Card>
+                  <Button type="button" onClick={addCompetence} disabled={isSavingCompetence}>
+                    {t("competences.add")}
+                  </Button>
+                </div>
 
-      <Card className="p-6 space-y-4">
-        <h2 className="text-lg font-semibold">{t("availability.title")}</h2>
-        <div className="flex justify-center">
-          <Calendar
-            mode="range"
-            selected={selectedAvailability}
-            onSelect={(range) => {
-              if (isSavingAvailability) {
-                return;
-              }
-              setSelectedAvailability(range);
-            }}
-            locale={getDateFnsLocale(locale)}
-            className={cn("rounded-md border", availabilityError && "apply-shake-x border-destructive/70", isSavingAvailability && "pointer-events-none opacity-60")}
-          />
-        </div>
+                {addedCompetences.map((competence, index) => (
+                  <div key={`${competence.competenceID}-${index}`} className="grid grid-cols-[1fr_7rem_auto] gap-2 items-end">
+                    <Input value={getCompetenceName(competence.competenceID)} readOnly className="bg-muted text-muted-foreground cursor-text" />
+                    <Input
+                      type="number"
+                      min={0.1}
+                      step="0.1"
+                      value={competence.yearsOfExperience}
+                      onChange={(event) => updateCompetenceYears(index, event.target.value)}
+                      onBlur={(event) => handleCompetenceYearsBlur(index, event)}
+                      disabled={isSavingCompetence}
+                      className="cursor-text"
+                    />
+                    <Button type="button" variant="outline" data-skip-competence-persist="true" onClick={() => removeCompetence(index)} disabled={isSavingCompetence}>
+                      {t("competences.remove")}
+                    </Button>
+                  </div>
+                ))}
 
-        <Button type="button" onClick={addAvailabilityRange} className="w-fit" disabled={isSavingAvailability}>
-          {t("availability.add")}
-        </Button>
+                {competenceError && <p className="text-destructive text-sm">{competenceError}</p>}
+              </Card>
 
-        {availabilityRanges.map((range, index) => (
-          <div key={`${toISODate(range.from)}-${toISODate(range.to)}-${index}`} className="grid grid-cols-[1fr_auto] gap-2 items-end">
-            <Input value={formatDateRange(range)} readOnly className="bg-muted text-muted-foreground cursor-text" />
-            <Button type="button" variant="outline" onClick={() => removeAvailabilityRange(index)} disabled={isSavingAvailability}>
-              {t("availability.remove")}
-            </Button>
-          </div>
-        ))}
+              <Card className="p-6 space-y-4">
+                <h2 className="text-lg font-semibold">{t("availability.title")}</h2>
+                <div className="flex justify-center">
+                  <Calendar
+                    mode="range"
+                    selected={selectedAvailability}
+                    onSelect={(range) => {
+                      if (isSavingAvailability) {
+                        return;
+                      }
+                      setSelectedAvailability(range);
+                    }}
+                    locale={getDateFnsLocale(locale)}
+                    className={cn("rounded-md border", availabilityError && "apply-shake-x border-destructive/70", isSavingAvailability && "pointer-events-none opacity-60")}
+                  />
+                </div>
 
-        {availabilityError && <p className="text-destructive text-sm">{availabilityError}</p>}
-      </Card>
+                <Button type="button" onClick={addAvailabilityRange} className="w-fit" disabled={isSavingAvailability}>
+                  {t("availability.add")}
+                </Button>
 
-      <Button type="button" className="w-full" onClick={submitApplication} disabled={isLoadingData || hasLoadError}>
-        {t("submitButton")}
-      </Button>
+                {availabilityRanges.map((range, index) => (
+                  <div key={`${toISODate(range.from)}-${toISODate(range.to)}-${index}`} className="grid grid-cols-[1fr_auto] gap-2 items-end">
+                    <Input value={formatDateRange(range)} readOnly className="bg-muted text-muted-foreground cursor-text" />
+                    <Button type="button" variant="outline" onClick={() => removeAvailabilityRange(index)} disabled={isSavingAvailability}>
+                      {t("availability.remove")}
+                    </Button>
+                  </div>
+                ))}
+
+                {availabilityError && <p className="text-destructive text-sm">{availabilityError}</p>}
+              </Card>
+
+              <Button type="button" className="w-full" onClick={submitApplication} disabled={isLoadingData || hasLoadError || isSubmittingApplication}>
+                {isSubmittingApplication ? t("submitting") : t("submitButton")}
+              </Button>
+            </>
+          )}
+        </>
+      )}
     </div>
   );
 };

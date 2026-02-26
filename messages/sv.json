@@ -74,6 +74,18 @@
     "title": "Ansök",
     "loadingData": "Laddar dina ansökningsuppgifter...",
     "loadingError": "Kunde inte ladda dina ansökningsuppgifter. Ladda om sidan.",
+    "applicationStatus": {
+      "title": "Ansökningsstatus",
+      "description": "Du har redan skickat in en ansökan.",
+      "statusLabel": "Status",
+      "submittedAtLabel": "Skickad",
+      "updatedAtLabel": "Senast uppdaterad",
+      "statuses": {
+        "unhandled": "Ohanterad",
+        "accepted": "Accepterad",
+        "rejected": "Avvisad"
+      }
+    },
     "contactInformation": {
       "title": "Kontaktuppgifter",
       "email": "E-post",
