@@ -12,7 +12,6 @@ import { CredentialsDTO, credentialsSchema } from "@/lib/schemas/loginDTO";
 import { managedFetch } from "@/lib/api";
 import { UserData } from "@/lib/types/userType";
 import { useRouter } from "next/navigation";
-import { APIError } from "@/lib/errors/generalErrors";
 import Link from "next/link";
 import { useAuth } from "@/components/AuthProvider";
 import { handleClientError } from "@/lib/utils";

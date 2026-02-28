@@ -37,12 +37,12 @@
       "confirmPassword": "Re-enter password"
     },
     "validation": {
-      "firstNameMin": "First name must be at least 2 characters",
-      "lastNameMin": "Last name must be at least 2 characters",
-      "usernameMin": "Username must be at least 3 characters",
-      "personalNumberInvalid": "Invalid personal number format (YYYYMMDD-XXXX or YYYYMMDDXXXX)",
+      "firstNameMin": "First name must be at least 2 characters long",
+      "lastNameMin": "Last name must be at least 2 characters long",
+      "usernameMin": "Username must be at least 3 characters long",
+      "personalNumberInvalid": "Personal number must be in the format YYYYMMDD-XXXX and start with 19 or 20",
       "emailInvalid": "Invalid email address",
-      "passwordMin": "Password must be at least 8 characters",
+      "passwordMin": "Password must be at least 8 characters long",
       "passwordUppercase": "Password must contain at least one uppercase letter",
       "passwordLowercase": "Password must contain at least one lowercase letter",
       "passwordNumber": "Password must contain at least one number",
@@ -141,6 +141,6 @@
     "invalidCredentialsError": "Invalid username or password.",
     "invalidSessionError": "Your session has expired. Please log in again.",
     "invalidFormDataError": "The form data you provided is invalid. Please check and try again.",
-    "conflictingSignupDataError": "A user with the provided details already exists. Please use different information."
+    "conflictingSignupDataError": "A user with this personal number, email, or username already exists. Please use different information."
   }
 }
