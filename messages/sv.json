@@ -37,12 +37,12 @@
       "confirmPassword": "Ange lösenord igen"
     },
     "validation": {
-      "firstNameMin": "Förnamnet måste vara minst 2 tecken",
-      "lastNameMin": "Efternamnet måste vara minst 2 tecken",
-      "usernameMin": "Användarnamnet måste vara minst 3 tecken",
-      "personalNumberInvalid": "Ogiltigt personnummerformat (ÅÅÅÅMMDD-XXXX eller ÅÅÅÅMMDDXXXX)",
+      "firstNameMin": "Förnamnet måste vara minst 2 tecken långt",
+      "lastNameMin": "Efternamnet måste vara minst 2 tecken långt",
+      "usernameMin": "Användarnamnet måste vara minst 3 tecken långt",
+      "personalNumberInvalid": "Personnumret måste vara i formatet ÅÅÅÅMMDD-XXXX och börja med 19 eller 20",
       "emailInvalid": "Ogiltig e-postadress",
-      "passwordMin": "Lösenordet måste vara minst 8 tecken",
+      "passwordMin": "Lösenordet måste vara minst 8 tecken långt",
       "passwordUppercase": "Lösenordet måste innehålla minst en stor bokstav",
       "passwordLowercase": "Lösenordet måste innehålla minst en liten bokstav",
       "passwordNumber": "Lösenordet måste innehålla minst en siffra",
@@ -143,7 +143,7 @@
     "invalidCredentialsError": "Ogiltigt användarnamn eller lösenord.",
     "invalidSessionError": "Din session har gått ut. Vänligen logga in igen.",
     "invalidFormDataError": "Angiven formulärsdata är ogiltig. Kontrollera och försök igen.",
-    "conflictingSignupDataError": "En användare med de angivna detaljerna finns redan. Använd annan information."
+    "conflictingSignupDataError": "En användare med detta personnummer, e-post eller användarnamn finns redan. Vänligen använd annan information."
   },
   "mockEmail": {
     "from": "Från",

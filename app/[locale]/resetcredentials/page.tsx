@@ -5,7 +5,6 @@ import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useForm } from "react-hook-form";
 import Link from "next/link";
 import { useState } from "react";
 import { MockEmailDialog } from "./mockEmailDialog";
