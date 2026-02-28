@@ -76,7 +76,9 @@
     "forgotEmail": "Forgot your linked email address? Contact support for help.",
     "description": "Enter your email address and we'll send a link to reset your username or password.",
     "sendResetLink": "Send",
-    "backToLogin": "Back to login"
+    "backToLogin": "Back to login",
+    "emailNotFoundError": "The entered email is not registered",
+    "emailRequired": "Email is required"
   },
   "ProfilePage": {
     "hello": "Hello",
@@ -142,5 +144,29 @@
     "invalidSessionError": "Your session has expired. Please log in again.",
     "invalidFormDataError": "The form data you provided is invalid. Please check and try again.",
     "conflictingSignupDataError": "A user with this personal number, email, or username already exists. Please use different information."
+  },
+  "mockEmail": {
+    "from": "From",
+    "to": "To",
+    "subject": "Subject",
+    "subjectContent": "Reset password or username",
+    "hello": "Hello",
+    "emailContent": "We have recieved a request to change the password or username of your account at RecruiterApp. If this request was not done by you, please ignore this email.",
+    "link": "To reset password or username please use this time limited link"
+  },
+  "ResetCredentialsTokenPage": {
+    "title": "Reset password or username",
+    "placeholders": {
+      "username": "johndoe",
+      "password": "Enter password"
+    },
+    "validation": {
+      "usernameMin": "Username must be at least 3 characters",
+      "passwordMin": "Password must be at least 8 characters",
+      "passwordUppercase": "Password must contain at least one uppercase letter",
+      "passwordLowercase": "Password must contain at least one lowercase letter",
+      "passwordNumber": "Password must contain at least one number"
+    },
+    "updateSuccess": "Credentials updated successfully"
   }
 }

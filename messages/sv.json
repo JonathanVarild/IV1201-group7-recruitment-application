@@ -76,7 +76,9 @@
     "forgotEmail": "Har du glömt din kopplade e-postadress? Kontakta supporten för hjälp.",
     "description": "Ange din e-postadress så skickar vi en länk för att återställa ditt användarnamn eller lösenord.",
     "sendResetLink": "Skicka",
-    "backToLogin": "Tillbaka till inloggning"
+    "backToLogin": "Tillbaka till inloggning",
+    "emailNotFoundError": "Den angivna mejladressen är inte registrerad",
+    "emailRequired": "Email måste anges"
   },
   "ProfilePage": {
     "hello": "Hej",
@@ -142,5 +144,29 @@
     "invalidSessionError": "Din session har gått ut. Vänligen logga in igen.",
     "invalidFormDataError": "Angiven formulärsdata är ogiltig. Kontrollera och försök igen.",
     "conflictingSignupDataError": "En användare med detta personnummer, e-post eller användarnamn finns redan. Vänligen använd annan information."
+  },
+  "mockEmail": {
+    "from": "Från",
+    "to": "Till",
+    "subject": "Ämne",
+    "subjectContent": "Återställ lösenord eller användarnamn",
+    "hello": "Hej",
+    "emailContent": "Vi har fått en begäran om återställning av lösenord eller användarnamn för ditt konto hos RecruiterApp. Om du inte har begärt detta, vänligen ignorera detta mejl.",
+    "link": "Använda denna tidsbegränsade länk för att återställa användarnamn eller lösenord"
+  },
+  "ResetCredentialsTokenPage": {
+    "title": "Återställ användarnamn eller lösenord",
+    "placeholders": {
+      "username": "AnnaAndersson",
+      "password": "Ange nytt lösenord"
+    },
+    "validation": {
+      "usernameMin": "Användarnamnet måste vara minst 3 tecken",
+      "passwordMin": "Lösenordet måste vara minst 8 tecken",
+      "passwordUppercase": "Lösenordet måste innehålla minst en stor bokstav",
+      "passwordLowercase": "Lösenordet måste innehålla minst en liten bokstav",
+      "passwordNumber": "Lösenordet måste innehålla minst en siffra"
+    },
+    "updateSuccess": "Inloggningsuppgifter uppdaterades"
   }
 }
