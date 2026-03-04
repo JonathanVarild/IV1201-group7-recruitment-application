@@ -418,6 +418,13 @@ export async function getAllCompetences(localeData: string): Promise<Competence[
   return competencesQueryResult.rows;
 }
 
+/**
+ * Fetches the most recently submitted application for a given user.
+ *
+ * @param userID The ID of the user whose latest application should be retrieved.
+ * @returns The latest submitted application for the user, or null if no application exists.
+ * @throws Will throw an error if the database query fails.
+ */
 export async function getSubmittedApplication(userID: number): Promise<SubmittedApplication | null> {
   const databaseClient = await getDatabaseClient();
   try {
