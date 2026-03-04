@@ -100,6 +100,53 @@
     "unexpectedError": "Update profile failed due to an unexpected error.",
     "failedFetchingData": "The user information could not be retrieved"
   },
+  "ApplyPage": {
+    "title": "Apply for a position",
+    "loadingData": "Loading your application data...",
+    "errors": {
+      "invalidSessionError": "Your session has expired. Please log in again.",
+      "loadingError": "Could not load your application data.",
+      "competenceInvalidInput": "Select a competence and enter years greater than 0.",
+      "availabilityInvalidInput": "Select both a start date and an end date."
+    },
+    "applicationStatus": {
+      "title": "Application status",
+      "description": "You have submitted an application.",
+      "statusLabel": "Status",
+      "submittedAtLabel": "Submitted",
+      "updatedAtLabel": "Last updated",
+      "statuses": {
+        "unhandled": "Unhandled",
+        "accepted": "Accepted",
+        "rejected": "Rejected"
+      }
+    },
+    "contactInformation": {
+      "title": "Contact Information",
+      "email": "Email",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "username": "Username",
+      "pnr": "Personal number"
+    },
+    "competences": {
+      "title": "Competences",
+      "competence": "Competence",
+      "selectPlaceholder": "Select competence",
+      "years": "Years",
+      "yearsPlaceholder": "e.g. 1.5",
+      "add": "Add",
+      "remove": "Remove"
+    },
+    "availability": {
+      "title": "Availability",
+      "add": "Add date range",
+      "remove": "Remove"
+    },
+    "submitButton": "Submit application",
+    "submitting": "Submitting...",
+    "submitSuccess": "Application submitted."
+  },
   "AdminPage": {
     "title": "Admin Tool for Recruitment Applications",
     "errors": {

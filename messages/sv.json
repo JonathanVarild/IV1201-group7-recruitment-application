@@ -100,6 +100,53 @@
     "unexpectedError": "Profilen kunde inte uppdateras på grund av ett oväntat fel",
     "failedFetchingData": "Användarinformationen kunde inte hämtas"
   },
+  "ApplyPage": {
+    "title": "Ansök",
+    "loadingData": "Laddar dina ansökningsuppgifter...",
+    "errors": {
+      "invalidSessionError": "Din session har gått ut. Vänligen logga in igen.",
+      "loadingError": "Kunde inte ladda dina ansökningsuppgifter.",
+      "competenceInvalidInput": "Välj en kompetens och ange år som är större än 0.",
+      "availabilityInvalidInput": "Välj både ett startdatum och ett slutdatum."
+    },
+    "applicationStatus": {
+      "title": "Ansökningsstatus",
+      "description": "Du har skickat in en ansökan.",
+      "statusLabel": "Status",
+      "submittedAtLabel": "Skickad",
+      "updatedAtLabel": "Senast uppdaterad",
+      "statuses": {
+        "unhandled": "Ohanterad",
+        "accepted": "Accepterad",
+        "rejected": "Avvisad"
+      }
+    },
+    "contactInformation": {
+      "title": "Kontaktuppgifter",
+      "email": "E-post",
+      "firstName": "Förnamn",
+      "lastName": "Efternamn",
+      "username": "Användarnamn",
+      "pnr": "Personnummer"
+    },
+    "competences": {
+      "title": "Kompetenser",
+      "competence": "Kompetens",
+      "selectPlaceholder": "Välj kompetens",
+      "years": "År",
+      "yearsPlaceholder": "t.ex. 1,5",
+      "add": "Lägg till",
+      "remove": "Ta bort"
+    },
+    "availability": {
+      "title": "Tillgänglighet",
+      "add": "Lägg till datumintervall",
+      "remove": "Ta bort"
+    },
+    "submitButton": "Skicka ansökan",
+    "submitting": "Skickar...",
+    "submitSuccess": "Ansökan har skickats."
+  },
   "AdminPage": {
     "title": "Adminverktyg för rekryteringsansökningar",
     "errors": {

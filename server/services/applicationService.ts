@@ -3,6 +3,7 @@ import { ConflictingApplicationError } from "@/lib/errors/applicationErrors";
 import { InvalidFormDataError } from "@/lib/errors/generalErrors";
 import { LogType, logUserActivity } from "@/lib/logging";
 import { SetAvailabilityDTO, SetCompetenceDTO, AddUserAvailabilityDTO } from "@/lib/schemas/applicationDTO";
+import { SubmittedApplication } from "@/lib/types/applicationType";
 import { Competence, UserCompetence } from "@/lib/types/competenceType";
 import { FullUserData, UserAvailability } from "@/lib/types/userType";
 import { DatabaseError } from "pg";
@@ -77,10 +78,10 @@ export async function getFullUserData(userID: number, srcRequest: Request): Prom
       `SELECT 
       p.person_id AS id,
       p.username,
-      p.role_id AS roleID,
+      p.role_id AS "roleID",
       p.email,
-      p.name AS firstName,
-      p.surname AS lastName,
+      p.name AS "firstName",
+      p.surname AS "lastName",
       p.pnr
     FROM person p
     WHERE p.person_id = $1`,
@@ -146,8 +147,8 @@ export async function getUserCompetences(userID: number, srcRequest: Request): P
       `SELECT 
       c.competence_id AS id,
       c.name,
-      pc.years_of_experience AS yearsOfExperience,
-      pc.competence_profile_id AS competenceProfileID
+      pc.years_of_experience AS "yearsOfExperience",
+      pc.competence_profile_id AS "competenceProfileID"
     FROM competence_profile pc
     JOIN competence c ON pc.competence_id = c.competence_id
     WHERE pc.person_id = $1`,
@@ -415,4 +416,32 @@ export async function getAllCompetences(localeData: string): Promise<Competence[
   );
 
   return competencesQueryResult.rows;
+}
+
+/**
+ * Fetches the most recently submitted application for a given user.
+ *
+ * @param userID The ID of the user whose latest application should be retrieved.
+ * @returns The latest submitted application for the user, or null if no application exists.
+ * @throws Will throw an error if the database query fails.
+ */
+export async function getSubmittedApplication(userID: number): Promise<SubmittedApplication | null> {
+  const databaseClient = await getDatabaseClient();
+  try {
+    const result = await databaseClient.query<SubmittedApplication>(
+      `SELECT
+        status,
+        created_at AS "createdAt",
+        updated_at AS "updatedAt"
+      FROM applications
+      WHERE person_id = $1
+      ORDER BY created_at DESC
+      LIMIT 1`,
+      [userID],
+    );
+
+    return result.rows[0] ?? null;
+  } finally {
+    databaseClient.release();
+  }
 }
