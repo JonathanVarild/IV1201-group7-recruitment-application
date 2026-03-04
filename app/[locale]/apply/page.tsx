@@ -30,9 +30,10 @@ const ApplyPage = () => {
   const { status, refreshAuth } = useAuth();
 
   const handleUnauthorized = useCallback(() => {
+    alert(t("errors.invalidSessionError"));
     refreshAuth();
     router.replace("/login");
-  }, [refreshAuth, router]);
+  }, [refreshAuth, router, t]);
 
   const {
     userData,
@@ -48,11 +49,9 @@ const ApplyPage = () => {
     yearsInput,
     setYearsInput,
     addedCompetences,
-    competenceError,
     selectedAvailability,
     setSelectedAvailability,
     availabilityRanges,
-    availabilityError,
     addCompetence,
     removeCompetence,
     handleCompetenceYearsBlur,
@@ -66,9 +65,9 @@ const ApplyPage = () => {
     status,
     onUnauthorized: handleUnauthorized,
     messages: {
-      competenceInvalidInput: t("competences.invalidInput"),
-      availabilityInvalidInput: t("availability.invalidInput"),
-      loadingError: t("loadingError"),
+      competenceInvalidInput: t("errors.competenceInvalidInput"),
+      availabilityInvalidInput: t("errors.availabilityInvalidInput"),
+      loadingError: t("errors.loadingError"),
     },
   });
 
@@ -166,7 +165,6 @@ const ApplyPage = () => {
             ) : (
               <>
                 <h2 className="text-lg font-semibold">{t("contactInformation.title")}</h2>
-                {hasLoadError && <p className="text-sm text-destructive">{t("loadingError")}</p>}
 
                 {contactFields.map((field) => (
                   <Field key={field.id} className="gap-1.5">
@@ -180,7 +178,7 @@ const ApplyPage = () => {
 
           {!isLoadingData && !hasLoadError && (
             <>
-              <Card className={cn("p-6 space-y-4 transition-colors", competenceError && "apply-shake-x border-destructive/70 ring-1 ring-destructive/40")}>
+              <Card className="p-6 space-y-4">
                 <h2 className="text-lg font-semibold">{t("competences.title")}</h2>
                 <div className="grid grid-cols-[1fr_7rem_auto] gap-2 items-end">
                   <Field className="gap-1.5">
@@ -236,8 +234,6 @@ const ApplyPage = () => {
                     </Button>
                   </div>
                 ))}
-
-                {competenceError && <p className="text-destructive text-sm">{competenceError}</p>}
               </Card>
 
               <Card className="p-6 space-y-4">
@@ -253,7 +249,7 @@ const ApplyPage = () => {
                       setSelectedAvailability(range);
                     }}
                     locale={getDateFnsLocale(locale)}
-                    className={cn("rounded-md border", availabilityError && "apply-shake-x border-destructive/70", isSavingAvailability && "pointer-events-none opacity-60")}
+                    className={cn("rounded-md border", isSavingAvailability && "pointer-events-none opacity-60")}
                   />
                 </div>
 
@@ -269,8 +265,6 @@ const ApplyPage = () => {
                     </Button>
                   </div>
                 ))}
-
-                {availabilityError && <p className="text-destructive text-sm">{availabilityError}</p>}
               </Card>
 
               <Button type="button" className="w-full" onClick={submitApplication} disabled={isLoadingData || hasLoadError || isSubmittingApplication}>

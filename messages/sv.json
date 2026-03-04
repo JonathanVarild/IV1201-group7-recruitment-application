@@ -73,10 +73,15 @@
   "ApplyPage": {
     "title": "Ansök",
     "loadingData": "Laddar dina ansökningsuppgifter...",
-    "loadingError": "Kunde inte ladda dina ansökningsuppgifter. Ladda om sidan.",
+    "errors": {
+      "invalidSessionError": "Din session har gått ut. Vänligen logga in igen.",
+      "loadingError": "Kunde inte ladda dina ansökningsuppgifter.",
+      "competenceInvalidInput": "Välj en kompetens och ange år som är större än 0.",
+      "availabilityInvalidInput": "Välj både ett startdatum och ett slutdatum."
+    },
     "applicationStatus": {
       "title": "Ansökningsstatus",
-      "description": "Du har redan skickat in en ansökan.",
+      "description": "Du har skickat in en ansökan.",
       "statusLabel": "Status",
       "submittedAtLabel": "Skickad",
       "updatedAtLabel": "Senast uppdaterad",
@@ -101,14 +106,12 @@
       "years": "År",
       "yearsPlaceholder": "t.ex. 1,5",
       "add": "Lägg till",
-      "remove": "Ta bort",
-      "invalidInput": "Välj en kompetens och ange år som är större än 0."
+      "remove": "Ta bort"
     },
     "availability": {
       "title": "Tillgänglighet",
       "add": "Lägg till datumintervall",
-      "remove": "Ta bort",
-      "invalidInput": "Välj både ett startdatum och ett slutdatum."
+      "remove": "Ta bort"
     },
     "submitButton": "Skicka ansökan",
     "submitting": "Skickar...",

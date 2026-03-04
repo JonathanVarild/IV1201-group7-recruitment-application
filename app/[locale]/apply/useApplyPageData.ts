@@ -129,14 +129,23 @@ export const useApplyPageData = ({ locale, status, onUnauthorized, messages }: U
   const [selectedCompetenceID, setSelectedCompetenceID] = useState<number | null>(null);
   const [yearsInput, setYearsInput] = useState("");
   const [addedCompetences, setAddedCompetences] = useState<CompetenceEntry[]>([]);
-  const [competenceError, setCompetenceError] = useState<string | null>(null);
   const [selectedAvailability, setSelectedAvailability] = useState<DateRange | undefined>(undefined);
   const [availabilityRanges, setAvailabilityRanges] = useState<AvailabilityRange[]>([]);
-  const [availabilityError, setAvailabilityError] = useState<string | null>(null);
+  const showErrorAlert = (message: string) => {
+    alert(message);
+  };
 
   const loadApplicationData = useCallback(
     async (options?: LoadOptions) => {
       const isActive = options?.isActive ?? (() => true);
+      let hasShownLoadErrorAlert = false;
+      const showLoadError = () => {
+        if (hasShownLoadErrorAlert) {
+          return;
+        }
+        hasShownLoadErrorAlert = true;
+        showErrorAlert(messages.loadingError);
+      };
       if (status !== AuthStatus.Authenticated || !isActive()) {
         return;
       }
@@ -198,6 +207,7 @@ export const useApplyPageData = ({ locale, status, onUnauthorized, messages }: U
         } else {
           console.error("Failed to load user details:", detailsResult.reason);
           setHasLoadError(true);
+          showLoadError();
         }
 
         if (competenceListResult.status === "fulfilled") {
@@ -207,6 +217,7 @@ export const useApplyPageData = ({ locale, status, onUnauthorized, messages }: U
         } else {
           console.error("Failed to load competence list:", competenceListResult.reason);
           setHasLoadError(true);
+          showLoadError();
         }
       } catch (error) {
         if (!isActive()) {
@@ -220,13 +231,14 @@ export const useApplyPageData = ({ locale, status, onUnauthorized, messages }: U
 
         console.error("Failed to load application data:", error);
         setHasLoadError(true);
+        showLoadError();
       } finally {
         if (!options?.skipLoadingState && isActive()) {
           setIsLoadingData(false);
         }
       }
     },
-    [locale, onUnauthorized, status],
+    [locale, messages.loadingError, onUnauthorized, status],
   );
 
   useEffect(() => {
@@ -253,11 +265,10 @@ export const useApplyPageData = ({ locale, status, onUnauthorized, messages }: U
     });
 
     if (!result.success) {
-      setCompetenceError(messages.competenceInvalidInput);
+      showErrorAlert(messages.competenceInvalidInput);
       return;
     }
 
-    setCompetenceError(null);
     setIsSavingCompetence(true);
 
     try {
@@ -277,7 +288,7 @@ export const useApplyPageData = ({ locale, status, onUnauthorized, messages }: U
       }
 
       console.error("Failed to persist added competence:", error);
-      setCompetenceError(messages.loadingError);
+      showErrorAlert(messages.loadingError);
     } finally {
       setIsSavingCompetence(false);
     }
@@ -296,11 +307,10 @@ export const useApplyPageData = ({ locale, status, onUnauthorized, messages }: U
     }
 
     if (competenceProfileID == null) {
-      setCompetenceError(messages.loadingError);
+      showErrorAlert(messages.loadingError);
       return;
     }
 
-    setCompetenceError(null);
     setIsSavingCompetence(true);
 
     try {
@@ -318,7 +328,7 @@ export const useApplyPageData = ({ locale, status, onUnauthorized, messages }: U
       }
 
       console.error("Failed to delete competence:", error);
-      setCompetenceError(messages.loadingError);
+      showErrorAlert(messages.loadingError);
     } finally {
       setIsSavingCompetence(false);
     }
@@ -340,11 +350,10 @@ export const useApplyPageData = ({ locale, status, onUnauthorized, messages }: U
     });
 
     if (!result.success) {
-      setCompetenceError(messages.competenceInvalidInput);
+      showErrorAlert(messages.competenceInvalidInput);
       return;
     }
 
-    setCompetenceError(null);
     setIsSavingCompetence(true);
 
     try {
@@ -362,7 +371,7 @@ export const useApplyPageData = ({ locale, status, onUnauthorized, messages }: U
       }
 
       console.error("Failed to persist competence years:", error);
-      setCompetenceError(messages.loadingError);
+      showErrorAlert(messages.loadingError);
     } finally {
       setIsSavingCompetence(false);
     }
@@ -380,11 +389,9 @@ export const useApplyPageData = ({ locale, status, onUnauthorized, messages }: U
   const updateCompetenceYears = (indexToUpdate: number, yearsOfExperienceInput: string) => {
     const parsedYears = Number(yearsOfExperienceInput);
     if (!Number.isFinite(parsedYears) || parsedYears <= 0) {
-      setCompetenceError(messages.competenceInvalidInput);
       return;
     }
 
-    setCompetenceError(null);
     setAddedCompetences((previousCompetences) =>
       previousCompetences.map((competence, index) => (index === indexToUpdate ? { ...competence, yearsOfExperience: parsedYears } : competence)),
     );
@@ -414,11 +421,10 @@ export const useApplyPageData = ({ locale, status, onUnauthorized, messages }: U
     const to = selectedAvailability?.to;
 
     if (!from || !to) {
-      setAvailabilityError(messages.availabilityInvalidInput);
+      showErrorAlert(messages.availabilityInvalidInput);
       return;
     }
 
-    setAvailabilityError(null);
     setIsSavingAvailability(true);
 
     try {
@@ -444,7 +450,7 @@ export const useApplyPageData = ({ locale, status, onUnauthorized, messages }: U
       }
 
       console.error("Failed to add availability:", error);
-      setAvailabilityError(messages.loadingError);
+      showErrorAlert(messages.loadingError);
     } finally {
       setIsSavingAvailability(false);
     }
@@ -463,11 +469,10 @@ export const useApplyPageData = ({ locale, status, onUnauthorized, messages }: U
     }
 
     if (availabilityID == null) {
-      setAvailabilityError(messages.loadingError);
+      showErrorAlert(messages.loadingError);
       return;
     }
 
-    setAvailabilityError(null);
     setIsSavingAvailability(true);
 
     try {
@@ -485,7 +490,7 @@ export const useApplyPageData = ({ locale, status, onUnauthorized, messages }: U
       }
 
       console.error("Failed to delete availability:", error);
-      setAvailabilityError(messages.loadingError);
+      showErrorAlert(messages.loadingError);
     } finally {
       setIsSavingAvailability(false);
     }
@@ -511,6 +516,7 @@ export const useApplyPageData = ({ locale, status, onUnauthorized, messages }: U
 
       console.error("Failed to submit application:", error);
       setHasLoadError(true);
+      showErrorAlert(messages.loadingError);
     } finally {
       setIsSubmittingApplication(false);
     }
@@ -530,11 +536,9 @@ export const useApplyPageData = ({ locale, status, onUnauthorized, messages }: U
     yearsInput,
     setYearsInput,
     addedCompetences,
-    competenceError,
     selectedAvailability,
     setSelectedAvailability,
     availabilityRanges,
-    availabilityError,
     addCompetence,
     removeCompetence,
     handleCompetenceYearsBlur,

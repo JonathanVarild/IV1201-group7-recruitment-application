@@ -73,10 +73,15 @@
   "ApplyPage": {
     "title": "Apply for a position",
     "loadingData": "Loading your application data...",
-    "loadingError": "Could not load your application data. Please refresh the page.",
+    "errors": {
+      "invalidSessionError": "Your session has expired. Please log in again.",
+      "loadingError": "Could not load your application data.",
+      "competenceInvalidInput": "Select a competence and enter years greater than 0.",
+      "availabilityInvalidInput": "Select both a start date and an end date."
+    },
     "applicationStatus": {
       "title": "Application status",
-      "description": "You have already submitted an application.",
+      "description": "You have submitted an application.",
       "statusLabel": "Status",
       "submittedAtLabel": "Submitted",
       "updatedAtLabel": "Last updated",
@@ -101,14 +106,12 @@
       "years": "Years",
       "yearsPlaceholder": "e.g. 1.5",
       "add": "Add",
-      "remove": "Remove",
-      "invalidInput": "Select a competence and enter years greater than 0."
+      "remove": "Remove"
     },
     "availability": {
       "title": "Availability",
       "add": "Add date range",
-      "remove": "Remove",
-      "invalidInput": "Select both a start date and an end date."
+      "remove": "Remove"
     },
     "submitButton": "Submit application",
     "submitting": "Submitting...",
