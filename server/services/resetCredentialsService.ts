@@ -1,6 +1,12 @@
 import { getDatabaseClient } from "@/lib/database";
 import { createHash } from "crypto";
 
+/**
+ * Searches for the person id of a user with a given email
+ *
+ * @param email the given email
+ * @returns the id of the person found, or undefined
+ */
 export async function getPersonIdByEmail(email: string): Promise<number> {
   const databaseClient = await getDatabaseClient();
   try {
@@ -15,6 +21,12 @@ export async function getPersonIdByEmail(email: string): Promise<number> {
   }
 }
 
+/**
+ * Inserts reset token into database together with user id and time stamp + 15 minute interval.
+ *
+ * @param hashedResetToken the hashed reset token to insert
+ * @param userId the userId of the user requesting credentials reset
+ */
 export async function saveHashedResetToken(hashedResetToken: string, userId: number) {
   const databaseClient = await getDatabaseClient();
   try {
@@ -22,8 +34,8 @@ export async function saveHashedResetToken(hashedResetToken: string, userId: num
     await databaseClient.query("BEGIN");
 
     await databaseClient.query(
-      `INSERT INTO password_reset_token(person_id, token_hash)
-            VALUES ($1, $2)`,
+      `INSERT INTO password_reset_token(person_id, token_hash, expires_at, created_at)
+            VALUES ($1, $2, NOW() + INTERVAL '15 minutes', NOW())`,
       [userId, hashedResetToken],
     );
 
@@ -38,6 +50,11 @@ export async function saveHashedResetToken(hashedResetToken: string, userId: num
   }
 }
 
+/**
+ * Deletes the reset token from the database.
+ *
+ * @param userId the userId of the user reseting their credentials
+ */
 export async function deleteHashedResetToken(userId: number) {
   const databaseClient = await getDatabaseClient();
   try {
@@ -61,6 +78,12 @@ export async function deleteHashedResetToken(userId: number) {
   }
 }
 
+/**
+ * Checks in the database that the token exists and is not expired.
+ *
+ * @param token the given reset token
+ * @returns the token id, or undefined
+ */
 export async function validateResetToken(token: string): Promise<number> {
   const databaseClient = await getDatabaseClient();
   try {
@@ -76,6 +99,12 @@ export async function validateResetToken(token: string): Promise<number> {
   }
 }
 
+/**
+ * Gets the user connected to a given token.
+ *
+ * @param token the given reset token
+ * @returns the person id of the user found, or undefined
+ */
 export async function getUserIdByToken(token: string): Promise<number> {
   const databaseClient = await getDatabaseClient();
   try {

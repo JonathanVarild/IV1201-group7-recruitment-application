@@ -1,11 +1,15 @@
 import { getPersonIdByEmail, saveHashedResetToken } from "@/server/services/resetCredentialsService";
 import { createHash, randomBytes } from "crypto";
 
-export async function POST(req: Request) {
-  const { email } = await req.json();
-  console.error(email);
+/**
+ * Validates entered email exists in the database. Then creates a unique reset token and saves it to the database. Finally, sends the token back to the frontend.
+ *
+ * @param request the incoming HTTP request with entered email
+ * @returns a JSON response
+ */
+export async function POST(request: Request) {
+  const { email } = await request.json();
   const userId = await getPersonIdByEmail(email);
-  console.log("userId: " + { userId });
 
   if (!userId) {
     return Response.json({ error: "Email is not registered" }, { status: 404 });

@@ -10,6 +10,7 @@ import { useState } from "react";
 import { MockEmailDialog } from "./mockEmailDialog";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 
 /**
  * Page component for initiating a credentials reset.
