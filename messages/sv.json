@@ -8,7 +8,8 @@
     "about": "Om oss",
     "login": "Logga in",
     "register": "Registrera",
-    "logout": "Logga ut"
+    "logout": "Logga ut",
+    "profile": "Profil"
   },
   "Footer": {
     "privacyPolicy": "Integritetspolicy",
@@ -36,12 +37,12 @@
       "confirmPassword": "Ange lösenord igen"
     },
     "validation": {
-      "firstNameMin": "Förnamnet måste vara minst 2 tecken",
-      "lastNameMin": "Efternamnet måste vara minst 2 tecken",
-      "usernameMin": "Användarnamnet måste vara minst 3 tecken",
-      "personalNumberInvalid": "Ogiltigt personnummerformat (ÅÅÅÅMMDD-XXXX eller ÅÅÅÅMMDDXXXX)",
+      "firstNameMin": "Förnamnet måste vara minst 2 tecken långt",
+      "lastNameMin": "Efternamnet måste vara minst 2 tecken långt",
+      "usernameMin": "Användarnamnet måste vara minst 3 tecken långt",
+      "personalNumberInvalid": "Personnumret måste vara i formatet ÅÅÅÅMMDD-XXXX och börja med 19 eller 20",
       "emailInvalid": "Ogiltig e-postadress",
-      "passwordMin": "Lösenordet måste vara minst 8 tecken",
+      "passwordMin": "Lösenordet måste vara minst 8 tecken långt",
       "passwordUppercase": "Lösenordet måste innehålla minst en stor bokstav",
       "passwordLowercase": "Lösenordet måste innehålla minst en liten bokstav",
       "passwordNumber": "Lösenordet måste innehålla minst en siffra",
@@ -61,14 +62,42 @@
     "validation": {
       "usernameRequired": "Användarnamn krävs",
       "passwordRequired": "Lösenord krävs"
-    }
+    },
+    "forgotPasswordUsername": "Glömt användarnamn eller lösenord?"
   },
-  "errors": {
-    "unknownError": "Ett okänt fel inträffade.",
-    "invalidCredentialsError": "Ogiltigt användarnamn eller lösenord.",
-    "invalidSessionError": "Din session har gått ut. Vänligen logga in igen.",
-    "invalidFormDataError": "Angiven formulärsdata är ogiltig. Kontrollera och försök igen.",
-    "conflictingSignupDataError": "En användare med de angivna detaljerna finns redan. Använd annan information."
+  "ResetCredentialsPage": {
+    "title": "Återställ användarnamn eller lösenord",
+    "email": "E-post",
+    "submitButton": "Skicka återställningslänk",
+    "submitting": "Skickar återställningslänk...",
+    "placeholders": {
+      "email": "Ange din e-postadress"
+    },
+    "forgotEmail": "Har du glömt din kopplade e-postadress? Kontakta supporten för hjälp.",
+    "description": "Ange din e-postadress så skickar vi en länk för att återställa ditt användarnamn eller lösenord.",
+    "sendResetLink": "Skicka",
+    "backToLogin": "Tillbaka till inloggning"
+  },
+  "ProfilePage": {
+    "hello": "Hej",
+    "placeholders": {
+      "username": "Ange nytt användarnamn",
+      "email": "Ange ny e-postadress",
+      "pnr": "Ange nytt personnummer",
+      "password": "Ange nytt lösenord"
+    },
+    "current": {
+      "email": "Nuvarande e-postadress: ",
+      "pnr": "Nuvarande personnummer: ",
+      "username": "Nuvarande användarnamn: ",
+      "password": "Nuvarande lösenord: "
+    },
+    "updateSuccess": "Personlig information uppdaterad",
+    "updateButton": "Uppdatera",
+    "updating": "Uppdaterar...",
+    "unknownError": "Ett okänt fel uppstod vid uppdatering av profilen",
+    "unexpectedError": "Profilen kunde inte uppdateras på grund av ett oväntat fel",
+    "failedFetchingData": "Användarinformationen kunde inte hämtas"
   },
   "ApplyPage": {
     "title": "Ansök",
@@ -152,11 +181,13 @@
         "competences": "Vilka kompetenser har du som gör dig lämpad för den här tjänsten?",
         "availability": "Vad har du för tillgänglighet?"
       }
-    },
-    "api": {
-      "errors": {
-        "updateFailed": "Misslyckades med att uppdatera ansökningsstatus"
-      }
     }
+  },
+  "errors": {
+    "unknownError": "Ett okänt fel inträffade.",
+    "invalidCredentialsError": "Ogiltigt användarnamn eller lösenord.",
+    "invalidSessionError": "Din session har gått ut. Vänligen logga in igen.",
+    "invalidFormDataError": "Angiven formulärsdata är ogiltig. Kontrollera och försök igen.",
+    "conflictingSignupDataError": "En användare med detta personnummer, e-post eller användarnamn finns redan. Vänligen använd annan information."
   }
 }

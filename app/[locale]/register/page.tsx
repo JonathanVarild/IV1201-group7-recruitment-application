@@ -1,6 +1,5 @@
 "use client";
 
-import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui/card";
@@ -8,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
-import { NewUserDTO } from "@/lib/schemas/userDTO";
+import { NewUserDTO, registerFormSchema, RegisterFormData } from "@/lib/schemas/userDTO";
 import { managedFetch } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
@@ -25,35 +24,14 @@ const RegisterPage = () => {
   const tErrors = useTranslations("errors");
   const { refreshAuth } = useAuth();
 
-  const registerSchema = z
-    .object({
-      firstName: z.string().min(2, t("validation.firstNameMin")),
-      lastName: z.string().min(2, t("validation.lastNameMin")),
-      username: z.string().min(3, t("validation.usernameMin")),
-      personalNumber: z.string().regex(/^\d{8}-\d{4}$|^\d{12}$/, t("validation.personalNumberInvalid")),
-      email: z.string().email(t("validation.emailInvalid")),
-      password: z
-        .string()
-        .min(8, t("validation.passwordMin"))
-        .regex(/[A-Z]/, t("validation.passwordUppercase"))
-        .regex(/[a-z]/, t("validation.passwordLowercase"))
-        .regex(/[0-9]/, t("validation.passwordNumber")),
-      confirmPassword: z.string(),
-    })
-    .refine((data) => data.password === data.confirmPassword, {
-      message: t("validation.passwordsMismatch"),
-      path: ["confirmPassword"],
-    });
-
-  type RegisterFormData = z.infer<typeof registerSchema>;
-  const formFields: Array<{ name: keyof RegisterFormData; type: string }> = [
-    { name: "firstName", type: "text" },
-    { name: "lastName", type: "text" },
-    { name: "username", type: "text" },
-    { name: "personalNumber", type: "text" },
-    { name: "email", type: "email" },
-    { name: "password", type: "password" },
-    { name: "confirmPassword", type: "password" },
+  const formFields: Array<{ name: keyof RegisterFormData; type: string; translationKey: string }> = [
+    { name: "name", type: "text", translationKey: "firstName" },
+    { name: "surname", type: "text", translationKey: "lastName" },
+    { name: "username", type: "text", translationKey: "username" },
+    { name: "pnr", type: "text", translationKey: "personalNumber" },
+    { name: "email", type: "email", translationKey: "email" },
+    { name: "password", type: "password", translationKey: "password" },
+    { name: "confirmPassword", type: "password", translationKey: "confirmPassword" },
   ];
 
   const {
@@ -61,16 +39,16 @@ const RegisterPage = () => {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<RegisterFormData>({
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(registerFormSchema),
   });
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
       const userData: NewUserDTO = {
-        name: data.firstName,
-        surname: data.lastName,
+        name: data.name,
+        surname: data.surname,
         username: data.username,
-        pnr: data.personalNumber,
+        pnr: data.pnr,
         email: data.email,
         password: data.password,
       };
@@ -94,11 +72,11 @@ const RegisterPage = () => {
         <h1 className="text-2xl font-bold">{t("title")}</h1>
 
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
-          {formFields.map(({ name, type }) => (
+          {formFields.map(({ name, type, translationKey }) => (
             <Field key={name} data-invalid={!!errors[name]} className="gap-1.5">
-              <FieldLabel htmlFor={name}>{t(name)}</FieldLabel>
-              <Input id={name} type={type} placeholder={t(`placeholders.${name}`)} {...register(name)} aria-invalid={!!errors[name]} />
-              <FieldError>{errors[name]?.message}</FieldError>
+              <FieldLabel htmlFor={name}>{t(translationKey)}</FieldLabel>
+              <Input id={name} type={type} placeholder={t(`placeholders.${translationKey}`)} {...register(name)} aria-invalid={!!errors[name]} />
+              <FieldError>{errors[name]?.message && t(errors[name].message)}</FieldError>
             </Field>
           ))}
 

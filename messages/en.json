@@ -8,7 +8,8 @@
     "about": "About us",
     "login": "Login",
     "register": "Register",
-    "logout": "Logout"
+    "logout": "Logout",
+    "profile": "Profile"
   },
   "Footer": {
     "privacyPolicy": "Privacy Policy",
@@ -36,12 +37,12 @@
       "confirmPassword": "Re-enter password"
     },
     "validation": {
-      "firstNameMin": "First name must be at least 2 characters",
-      "lastNameMin": "Last name must be at least 2 characters",
-      "usernameMin": "Username must be at least 3 characters",
-      "personalNumberInvalid": "Invalid personal number format (YYYYMMDD-XXXX or YYYYMMDDXXXX)",
+      "firstNameMin": "First name must be at least 2 characters long",
+      "lastNameMin": "Last name must be at least 2 characters long",
+      "usernameMin": "Username must be at least 3 characters long",
+      "personalNumberInvalid": "Personal number must be in the format YYYYMMDD-XXXX and start with 19 or 20",
       "emailInvalid": "Invalid email address",
-      "passwordMin": "Password must be at least 8 characters",
+      "passwordMin": "Password must be at least 8 characters long",
       "passwordUppercase": "Password must contain at least one uppercase letter",
       "passwordLowercase": "Password must contain at least one lowercase letter",
       "passwordNumber": "Password must contain at least one number",
@@ -61,14 +62,42 @@
     "validation": {
       "usernameRequired": "Username is required",
       "passwordRequired": "Password is required"
-    }
+    },
+    "forgotPasswordUsername": "Forgot username or password?"
   },
-  "errors": {
-    "unknownError": "An unknown error occurred.",
-    "invalidCredentialsError": "Invalid username or password.",
-    "invalidSessionError": "Your session has expired. Please log in again.",
-    "invalidFormDataError": "The form data you provided is invalid. Please check and try again.",
-    "conflictingSignupDataError": "A user with the provided details already exists. Please use different information."
+  "ResetCredentialsPage": {
+    "title": "Reset username or password",
+    "email": "Email",
+    "submitButton": "Send reset link",
+    "submitting": "Sending reset link...",
+    "placeholders": {
+      "email": "Enter your email address"
+    },
+    "forgotEmail": "Forgot your linked email address? Contact support for help.",
+    "description": "Enter your email address and we'll send a link to reset your username or password.",
+    "sendResetLink": "Send",
+    "backToLogin": "Back to login"
+  },
+  "ProfilePage": {
+    "hello": "Hello",
+    "placeholders": {
+      "username": "Enter new username",
+      "email": "Enter new email",
+      "pnr": "Enter new personal number",
+      "password": "Enter new password"
+    },
+    "current": {
+      "email": "Current email: ",
+      "pnr": "Current personal number: ",
+      "username": "Current username: ",
+      "password": "Current password: "
+    },
+    "updateSuccess": "Personal information updated",
+    "updating": "Updating...",
+    "updateButton": "Update",
+    "unknownError": "Unknown error occurred during update profile.",
+    "unexpectedError": "Update profile failed due to an unexpected error.",
+    "failedFetchingData": "The user information could not be retrieved"
   },
   "ApplyPage": {
     "title": "Apply for a position",
@@ -152,11 +181,13 @@
         "competences": "What competences do you have that make you suitable for this position?",
         "availability": "What is your availability?"
       }
-    },
-    "api": {
-      "errors": {
-        "updateFailed": "Failed to update application status"
-      }
     }
+  },
+  "errors": {
+    "unknownError": "An unknown error occurred.",
+    "invalidCredentialsError": "Invalid username or password.",
+    "invalidSessionError": "Your session has expired. Please log in again.",
+    "invalidFormDataError": "The form data you provided is invalid. Please check and try again.",
+    "conflictingSignupDataError": "A user with this personal number, email, or username already exists. Please use different information."
   }
 }
