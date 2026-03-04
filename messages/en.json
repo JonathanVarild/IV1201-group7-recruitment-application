@@ -9,7 +9,8 @@
     "login": "Login",
     "register": "Register",
     "logout": "Logout",
-    "profile": "Profile"
+    "profile": "Profile",
+    "admin": "Admin"
   },
   "Footer": {
     "privacyPolicy": "Privacy Policy",

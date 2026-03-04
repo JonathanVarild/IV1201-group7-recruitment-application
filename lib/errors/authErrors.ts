@@ -23,3 +23,16 @@ export class InvalidSessionError extends Error {
     this.translationKey = "invalidSessionError";
   }
 }
+
+/**
+ * Custom error to indicate that the authenticated user does not have the required role to access the requested resource.
+ */
+export class UnauthorizedError extends Error {
+  translationKey: string;
+
+  constructor() {
+    super("You do not have permission to access this resource.");
+    this.name = "UnauthorizedError";
+    this.translationKey = "unauthorizedError";
+  }
+}

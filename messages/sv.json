@@ -9,7 +9,8 @@
     "login": "Logga in",
     "register": "Registrera",
     "logout": "Logga ut",
-    "profile": "Profil"
+    "profile": "Profil",
+    "admin": "Admin"
   },
   "Footer": {
     "privacyPolicy": "Integritetspolicy",

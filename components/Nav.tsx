@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { AuthStatus, useAuth } from "./AuthProvider";
+import { useRouter } from "next/navigation";
 
 /**
  * Navigation component displaying links to different pages.
@@ -11,13 +12,15 @@ import { AuthStatus, useAuth } from "./AuthProvider";
  */
 export function Nav() {
   const t = useTranslations("Nav");
-  const { status, refreshAuth } = useAuth();
+  const { status, userData, refreshAuth } = useAuth();
+  const router = useRouter();
 
   async function onLogOutACB() {
     await fetch("/api/logout", {
       method: "GET",
     });
     refreshAuth();
+    router.replace("/");
   }
 
   type NavItem = {
@@ -33,13 +36,21 @@ export function Nav() {
     { key: "register", href: "/register" },
   ];
 
-  const navItemsAuthenticated: NavItem[] = [
-    { key: "home", href: "/" },
-    { key: "apply", href: "/apply" },
-    { key: "about", href: "/about" },
-    { key: "profile", href: "/profile" },
-    { key: "logout", onClick: onLogOutACB },
-  ];
+  const navItemsAuthenticated: NavItem[] =
+    userData?.role === "recruiter"
+      ? [
+          { key: "home", href: "/" },
+          { key: "admin", href: "/admin" },
+          { key: "profile", href: "/profile" },
+          { key: "logout", onClick: onLogOutACB },
+        ]
+      : [
+          { key: "home", href: "/" },
+          { key: "about", href: "/about" },
+          { key: "apply", href: "/apply" },
+          { key: "profile", href: "/profile" },
+          { key: "logout", onClick: onLogOutACB },
+        ];
 
   return (
     <nav>

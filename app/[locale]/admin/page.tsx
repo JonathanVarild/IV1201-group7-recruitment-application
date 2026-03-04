@@ -1,19 +1,27 @@
 import ApplicationBoard from "./ApplicationBoard";
 import { getTranslations } from "next-intl/server";
 import { ApplicationStatus, getApplicationsByStatus, PaginatedApplicationsResult } from "@/server/services/adminService";
-
-/**
- * TODO: Implement recruiter authentication on this page
- */
+import { requireRecruiter } from "@/server/services/authenticationService";
+import { InvalidSessionError, UnauthorizedError } from "@/lib/errors/authErrors";
+import { redirect } from "next/navigation";
 
 const STATUSES: ApplicationStatus[] = ["unhandled", "accepted", "rejected"];
 
 /**
  * Display the admin page for applications.
+ * Only accessible to users with the recruiter role.
  *
  * @returns {JSX.Element} The rendered admin page component.
  */
 const AdminPage = async () => {
+  try {
+    await requireRecruiter();
+  } catch (error) {
+    if (error instanceof InvalidSessionError) redirect("/login");
+    if (error instanceof UnauthorizedError) redirect("/");
+    throw error;
+  }
+
   let initialData: Record<ApplicationStatus, PaginatedApplicationsResult> = {
     unhandled: { applications: [], total: 0, hasMore: false },
     accepted: { applications: [], total: 0, hasMore: false },
