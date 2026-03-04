@@ -141,5 +141,8 @@
     "invalidSessionError": "Your session has expired. Please log in again.",
     "invalidFormDataError": "The form data you provided is invalid. Please check and try again.",
     "conflictingSignupDataError": "A user with this personal number, email, or username already exists. Please use different information."
+  },
+  "PrivacyPage": {
+    "effectiveDate": "Effective date"
   }
 }
