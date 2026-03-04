@@ -13,3 +13,9 @@ export interface ApplicationFullInformation {
     answer: string;
   }[];
 }
+
+export interface SubmittedApplication {
+  status: string;
+  createdAt: Date;
+  updatedAt: Date | null;
+}
