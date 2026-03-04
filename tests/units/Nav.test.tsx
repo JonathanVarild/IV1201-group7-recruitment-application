@@ -27,7 +27,6 @@ describe("Nav", () => {
     const { container } = render(<Nav />);
 
     expect(container.querySelector('a[href="/"]')).toBeInTheDocument();
-    expect(container.querySelector('a[href="/about"]')).toBeInTheDocument();
     expect(container.querySelector('a[href="/login"]')).toBeInTheDocument();
     expect(container.querySelector('a[href="/register"]')).toBeInTheDocument();
   });
@@ -42,12 +41,10 @@ describe("Nav", () => {
     const { container } = render(<Nav />);
 
     const homeLink = container.querySelector('a[href="/"]');
-    const aboutLink = container.querySelector('a[href="/about"]');
     const loginLink = container.querySelector('a[href="/login"]');
     const registerLink = container.querySelector('a[href="/register"]');
 
     expect(homeLink).toHaveAttribute("href", "/");
-    expect(aboutLink).toHaveAttribute("href", "/about");
     expect(loginLink).toHaveAttribute("href", "/login");
     expect(registerLink).toHaveAttribute("href", "/register");
   });
@@ -63,7 +60,6 @@ describe("Nav", () => {
 
     expect(container.querySelector('a[href="/"]')).toBeInTheDocument();
     expect(container.querySelector('a[href="/apply"]')).toBeInTheDocument();
-    expect(container.querySelector('a[href="/about"]')).toBeInTheDocument();
     expect(container.querySelector('a[href="#"]')).toBeInTheDocument();
     expect(container.querySelector('a[href="/login"]')).not.toBeInTheDocument();
     expect(container.querySelector('a[href="/register"]')).not.toBeInTheDocument();
@@ -80,12 +76,10 @@ describe("Nav", () => {
 
     const homeLink = container.querySelector('a[href="/"]');
     const applyLink = container.querySelector('a[href="/apply"]');
-    const aboutLink = container.querySelector('a[href="/about"]');
     const logoutLink = container.querySelector('a[href="#"]');
 
     expect(homeLink).toHaveAttribute("href", "/");
     expect(applyLink).toHaveAttribute("href", "/apply");
-    expect(aboutLink).toHaveAttribute("href", "/about");
     expect(logoutLink).toHaveAttribute("href", "#");
   });
 });

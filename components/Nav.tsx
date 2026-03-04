@@ -28,7 +28,6 @@ export function Nav() {
 
   const navItemsDefault: NavItem[] = [
     { key: "home", href: "/" },
-    { key: "about", href: "/about" },
     { key: "login", href: "/login" },
     { key: "register", href: "/register" },
   ];
@@ -36,7 +35,6 @@ export function Nav() {
   const navItemsAuthenticated: NavItem[] = [
     { key: "home", href: "/" },
     { key: "apply", href: "/apply" },
-    { key: "about", href: "/about" },
     { key: "profile", href: "/profile" },
     { key: "logout", onClick: onLogOutACB },
   ];
