@@ -1,5 +1,11 @@
 import { useTranslations } from "next-intl";
 
+/**
+ * Displays the privacy policy.
+ *
+ * @returns {JSX.Element} The rendered privacy page component.
+ */
+
 const PrivacyPage = () => {
   const t = useTranslations("Footer");
   const tPrivacy = useTranslations("PrivacyPage");

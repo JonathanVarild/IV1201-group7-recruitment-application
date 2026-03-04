@@ -1,6 +1,11 @@
 import { useTranslations } from "next-intl";
 
-const PrivacyPage = () => {
+/**
+ * Displays the terms of service.
+ *
+ * @returns {JSX.Element} The rendered terms of service page component.
+ */
+const TosPage = () => {
   const t = useTranslations("Footer");
   const tPrivacy = useTranslations("PrivacyPage");
 
@@ -28,4 +33,4 @@ const PrivacyPage = () => {
   );
 };
 
-export default PrivacyPage;
+export default TosPage;
