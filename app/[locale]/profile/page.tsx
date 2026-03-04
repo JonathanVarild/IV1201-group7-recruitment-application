@@ -12,10 +12,11 @@ import { useEffect, useState } from "react";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { managedFetch } from "@/lib/api";
-import { APIError } from "@/lib/errors/generalErrors";
+import { handleClientError } from "@/lib/utils";
 
 /**
  * Display the profile page with input fields for personal number, email, username and password. Also displays current information about the user.
+ *
  * @returns {JSX.Element} The rendered profile page component.
  */
 const ProfilePage = () => {
@@ -23,6 +24,7 @@ const ProfilePage = () => {
   const router = useRouter();
   const tProfile = useTranslations("ProfilePage");
   const tRegister = useTranslations("RegisterPage");
+  const tErrors = useTranslations("errors");
 
   const [currentUsername, setCurrentUsername] = useState("");
   const [currentEmail, setCurrentEmail] = useState("");
@@ -62,31 +64,23 @@ const ProfilePage = () => {
     resolver: zodResolver(profileSchema),
   });
 
-  const fetchUserData = async () => {
-    try {
-      const response = await fetch("/api/application/getUserDetails", { method: "POST" });
-
-      if (!response.ok) {
-        throw new Error("");
-      }
-
-      const data = await response.json();
-
-      setCurrentUsername(data.userData.username);
-      setCurrentEmail(data.userData.email);
-      setCurrentPnr(data.userData.pnr);
-    } catch (error) {
-      // TODO: Handle error
-      console.error(error);
-    }
-  };
-
   useEffect(() => {
     if (status === AuthStatus.Unauthenticated) {
       router.push("/login");
       return;
     }
     if (status === AuthStatus.Authenticated) {
+      const fetchUserData = async () => {
+        try {
+          const data = await managedFetch<{ userData: { username: string; email: string; pnr: string } }>("/api/application/getUserDetails", { method: "POST" });
+
+          setCurrentUsername(data.userData.username);
+          setCurrentEmail(data.userData.email);
+          setCurrentPnr(data.userData.pnr);
+        } catch (error) {
+          handleClientError(error, tErrors);
+        }
+      };
       fetchUserData();
     }
   }, [status, router]);
@@ -108,13 +102,7 @@ const ProfilePage = () => {
       alert(tProfile("updateSuccess"));
       refreshAuth();
     } catch (error) {
-      if (error instanceof APIError) {
-        const data = error.jsonData as { error?: string };
-        alert(data.error || tProfile("unknownError"));
-      } else {
-        console.error(error);
-        alert(tProfile("unexpectedError"));
-      }
+      handleClientError(error, tErrors);
     }
   };
 
