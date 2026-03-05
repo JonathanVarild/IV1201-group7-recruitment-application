@@ -60,6 +60,7 @@ const ApplyPage = () => {
     addAvailabilityRange,
     removeAvailabilityRange,
     submitApplication,
+    clearApplication,
   } = useApplyPageData({
     locale,
     status,
@@ -125,7 +126,8 @@ const ApplyPage = () => {
     return parsedDate.toLocaleString(locale);
   };
 
-  const cancelApplication = () => {
+  const cancelApplication = async () => {
+    await clearApplication();
     alert(t("cancelApplication"));
     router.push("/");
   };
