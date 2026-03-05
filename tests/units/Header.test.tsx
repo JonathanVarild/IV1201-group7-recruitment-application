@@ -36,7 +36,6 @@ describe("Header", () => {
     const nav = container.querySelector("nav");
     expect(nav).toBeInTheDocument();
     expect(nav?.querySelector('a[href="/"]')).toBeInTheDocument();
-    expect(nav?.querySelector('a[href="/about"]')).toBeInTheDocument();
     expect(nav?.querySelector('a[href="/login"]')).toBeInTheDocument();
     expect(nav?.querySelector('a[href="/register"]')).toBeInTheDocument();
   });

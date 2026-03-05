@@ -5,7 +5,6 @@
   "Nav": {
     "home": "Home",
     "apply": "Apply",
-    "about": "About us",
     "login": "Login",
     "register": "Register",
     "logout": "Logout",
@@ -192,6 +191,9 @@
     "invalidSessionError": "Your session has expired. Please log in again.",
     "invalidFormDataError": "The form data you provided is invalid. Please check and try again.",
     "conflictingSignupDataError": "A user with this personal number, email, or username already exists. Please use different information."
+  },
+  "PrivacyPage": {
+    "effectiveDate": "Effective date"
   },
   "mockEmail": {
     "from": "From",

@@ -5,7 +5,6 @@
   "Nav": {
     "home": "Hem",
     "apply": "Ansök",
-    "about": "Om oss",
     "login": "Logga in",
     "register": "Registrera",
     "logout": "Logga ut",
@@ -192,6 +191,9 @@
     "invalidSessionError": "Din session har gått ut. Vänligen logga in igen.",
     "invalidFormDataError": "Angiven formulärsdata är ogiltig. Kontrollera och försök igen.",
     "conflictingSignupDataError": "En användare med detta personnummer, e-post eller användarnamn finns redan. Vänligen använd annan information."
+  },
+  "PrivacyPage": {
+    "effectiveDate": "Gäller från och med"
   },
   "mockEmail": {
     "from": "Från",
