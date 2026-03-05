@@ -125,6 +125,11 @@ const ApplyPage = () => {
     return parsedDate.toLocaleString(locale);
   };
 
+  const cancelApplication = () => {
+    alert(t("cancelApplication"));
+    router.push("/");
+  };
+
   return (
     <div className="container mx-auto max-w-md space-y-5 py-10">
       <Card className="p-6">
@@ -267,9 +272,14 @@ const ApplyPage = () => {
                 ))}
               </Card>
 
-              <Button type="button" className="w-full" onClick={submitApplication} disabled={isLoadingData || hasLoadError || isSubmittingApplication}>
-                {isSubmittingApplication ? t("submitting") : t("submitButton")}
-              </Button>
+              <div className="text-center">
+                <Button type="button" className="w-full" onClick={submitApplication} disabled={isLoadingData || hasLoadError || isSubmittingApplication}>
+                  {isSubmittingApplication ? t("submitting") : t("submitButton")}
+                </Button>
+                <Button type="button" className="w-1/2" onClick={cancelApplication}>
+                  Cancel
+                </Button>
+              </div>
             </>
           )}
         </>

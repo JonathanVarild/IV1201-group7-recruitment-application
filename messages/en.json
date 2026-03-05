@@ -146,7 +146,8 @@
     },
     "submitButton": "Submit application",
     "submitting": "Submitting...",
-    "submitSuccess": "Application submitted."
+    "submitSuccess": "Application submitted.",
+    "cancelApplication": "Your application has been cleared."
   },
   "AdminPage": {
     "title": "Admin Tool for Recruitment Applications",
