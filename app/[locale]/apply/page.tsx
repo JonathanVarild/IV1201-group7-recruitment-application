@@ -60,6 +60,7 @@ const ApplyPage = () => {
     addAvailabilityRange,
     removeAvailabilityRange,
     submitApplication,
+    clearApplication,
   } = useApplyPageData({
     locale,
     status,
@@ -123,6 +124,12 @@ const ApplyPage = () => {
     }
 
     return parsedDate.toLocaleString(locale);
+  };
+
+  const cancelApplication = async () => {
+    await clearApplication();
+    alert(t("cancelApplication"));
+    router.push("/");
   };
 
   return (
@@ -267,9 +274,14 @@ const ApplyPage = () => {
                 ))}
               </Card>
 
-              <Button type="button" className="w-full" onClick={submitApplication} disabled={isLoadingData || hasLoadError || isSubmittingApplication}>
-                {isSubmittingApplication ? t("submitting") : t("submitButton")}
-              </Button>
+              <div className="text-center">
+                <Button type="button" className="w-full" onClick={submitApplication} disabled={isLoadingData || hasLoadError || isSubmittingApplication}>
+                  {isSubmittingApplication ? t("submitting") : t("submitButton")}
+                </Button>
+                <Button type="button" className="w-1/2" onClick={cancelApplication}>
+                  Cancel
+                </Button>
+              </div>
             </>
           )}
         </>

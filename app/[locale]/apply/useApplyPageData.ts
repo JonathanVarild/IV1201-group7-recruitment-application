@@ -522,6 +522,34 @@ export const useApplyPageData = ({ locale, status, onUnauthorized, messages }: U
     }
   };
 
+  const clearApplication = async () => {
+    for (const competence of addedCompetences) {
+      const competenceProfileID = normalizeId(competence.competenceProfileID);
+      if (competenceProfileID == null) continue;
+
+      await managedFetch("/api/application/deleteUserCompetence", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ competenceProfileID }),
+      });
+    }
+    for (const range of availabilityRanges) {
+      const availabilityID = normalizeId(range.availabilityID);
+      if (availabilityID == null) continue;
+
+      await managedFetch("/api/application/deleteUserAvailability", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ availabilityID }),
+      });
+    }
+    setAddedCompetences([]);
+    setAvailabilityRanges([]);
+    setSelectedCompetenceID(null);
+    setYearsInput("");
+    setSelectedAvailability(undefined);
+  };
+
   return {
     userData,
     selectableCompetences,
@@ -547,5 +575,6 @@ export const useApplyPageData = ({ locale, status, onUnauthorized, messages }: U
     addAvailabilityRange,
     removeAvailabilityRange,
     submitApplication,
+    clearApplication,
   };
 };
