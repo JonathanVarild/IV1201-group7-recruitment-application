@@ -3,7 +3,7 @@ import { render, screen, fireEvent, cleanup, waitFor } from "@testing-library/re
 import ApplicationBoard from "../../app/[locale]/admin/ApplicationBoard";
 import { ApplicationFullInformation } from "@/lib/types/applicationType";
 
-vi.mock("../../app/[locale]/application/ApplicationCard", () => ({
+vi.mock("../../app/[locale]/admin/ApplicationCard", () => ({
   default: ({ applicationFullInformation }: { applicationFullInformation: ApplicationFullInformation }) => (
     <div data-testid={`app-card-${applicationFullInformation.id}`}>
       {applicationFullInformation.name.firstName} {applicationFullInformation.name.lastName}
@@ -191,5 +191,200 @@ describe("ApplicationBoard", () => {
 
     // Load more buttons should not be visible
     expect(screen.queryByText(/loadMore/)).not.toBeInTheDocument();
+  });
+
+  it("does not render load more button when column has no more items", () => {
+    const fetchSpy = vi.spyOn(global, "fetch");
+
+    render(
+      <ApplicationBoard
+        initialData={{
+          unhandled: {
+            applications: [
+              {
+                id: "unhandled-1",
+                name: { firstName: "User1", lastName: "Test" },
+                username: "user1",
+                email: "user1@example.com",
+                applicationDate: "2024-01-01",
+                status: "unhandled",
+                answers: [],
+              },
+            ],
+            total: 1,
+            hasMore: false,
+          },
+          accepted: {
+            applications: [],
+            total: 0,
+            hasMore: false,
+          },
+          rejected: {
+            applications: [],
+            total: 0,
+            hasMore: false,
+          },
+        }}
+      />,
+    );
+
+    expect(screen.queryByRole("button", { name: /loadMore/i })).not.toBeInTheDocument();
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it("disables load more button while loading and prevents duplicate requests", async () => {
+    let resolveFetch: ((response: Response) => void) | undefined;
+    const fetchSpy = vi.spyOn(global, "fetch").mockImplementationOnce(
+      () =>
+        new Promise<Response>((resolve) => {
+          resolveFetch = resolve;
+        }),
+    );
+
+    const initialUnhandled: ApplicationFullInformation[] = Array.from({ length: 5 }, (_, i) => ({
+      id: `unhandled-${i + 1}`,
+      name: { firstName: `User${i + 1}`, lastName: "Test" },
+      username: `user${i + 1}`,
+      email: `user${i + 1}@example.com`,
+      applicationDate: "2024-01-01",
+      status: "unhandled",
+      answers: [],
+    }));
+
+    render(
+      <ApplicationBoard
+        initialData={{
+          unhandled: {
+            applications: initialUnhandled,
+            total: 7,
+            hasMore: true,
+          },
+          accepted: {
+            applications: [],
+            total: 0,
+            hasMore: false,
+          },
+          rejected: {
+            applications: [],
+            total: 0,
+            hasMore: false,
+          },
+        }}
+      />,
+    );
+
+    const loadMoreButton = screen.getByRole("button", { name: /loadMore/i });
+    fireEvent.click(loadMoreButton);
+
+    expect(loadMoreButton).toBeDisabled();
+    fireEvent.click(loadMoreButton);
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+
+    resolveFetch?.({
+      ok: true,
+      json: async () => ({
+        applications: [
+          {
+            id: "unhandled-6",
+            name: { firstName: "User6", lastName: "Test" },
+            username: "user6",
+            email: "user6@example.com",
+            applicationDate: "2024-01-02",
+            status: "unhandled",
+            answers: [],
+          },
+          {
+            id: "unhandled-7",
+            name: { firstName: "User7", lastName: "Test" },
+            username: "user7",
+            email: "user7@example.com",
+            applicationDate: "2024-01-03",
+            status: "unhandled",
+            answers: [],
+          },
+        ],
+        total: 7,
+        hasMore: false,
+      }),
+    } as Response);
+
+    await waitFor(() => {
+      expect(screen.getByText("User6 Test")).toBeInTheDocument();
+      expect(screen.getByText("User7 Test")).toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: /loadMore/i })).not.toBeInTheDocument();
+    });
+  });
+
+  it("syncs board state when initialData changes", async () => {
+    const { rerender } = render(
+      <ApplicationBoard
+        initialData={{
+          unhandled: {
+            applications: [
+              {
+                id: "unhandled-1",
+                name: { firstName: "User1", lastName: "Test" },
+                username: "user1",
+                email: "user1@example.com",
+                applicationDate: "2024-01-01",
+                status: "unhandled",
+                answers: [],
+              },
+            ],
+            total: 1,
+            hasMore: false,
+          },
+          accepted: {
+            applications: [],
+            total: 0,
+            hasMore: false,
+          },
+          rejected: {
+            applications: [],
+            total: 0,
+            hasMore: false,
+          },
+        }}
+      />,
+    );
+
+    expect(screen.getByText("User1 Test")).toBeInTheDocument();
+
+    rerender(
+      <ApplicationBoard
+        initialData={{
+          unhandled: {
+            applications: [],
+            total: 0,
+            hasMore: false,
+          },
+          accepted: {
+            applications: [
+              {
+                id: "accepted-1",
+                name: { firstName: "Updated", lastName: "User" },
+                username: "updateduser",
+                email: "updated@example.com",
+                applicationDate: "2024-01-02",
+                status: "accepted",
+                answers: [],
+              },
+            ],
+            total: 1,
+            hasMore: false,
+          },
+          rejected: {
+            applications: [],
+            total: 0,
+            hasMore: false,
+          },
+        }}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByText("User1 Test")).not.toBeInTheDocument();
+      expect(screen.getByText("Updated User")).toBeInTheDocument();
+    });
   });
 });
