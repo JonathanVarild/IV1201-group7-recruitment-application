@@ -3,6 +3,7 @@ import { deleteHashedResetToken, getUserIdByToken, validateResetToken } from "@/
 import { InvalidFormDataError } from "@/lib/errors/generalErrors";
 import { ConflictingSignupDataError } from "@/lib/errors/signupErrors";
 import { NextResponse } from "next/server";
+import { InvalidResetTokenError } from "@/lib/errors/resetCredentialErrors";
 
 /**
  * Validates the reset token exists and has not expired. Then updates the user profile.
@@ -30,6 +31,7 @@ export async function PUT(request: Request) {
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
     if (error instanceof ConflictingSignupDataError) return NextResponse.json({ error: error.message, translationKey: error.translationKey }, { status: 409 });
+    else if (error instanceof InvalidResetTokenError) return NextResponse.json({ error: error.message, translationKey: error.translationKey }, { status: 401 });
     else if (error instanceof InvalidFormDataError) return NextResponse.json({ error: error.message, translationKey: error.translationKey }, { status: 400 });
     else {
       console.error("Unexpected error during updatecredentials:", error);

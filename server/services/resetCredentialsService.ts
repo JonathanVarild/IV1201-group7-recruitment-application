@@ -1,4 +1,5 @@
-import { getDatabaseClient } from "@/lib/database";
+import { getDatabaseClient, pool } from "@/lib/database";
+import { InvalidResetTokenError } from "@/lib/errors/resetCredentialErrors";
 import { createHash } from "crypto";
 
 /**
@@ -83,20 +84,19 @@ export async function deleteHashedResetToken(userId: number) {
  *
  * @param token the given reset token
  * @returns the token id, or undefined
+ * @throws {InvalidResetTokenError} if the token is invalid or expired
  */
 export async function validateResetToken(token: string): Promise<number> {
-  const databaseClient = await getDatabaseClient();
-  try {
-    const hashedToken = createHash("sha256").update(token).digest("hex");
-    const result = await databaseClient.query(
-      `SELECT token_id FROM password_reset_token 
+  const hashedToken = createHash("sha256").update(token).digest("hex");
+  const result = await pool.query(
+    `SELECT token_id FROM password_reset_token 
        WHERE token_hash = $1 AND expires_at >= NOW()`,
-      [hashedToken],
-    );
-    return result.rows[0].token_id;
-  } finally {
-    databaseClient.release();
+    [hashedToken],
+  );
+  if (!result.rows[0]) {
+    throw new InvalidResetTokenError();
   }
+  return result.rows[0].token_id;
 }
 
 /**
@@ -104,18 +104,17 @@ export async function validateResetToken(token: string): Promise<number> {
  *
  * @param token the given reset token
  * @returns the person id of the user found, or undefined
+ * @throws {InvalidResetTokenError} if the token is invalid or expired
  */
 export async function getUserIdByToken(token: string): Promise<number> {
-  const databaseClient = await getDatabaseClient();
-  try {
-    const hashedToken = createHash("sha256").update(token).digest("hex");
-    const result = await databaseClient.query(
-      `SELECT person_id FROM password_reset_token 
+  const hashedToken = createHash("sha256").update(token).digest("hex");
+  const result = await pool.query(
+    `SELECT person_id FROM password_reset_token 
        WHERE token_hash = $1 AND expires_at >= NOW()`,
-      [hashedToken],
-    );
-    return result.rows[0].person_id;
-  } finally {
-    databaseClient.release();
+    [hashedToken],
+  );
+  if (!result.rows[0]) {
+    throw new InvalidResetTokenError();
   }
+  return result.rows[0].person_id;
 }
