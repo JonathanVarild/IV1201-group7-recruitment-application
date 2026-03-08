@@ -83,7 +83,7 @@ const ProfilePage = () => {
       };
       fetchUserData();
     }
-  }, [status, router]);
+  }, [status, router, tErrors]);
 
   const onSubmit = async (data: ProfileFormData) => {
     try {
