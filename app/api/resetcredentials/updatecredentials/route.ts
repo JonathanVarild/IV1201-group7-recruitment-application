@@ -15,18 +15,18 @@ export async function PUT(request: Request) {
   try {
     const { token, ...updateData } = await request.json();
 
-    const tokenId = await validateResetToken(token);
+    const tokenId = await validateResetToken(token, request);
     if (!tokenId) {
       return NextResponse.json({ error: "Token är ogiltig eller har gått ut" }, { status: 404 });
     }
 
-    const userId = await getUserIdByToken(token);
+    const userId = await getUserIdByToken(token, request);
     if (!userId) {
       return NextResponse.json({ error: "Token är ogiltig eller har gått ut" }, { status: 404 });
     }
 
     await updateUserProfile(userId, updateData);
-    await deleteHashedResetToken(userId);
+    await deleteHashedResetToken(userId, request);
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
