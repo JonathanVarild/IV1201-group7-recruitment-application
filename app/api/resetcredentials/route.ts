@@ -9,7 +9,7 @@ import { createHash, randomBytes } from "crypto";
  */
 export async function POST(request: Request) {
   const { email } = await request.json();
-  const userId = await getPersonIdByEmail(email);
+  const userId = await getPersonIdByEmail(email, request);
 
   if (!userId) {
     return Response.json({ error: "Email is not registered" }, { status: 404 });
@@ -18,7 +18,7 @@ export async function POST(request: Request) {
   const resetToken = randomBytes(14).toString("hex");
   const hashedResetToken = createHash("sha256").update(resetToken).digest("hex");
 
-  await saveHashedResetToken(hashedResetToken, userId);
+  await saveHashedResetToken(hashedResetToken, userId, request);
 
   return Response.json({ token: resetToken });
 }

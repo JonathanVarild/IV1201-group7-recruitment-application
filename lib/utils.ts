@@ -15,9 +15,9 @@ export function cn(...inputs: ClassValue[]) {
 export function handleClientError(error: unknown, errorT: (key: string) => string) {
   if (error instanceof APIError) {
     const data = error.jsonData as { error?: string; translationKey?: string };
-    alert(data.translationKey ? errorT(data.translationKey) : data.error || errorT("errors.unknownError"));
+    alert(data.translationKey ? errorT(data.translationKey) : data.error || errorT("unknownError"));
   } else {
     console.error(error);
-    alert(errorT("errors.unknownError"));
+    alert(errorT("unknownError"));
   }
 }

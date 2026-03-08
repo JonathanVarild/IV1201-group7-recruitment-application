@@ -2,7 +2,7 @@ import { InvalidSessionError } from "@/lib/errors/authErrors";
 import { ConflictingApplicationError } from "@/lib/errors/applicationErrors";
 import { InvalidFormDataError } from "@/lib/errors/generalErrors";
 import { getAuthenticatedUserData } from "@/lib/session";
-import { registerApplication } from "@/server/services/applicationService";
+import { registerApplication, validateNoUnhandledApplication } from "@/server/services/applicationService";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -17,6 +17,9 @@ export async function POST(request: Request) {
   try {
     // Get authenticated user data.
     const userData = await getAuthenticatedUserData();
+
+    // Ensure the user does not have an active application.
+    await validateNoUnhandledApplication(userData.id);
 
     // Register a new application for the authenticated user.
     const applicationID = await registerApplication(userData.id, request);

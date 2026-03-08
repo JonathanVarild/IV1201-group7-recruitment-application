@@ -10,7 +10,7 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   try {
     const { token } = await request.json();
-    const tokenId = await validateResetToken(token);
+    const tokenId = await validateResetToken(token, request);
 
     if (!tokenId) {
       return NextResponse.json({ error: "Token is not available or out of time" }, { status: 404 });
