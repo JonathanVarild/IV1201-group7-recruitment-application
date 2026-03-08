@@ -218,6 +218,7 @@
       "passwordLowercase": "Password must contain at least one lowercase letter",
       "passwordNumber": "Password must contain at least one number"
     },
+    "invalidToken": "The reset link is invalid or has expired.",
     "updateSuccess": "Credentials updated successfully"
   }
 }

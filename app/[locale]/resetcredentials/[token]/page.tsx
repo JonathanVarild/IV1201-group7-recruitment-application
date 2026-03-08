@@ -64,13 +64,17 @@ const ResetCredentialsTokenPage = ({ params }: { params: Promise<{ token: string
 
   useEffect(() => {
     const validate = async () => {
-      const res = await fetch("/api/resetcredentials/tokenvalidation", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token }),
-      });
+      try {
+        const res = await fetch("/api/resetcredentials/tokenvalidation", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token }),
+        });
 
-      if (!res.ok) {
+        if (!res.ok) {
+          router.push("/resetcredentials");
+        }
+      } catch {
         router.push("/resetcredentials");
       }
     };
@@ -94,7 +98,7 @@ const ResetCredentialsTokenPage = ({ params }: { params: Promise<{ token: string
       refreshAuth();
       router.push("/login");
     } catch (error) {
-      if (error instanceof APIError && error.statusCode === 400) {
+      if (error instanceof APIError && error.statusCode === 404) {
         alert(t("invalidToken"));
         router.push("/resetcredentials");
       } else {

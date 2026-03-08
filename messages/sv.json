@@ -218,6 +218,7 @@
       "passwordLowercase": "Lösenordet måste innehålla minst en liten bokstav",
       "passwordNumber": "Lösenordet måste innehålla minst en siffra"
     },
+    "invalidToken": "Återställningslänken är ogiltig eller har gått ut.",
     "updateSuccess": "Inloggningsuppgifter uppdaterades"
   }
 }
