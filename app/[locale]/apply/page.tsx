@@ -279,7 +279,7 @@ const ApplyPage = () => {
                   {isSubmittingApplication ? t("submitting") : t("submitButton")}
                 </Button>
                 <Button type="button" className="w-1/2" onClick={cancelApplication}>
-                  Cancel
+                  {t("cancelButton")}
                 </Button>
               </div>
             </>

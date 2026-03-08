@@ -147,7 +147,8 @@
     "submitButton": "Skicka ansökan",
     "submitting": "Skickar...",
     "submitSuccess": "Ansökan har skickats.",
-    "cancelApplication": "Din ansökan har rensats."
+    "cancelApplication": "Din ansökan har rensats.",
+    "cancelButton": "Avbryt"
   },
   "AdminPage": {
     "title": "Adminverktyg för rekryteringsansökningar",
