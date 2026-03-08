@@ -60,6 +60,36 @@ export const registerApplication = async (userID: number, srcRequest: Request): 
 };
 
 /**
+ * Checks whether the user currently has a unhandled application.
+ *
+ * @param userID The ID of the user.
+ * @returns Boolean indicating whether the user has an unhandled application
+ * @throws Will throw an error if the database query fails.
+ */
+export async function hasUnhandledApplication(userID: number): Promise<boolean> {
+  const result = await pool.query(
+    `SELECT 1
+    FROM applications
+    WHERE person_id = $1 AND status = 'unhandled'
+    LIMIT 1`,
+    [userID],
+  );
+
+  return (result.rowCount ?? 0) > 0;
+}
+
+/**
+ * Ensures that the user does not have an unhandled application.
+ *
+ * @param userID The ID of the user.
+ * @throws Will throw a ConflictingApplicationError if the user has an unhandled application.
+ */
+export async function validateNoUnhandledApplication(userID: number): Promise<void> {
+  const userHasUnhandledApplication = await hasUnhandledApplication(userID);
+  if (userHasUnhandledApplication) throw new ConflictingApplicationError();
+}
+
+/**
  * Fetches the full user data for a given user ID, including personal information and role.
  *
  * @param userID The ID of the user to fetch data for.

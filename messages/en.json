@@ -192,6 +192,7 @@
     "invalidSessionError": "Your session has expired. Please log in again.",
     "invalidFormDataError": "The form data you provided is invalid. Please check and try again.",
     "conflictingSignupDataError": "A user with this personal number, email, or username already exists. Please use different information.",
+    "conflictingApplicationError": "You already have an active application.",
     "invalidResetTokenError": "The reset token is invalid or has expired."
   },
   "PrivacyPage": {
