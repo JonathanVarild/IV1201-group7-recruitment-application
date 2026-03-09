@@ -184,6 +184,8 @@
       "answer": "Svar",
       "noCompetences": "Inga kompetenser listade",
       "noAvailability": "Ingen tillgänglighet listad",
+      "years": "år",
+      "availabilityTo": "till",
       "questionsToAnswer": {
         "competences": "Vilka kompetenser har du som gör dig lämpad för den här tjänsten?",
         "availability": "Vad har du för tillgänglighet?"

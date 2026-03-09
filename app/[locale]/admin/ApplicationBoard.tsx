@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { managedFetch } from "@/lib/api";
-import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import ApplicationCard from "./ApplicationCard";
+import { useLocale, useTranslations } from "next-intl";
 import { ApplicationFullInformation } from "@/lib/types/applicationType";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -50,7 +50,7 @@ const createColumnState = (data: Record<ColumnId, PaginatedColumnData>): Record<
  */
 const ApplicationBoard = ({ initialData }: ApplicationBoardProps) => {
   const t = useTranslations("AdminPage.boardColumns");
-  const tDetails = useTranslations("AdminPage.applicationDetails");
+  const locale = useLocale();
 
   const [columnState, setColumnState] = useState<Record<ColumnId, ColumnState>>(createColumnState(initialData));
 
@@ -76,8 +76,7 @@ const ApplicationBoard = ({ initialData }: ApplicationBoardProps) => {
       const query = new URLSearchParams({
         status: columnId,
         offset: String(currentColumn.applications.length),
-        noCompetencesText: tDetails("noCompetences"),
-        noAvailabilityText: tDetails("noAvailability"),
+        locale,
       });
 
       const response = await managedFetch<PaginatedColumnData>(`/api/admin?${query.toString()}`, {

@@ -4,6 +4,9 @@ import { ApplicationFullInformation } from "@/lib/types/applicationType";
 interface GetApplicationsOptions {
   noCompetencesText: string;
   noAvailabilityText: string;
+  yearsText: string;
+  availabilityToText: string;
+  locale: string;
 }
 
 /**
@@ -73,7 +76,8 @@ export async function getApplications(options: GetApplicationsOptions): Promise<
   const client = await getDatabaseClient();
 
   try {
-    const result = await client.query(`
+    const result = await client.query(
+      `
       WITH 
       applications_with_person AS (
         SELECT 
@@ -92,9 +96,10 @@ export async function getApplications(options: GetApplicationsOptions): Promise<
       competences_agg AS (
         SELECT 
           cp.person_id,
-          STRING_AGG(CONCAT(c.name, ' (', cp.years_of_experience, ' years)'), ', ') as competences
+          STRING_AGG(CONCAT(COALESCE(cl.translation, c.name), ' (', cp.years_of_experience, ' ', $1::text, ')'), ', ') as competences
         FROM competence_profile AS cp
         JOIN competence AS c ON cp.competence_id = c.competence_id
+        LEFT JOIN competence_translation cl ON c.competence_id = cl.competence_id AND cl.locale = $3::text
         WHERE c.name IS NOT NULL AND cp.years_of_experience IS NOT NULL
         GROUP BY cp.person_id
       ),
@@ -102,7 +107,7 @@ export async function getApplications(options: GetApplicationsOptions): Promise<
       availability_agg AS (
         SELECT 
           av.person_id,
-          STRING_AGG(CONCAT(av.from_date, ' to ', av.to_date), ', ') as availability
+          STRING_AGG(CONCAT(av.from_date, ' ', $2::text, ' ', av.to_date), ', ') as availability
         FROM availability AS av
         WHERE av.from_date IS NOT NULL AND av.to_date IS NOT NULL
         GROUP BY av.person_id
@@ -122,7 +127,9 @@ export async function getApplications(options: GetApplicationsOptions): Promise<
       LEFT JOIN competences_agg AS comp ON awp.person_id = comp.person_id
       LEFT JOIN availability_agg AS avail ON awp.person_id = avail.person_id
       ORDER BY awp.created_at DESC
-    `);
+    `,
+      [options.yearsText, options.availabilityToText, options.locale],
+    );
 
     return mapApplications(result.rows, options);
   } finally {
@@ -165,9 +172,10 @@ export async function getApplicationsByStatus(options: GetApplicationsOptions, s
         competences_agg AS (
           SELECT 
             cp.person_id,
-            STRING_AGG(CONCAT(c.name, ' (', cp.years_of_experience, ' years)'), ', ') as competences
+            STRING_AGG(CONCAT(COALESCE(cl.translation, c.name), ' (', cp.years_of_experience, ' ', $4::text, ')'), ', ') as competences
           FROM competence_profile AS cp
           JOIN competence AS c ON cp.competence_id = c.competence_id
+          LEFT JOIN competence_translation cl ON c.competence_id = cl.competence_id AND cl.locale = $6::text
           WHERE c.name IS NOT NULL AND cp.years_of_experience IS NOT NULL
           GROUP BY cp.person_id
         ),
@@ -175,7 +183,7 @@ export async function getApplicationsByStatus(options: GetApplicationsOptions, s
         availability_agg AS (
           SELECT 
             av.person_id,
-            STRING_AGG(CONCAT(av.from_date, ' to ', av.to_date), ', ') as availability
+            STRING_AGG(CONCAT(av.from_date, ' ', $5::text, ' ', av.to_date), ', ') as availability
           FROM availability AS av
           WHERE av.from_date IS NOT NULL AND av.to_date IS NOT NULL
           GROUP BY av.person_id
@@ -197,7 +205,7 @@ export async function getApplicationsByStatus(options: GetApplicationsOptions, s
         ORDER BY awp.created_at DESC
         LIMIT $2 OFFSET $3
       `,
-        [status, limit, offset],
+        [status, limit, offset, options.yearsText, options.availabilityToText, options.locale],
       ),
       client.query(
         `

@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { NextRequest, NextResponse } from "next/server";
 import { ApplicationStatus, getApplicationsByStatus } from "@/server/services/adminService";
 
@@ -18,6 +19,7 @@ export async function GET(request: NextRequest) {
   try {
     const statusParam = request.nextUrl.searchParams.get("status") ?? "";
     const offsetParam = request.nextUrl.searchParams.get("offset") ?? "0";
+    const locale = (request.nextUrl.searchParams.get("locale") ?? "en") as "en" | "sv";
 
     if (!isApplicationStatus(statusParam)) {
       return NextResponse.json({ error: "Invalid status." }, { status: 400 });
@@ -26,13 +28,15 @@ export async function GET(request: NextRequest) {
     const parsedOffset = Number.parseInt(offsetParam, 10);
     const offset = Number.isNaN(parsedOffset) || parsedOffset < 0 ? 0 : parsedOffset;
 
-    const noCompetencesText = request.nextUrl.searchParams.get("noCompetencesText") ?? "No competences listed";
-    const noAvailabilityText = request.nextUrl.searchParams.get("noAvailabilityText") ?? "No availability listed";
+    const tDetails = await getTranslations({ locale, namespace: "AdminPage.applicationDetails" });
 
     const result = await getApplicationsByStatus(
       {
-        noCompetencesText,
-        noAvailabilityText,
+        noCompetencesText: tDetails("noCompetences"),
+        noAvailabilityText: tDetails("noAvailability"),
+        yearsText: tDetails("years"),
+        availabilityToText: tDetails("availabilityTo"),
+        locale,
       },
       statusParam,
       PAGE_SIZE,
