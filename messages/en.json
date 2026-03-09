@@ -1,6 +1,9 @@
 {
   "HomePage": {
-    "title": "Hello there!"
+    "heading": "Gröna Lund 2.0",
+    "subheading": "Send in your application today!",
+    "applyButton": "Apply Now",
+    "loginButton": "Sign In"
   },
   "Nav": {
     "home": "Home",
