@@ -1,8 +1,7 @@
-import { ConflictingApplicationError } from "@/lib/errors/applicationErrors";
 import { InvalidSessionError } from "@/lib/errors/authErrors";
 import { InvalidFormDataError } from "@/lib/errors/generalErrors";
 import { getAuthenticatedUserData } from "@/lib/session";
-import { getFullUserData, getUserAvailability, getUserCompetences, validateNoUnhandledApplication } from "@/server/services/applicationService";
+import { getFullUserData, getUserAvailability, getUserCompetences } from "@/server/services/applicationService";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -18,9 +17,6 @@ export async function POST(request: Request) {
     // Get authenticated user data.
     const userData = await getAuthenticatedUserData();
 
-    // Ensure the user does not have an active application.
-    await validateNoUnhandledApplication(userData.id);
-
     // Get the full user data.
     const fullUserData = await getFullUserData(userData.id, request);
 
@@ -34,9 +30,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ userData: fullUserData, availability: userAvailability, competences: userCompetences }, { status: 200 });
   } catch (error) {
     // Check if there is a conflicting unhandled application and return HTTP 409 (CONFLICT) status.
-    if (error instanceof ConflictingApplicationError) return NextResponse.json({ error: error.message, translationKey: error.translationKey }, { status: 409 });
-    // Check if the form data was invalid and return HTTP 400 (BAD REQUEST) status.
-    else if (error instanceof InvalidFormDataError) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error instanceof InvalidFormDataError) return NextResponse.json({ error: error.message }, { status: 400 });
     // Check if the session was invalid and return HTTP 401 (UNAUTHORIZED) status.
     else if (error instanceof InvalidSessionError) return new NextResponse(null, { status: 401 });
     // Return HTTP 500 (INTERNAL SERVER ERROR) status for any other errors.
