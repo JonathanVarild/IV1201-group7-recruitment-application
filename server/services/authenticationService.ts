@@ -228,45 +228,50 @@ export async function updateUserProfile(userID: number, profileData: Partial<Pro
     throw new InvalidFormDataError();
   }
 
+  // Determine which values to update.
+  const valuesToUpdate: string[] = [];
+  const newValues: string[] = [];
+  let index = 1;
+
+  // If username has been changed
+  if (profileData.username) {
+    valuesToUpdate.push(`username = $${index}`);
+    newValues.push(profileData.username);
+    index++;
+  }
+
+  // If email has been changed
+  if (profileData.email) {
+    valuesToUpdate.push(`email = $${index}`);
+    newValues.push(profileData.email);
+    index++;
+  }
+
+  // If personal number has been changed
+  if (profileData.pnr) {
+    valuesToUpdate.push(`pnr = $${index}`);
+    newValues.push(profileData.pnr);
+    index++;
+  }
+
+  // If password has been changed
+  if (profileData.password) {
+    const newHash = bcrypt.hashSync(profileData.password, 10);
+    valuesToUpdate.push(`password_hash = $${index}`);
+    newValues.push(newHash);
+    index++;
+  }
+
+  // Empty/unchanged payload is a no-op.
+  if (valuesToUpdate.length === 0) {
+    return;
+  }
+
   const databaseClient = await getDatabaseClient();
 
   try {
     // Start transaction.
     await databaseClient.query("BEGIN");
-
-    // Determine which values to update
-    const valuesToUpdate: string[] = [];
-    const newValues: string[] = [];
-    let index = 1;
-
-    // If username has been changed
-    if (profileData.username) {
-      valuesToUpdate.push(`username = $${index}`);
-      newValues.push(profileData.username);
-      index++;
-    }
-
-    // If email has been changed
-    if (profileData.email) {
-      valuesToUpdate.push(`email = $${index}`);
-      newValues.push(profileData.email);
-      index++;
-    }
-
-    // If personal number has been changed
-    if (profileData.pnr) {
-      valuesToUpdate.push(`pnr = $${index}`);
-      newValues.push(profileData.pnr);
-      index++;
-    }
-
-    // If password has been changed
-    if (profileData.password) {
-      const newHash = bcrypt.hashSync(profileData.password, 10);
-      valuesToUpdate.push(`password_hash = $${index}`);
-      newValues.push(newHash);
-      index++;
-    }
 
     const query = `UPDATE person SET ${valuesToUpdate.join(", ")} WHERE person_id = ${userID}`;
 

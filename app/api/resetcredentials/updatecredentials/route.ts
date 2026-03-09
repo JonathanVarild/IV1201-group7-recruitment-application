@@ -4,6 +4,7 @@ import { InvalidFormDataError } from "@/lib/errors/generalErrors";
 import { ConflictingSignupDataError } from "@/lib/errors/signupErrors";
 import { NextResponse } from "next/server";
 import { InvalidResetTokenError } from "@/lib/errors/resetCredentialErrors";
+import { resetCredentialsSchema } from "@/lib/schemas/resetCredentialsDTO";
 
 /**
  * Validates the reset token exists and has not expired. Then updates the user profile.
@@ -13,7 +14,22 @@ import { InvalidResetTokenError } from "@/lib/errors/resetCredentialErrors";
  */
 export async function PUT(request: Request) {
   try {
-    const { token, ...updateData } = await request.json();
+    const requestBody = await request.json();
+    const { token, ...rawUpdateData } = requestBody;
+
+    if (typeof token !== "string" || token.trim().length === 0) {
+      throw new InvalidFormDataError();
+    }
+
+    const parsedUpdateData = resetCredentialsSchema.safeParse(rawUpdateData);
+    if (!parsedUpdateData.success) {
+      throw new InvalidFormDataError();
+    }
+
+    const updateData = parsedUpdateData.data;
+    if (!updateData.username && !updateData.password) {
+      throw new InvalidFormDataError();
+    }
 
     const tokenId = await validateResetToken(token, request);
     if (!tokenId) {
