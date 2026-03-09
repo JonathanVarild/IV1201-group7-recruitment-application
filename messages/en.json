@@ -184,6 +184,8 @@
       "answer": "Answer",
       "noCompetences": "No competences listed",
       "noAvailability": "No availability listed",
+      "years": "years",
+      "availabilityTo": "to",
       "questionsToAnswer": {
         "competences": "What competences do you have that make you suitable for this position?",
         "availability": "What is your availability?"

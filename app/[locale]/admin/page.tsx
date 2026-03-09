@@ -1,9 +1,9 @@
+import { redirect } from "next/navigation";
 import ApplicationBoard from "./ApplicationBoard";
-import { getTranslations } from "next-intl/server";
-import { ApplicationStatus, getApplicationsByStatus, PaginatedApplicationsResult } from "@/server/services/adminService";
+import { getTranslations, getLocale } from "next-intl/server";
 import { requireRecruiter } from "@/server/services/authenticationService";
 import { InvalidSessionError, UnauthorizedError } from "@/lib/errors/authErrors";
-import { redirect } from "next/navigation";
+import { ApplicationStatus, getApplicationsByStatus, PaginatedApplicationsResult } from "@/server/services/adminService";
 
 const STATUSES: ApplicationStatus[] = ["unhandled", "accepted", "rejected"];
 
@@ -30,11 +30,15 @@ const AdminPage = async () => {
 
   const t = await getTranslations("AdminPage");
   const tDetails = await getTranslations("AdminPage.applicationDetails");
+  const locale = await getLocale();
 
   try {
     const options = {
       noCompetencesText: tDetails("noCompetences"),
       noAvailabilityText: tDetails("noAvailability"),
+      yearsText: tDetails("years"),
+      availabilityToText: tDetails("availabilityTo"),
+      locale,
     };
 
     const [unhandled, accepted, rejected] = await Promise.all(STATUSES.map((status) => getApplicationsByStatus(options, status, 5, 0)));
