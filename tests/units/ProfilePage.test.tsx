@@ -1,7 +1,6 @@
-/*import { describe, expect, it, vi, afterEach, beforeEach } from "vitest";
+import { describe, expect, it, vi, afterEach, beforeEach } from "vitest";
 import { render, screen, waitFor, cleanup } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-
 
 vi.mock("../../components/AuthProvider", async () => {
   const actual = await vi.importActual("../../components/AuthProvider");
@@ -11,7 +10,12 @@ vi.mock("../../components/AuthProvider", async () => {
   };
 });
 
+vi.mock("next/navigation", () => ({
+  useRouter: vi.fn(() => ({ push: vi.fn() })),
+}));
+
 import { useAuth, AuthStatus } from "../../components/AuthProvider";
+import { useRouter } from "next/navigation";
 import ProfilePage from "@/app/[locale]/profile/page";
 
 describe("ProfilePage", () => {
@@ -34,18 +38,36 @@ describe("ProfilePage", () => {
           ok: true,
           json: () =>
             Promise.resolve({
-              username: "testuser",
-              email: "test@example.com",
-              pnr: "19900101-1234",
+              userData: {
+                username: "testuser",
+                email: "test@example.com",
+                pnr: "19900101-1234",
+              },
             }),
         }),
       ),
     );
   });
+
   afterEach(() => {
     cleanup();
     vi.clearAllMocks();
     vi.unstubAllGlobals();
+  });
+
+  it("redirects to /login when unauthenticated", async () => {
+    const pushMock = vi.fn();
+    vi.mocked(useRouter).mockReturnValue({ push: pushMock } as unknown as ReturnType<typeof useRouter>);
+    vi.mocked(useAuth).mockReturnValue({
+      status: AuthStatus.Unauthenticated,
+      userData: null,
+      refreshAuth: vi.fn(),
+    });
+
+    render(<ProfilePage />);
+    await waitFor(() => {
+      expect(pushMock).toHaveBeenCalledWith("/login");
+    });
   });
 
   it("renders profile form with all required fields", async () => {
@@ -64,12 +86,9 @@ describe("ProfilePage", () => {
   it("shows current users information", async () => {
     render(<ProfilePage />);
 
-    await waitFor(
-      () => {
-        expect(screen.getByText(/testuser!/i)).toBeInTheDocument();
-      },
-      { timeout: 3000 },
-    );
+    await waitFor(() => {
+      expect(screen.getByRole("heading")).toHaveTextContent("testuser");
+    });
     expect(screen.getByText(/test@example.com/i)).toBeInTheDocument();
     expect(screen.getByText(/19900101-1234/i)).toBeInTheDocument();
   });
@@ -82,12 +101,9 @@ describe("ProfilePage", () => {
       expect(screen.getByRole("button")).toBeInTheDocument();
     });
 
-    const usernameInput = screen.getByLabelText(/username/i);
-    const updateButton = screen.getByRole("button");
-
-    await user.clear(usernameInput);
-    await user.type(usernameInput, "ab");
-    await user.click(updateButton);
+    await user.clear(screen.getByLabelText(/username/i));
+    await user.type(screen.getByLabelText(/username/i), "ab");
+    await user.click(screen.getByRole("button"));
 
     await waitFor(() => {
       expect(screen.getByText("validation.usernameMin")).toBeInTheDocument();
@@ -102,12 +118,9 @@ describe("ProfilePage", () => {
       expect(screen.getByRole("button")).toBeInTheDocument();
     });
 
-    const personalNumberInput = screen.getByLabelText(/pnr/i);
-    const submitButton = screen.getByRole("button");
-
-    await user.clear(personalNumberInput);
-    await user.type(personalNumberInput, "12345");
-    await user.click(submitButton);
+    await user.clear(screen.getByLabelText(/pnr/i));
+    await user.type(screen.getByLabelText(/pnr/i), "12345");
+    await user.click(screen.getByRole("button"));
 
     await waitFor(() => {
       expect(screen.getByText("validation.personalNumberInvalid")).toBeInTheDocument();
@@ -122,12 +135,9 @@ describe("ProfilePage", () => {
       expect(screen.getByRole("button")).toBeInTheDocument();
     });
 
-    const emailInput = screen.getByLabelText(/email/i);
-    const submitButton = screen.getByRole("button");
-
-    await user.clear(emailInput);
-    await user.type(emailInput, "not-an-email");
-    await user.click(submitButton);
+    await user.clear(screen.getByLabelText(/email/i));
+    await user.type(screen.getByLabelText(/email/i), "not-an-email");
+    await user.click(screen.getByRole("button"));
 
     await waitFor(() => {
       expect(screen.getByText("validation.emailInvalid")).toBeInTheDocument();
@@ -142,11 +152,8 @@ describe("ProfilePage", () => {
       expect(screen.getByRole("button")).toBeInTheDocument();
     });
 
-    const passwordInput = screen.getByLabelText(/password/i);
-    const submitButton = screen.getByRole("button");
-
-    await user.type(passwordInput, "weak");
-    await user.click(submitButton);
+    await user.type(screen.getByLabelText(/password/i), "weak");
+    await user.click(screen.getByRole("button"));
 
     await waitFor(() => {
       expect(screen.getByText("validation.passwordMin")).toBeInTheDocument();
@@ -161,16 +168,12 @@ describe("ProfilePage", () => {
       expect(screen.getByRole("button")).toBeInTheDocument();
     });
 
-    const emailInput = screen.getByLabelText(/email/i);
-    const submitButton = screen.getByRole("button");
-
-    await user.clear(emailInput);
-    await user.type(emailInput, "invalid");
-    await user.click(submitButton);
+    await user.clear(screen.getByLabelText(/email/i));
+    await user.type(screen.getByLabelText(/email/i), "invalid");
+    await user.click(screen.getByRole("button"));
 
     await waitFor(() => {
-      expect(emailInput).toHaveAttribute("aria-invalid", "true");
+      expect(screen.getByLabelText(/email/i)).toHaveAttribute("aria-invalid", "true");
     });
   });
 });
-*/
