@@ -1,9 +1,45 @@
 import userEvent from "@testing-library/user-event";
 import RegisterPage from "../../app/[locale]/register/page";
-import { describe, expect, it, afterEach } from "vitest";
+import { vi, describe, expect, it, afterEach, beforeEach } from "vitest";
 import { render, screen, waitFor, cleanup } from "@testing-library/react";
+import { managedFetch } from "@/lib/api";
+import { handleClientError } from "@/lib/utils";
+
+const mockPush = vi.fn();
+const mockRefreshAuth = vi.fn();
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: mockPush,
+  }),
+}));
+
+vi.mock("@/components/AuthProvider", () => ({
+  useAuth: () => ({
+    refreshAuth: mockRefreshAuth,
+  }),
+}));
+
+vi.mock("@/lib/api", () => ({
+  managedFetch: vi.fn(),
+}));
+
+vi.mock("@/lib/utils", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/utils")>();
+  return {
+    ...actual,
+    handleClientError: vi.fn(),
+  };
+});
+
+const mockedManagedFetch = managedFetch as unknown as ReturnType<typeof vi.fn>;
+const mockedHandleClientError = handleClientError as unknown as ReturnType<typeof vi.fn>;
 
 describe("RegisterPage", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   afterEach(() => {
     cleanup();
   });
@@ -112,18 +148,52 @@ describe("RegisterPage", () => {
     });
   });
 
-  it("marks fields as invalid when there are errors", async () => {
+  it("valid signup data and redirects to home on success", async () => {
     const user = userEvent.setup();
+    mockedManagedFetch.mockResolvedValueOnce({ userID: 1 });
     render(<RegisterPage />);
 
-    const emailInput = screen.getByLabelText(/email/i);
-    const submitButton = screen.getByRole("button");
-
-    await user.type(emailInput, "invalid");
-    await user.click(submitButton);
+    await user.type(screen.getByLabelText(/firstName/i), "John");
+    await user.type(screen.getByLabelText(/lastName/i), "Doe");
+    await user.type(screen.getByLabelText(/username/i), "johndoe");
+    await user.type(screen.getByLabelText(/personalNumber/i), "20000101-1234");
+    await user.type(screen.getByLabelText(/email/i), "john@example.com");
+    await user.type(screen.getByLabelText(/^password$/i), "Password123");
+    await user.type(screen.getByLabelText(/confirmPassword/i), "Password123");
+    await user.click(screen.getByRole("button"));
 
     await waitFor(() => {
-      expect(emailInput).toHaveAttribute("aria-invalid", "true");
+      expect(mockedManagedFetch).toHaveBeenCalledWith(
+        "/api/signup",
+        expect.objectContaining({
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        }),
+      );
+      expect(mockPush).toHaveBeenCalledWith("/");
+      expect(mockRefreshAuth).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("handleClientError when signup fails", async () => {
+    const user = userEvent.setup();
+    const signupError = new Error("signup failed");
+    mockedManagedFetch.mockRejectedValueOnce(signupError);
+    render(<RegisterPage />);
+
+    await user.type(screen.getByLabelText(/firstName/i), "John");
+    await user.type(screen.getByLabelText(/lastName/i), "Doe");
+    await user.type(screen.getByLabelText(/username/i), "johndoe");
+    await user.type(screen.getByLabelText(/personalNumber/i), "20000101-1234");
+    await user.type(screen.getByLabelText(/email/i), "john@example.com");
+    await user.type(screen.getByLabelText(/^password$/i), "Password123");
+    await user.type(screen.getByLabelText(/confirmPassword/i), "Password123");
+    await user.click(screen.getByRole("button"));
+
+    await waitFor(() => {
+      expect(mockedHandleClientError).toHaveBeenCalledWith(signupError, expect.any(Function));
+      expect(mockPush).not.toHaveBeenCalled();
+      expect(mockRefreshAuth).not.toHaveBeenCalled();
     });
   });
 });
