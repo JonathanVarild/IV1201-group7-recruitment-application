@@ -1,6 +1,9 @@
 {
   "HomePage": {
-    "title": "Hej där!"
+    "heading": "Gröna Lund 2.0",
+    "subheading": "Bläddra bland lediga tjänster och ansök idag.",
+    "applyButton": "Ansök nu",
+    "loginButton": "Logga in"
   },
   "Nav": {
     "home": "Hem",
