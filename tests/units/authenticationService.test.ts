@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import { getDatabaseClient } from "@/lib/database";
 import { generateSession, getAuthenticatedUserData } from "@/lib/session";
 import { logUserActivity } from "@/lib/logging";
-import { authenticateUser, registerUser, requireRecruiter } from "@/server/services/authenticationService";
+import { authenticateUser, registerUser, requireRecruiter, updateUserProfile } from "@/server/services/authenticationService";
 import { UnauthorizedError, InvalidCredentialsError } from "@/lib/errors/authErrors";
 import { InvalidFormDataError } from "@/lib/errors/generalErrors";
 
@@ -200,5 +200,18 @@ describe("authenticationService", () => {
     });
     expect(mockedLogUserActivity).toHaveBeenCalledWith(client, "INFO", "USER_LOGIN_SUCCESS", expect.any(String), request, 7);
     expect(client.release).toHaveBeenCalledTimes(1);
+  });
+
+  it("updateUserProfile treats empty update payload as no-op", async () => {
+    await expect(
+      updateUserProfile(7, {
+        username: "",
+        email: "",
+        pnr: "",
+        password: "",
+      }),
+    ).resolves.toBeUndefined();
+
+    expect(mockedGetDatabaseClient).not.toHaveBeenCalled();
   });
 });
